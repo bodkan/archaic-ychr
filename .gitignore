@@ -1,0 +1,8 @@
+*.swp
+
+bam/
+figures/
+input/
+tmp/
+*/.ipynb_checkpoints
+*/__pycache__
