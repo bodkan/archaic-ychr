@@ -10,6 +10,7 @@ data_dirs := $(bam_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 targets_bed := $(input_dir)/target_regions.bed
 
 sidron_bam      := $(bam_dir)/sidron_ontarget.bam
+exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
 
@@ -19,7 +20,7 @@ nb_adna_features := $(doc_dir)/analyze_aDNA_features.ipynb
 
 
 
-process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam)
+process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam)
 
 analyze_bams:
 	jupyter nbconvert $(sidron_processing_notebook) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(sidron_processing_notebook)
@@ -32,7 +33,13 @@ $(sidron_bam): $(targets_bed)
 $(den8_bam) $(den8_deam_bam): $(targets_bed)
 	jupyter nbconvert $(nb_den8_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_den8_processing)
 
-
+$(exome_sidron_bam):
+	cd $(tmp_dir); \
+	curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
+	cd ..; \
+	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $(targets_bed) \
+		> $@; \
+	samtools index $@
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
