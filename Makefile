@@ -1,11 +1,14 @@
+SHELL := /bin/bash
+
 doc_dir := doc
 
 bam_dir := bam
+tmp_dir := tmp
 input_dir := input
 figures_dir := figures
 output_dir := output
-tmp_dir := tmp
-data_dirs := $(bam_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
+vcf_dir := vcf
+data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 
 targets_bed := $(input_dir)/target_regions.bed
 
@@ -14,13 +17,19 @@ exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
 
+sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
+
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
 nb_adna_features := $(doc_dir)/analyze_aDNA_features.ipynb
 
+ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
+
 
 
 process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam)
+
+genotype: $(data_dirs) $(sidron_vcf)
 
 analyze_bams:
 	jupyter nbconvert $(sidron_processing_notebook) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(sidron_processing_notebook)
@@ -41,6 +50,12 @@ $(exome_sidron_bam):
 		> $@; \
 	samtools index $@
 
+$(sidron_vcf): $(sidron_bam)
+	samtools mpileup -A -E -u -f $(ref_genome) $< \
+		| bcftools call -m -V indels -Oz \
+		| bcftools reheader -s <(echo "ElSidron" | cat) \
+		> $@
+
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
 
@@ -50,7 +65,7 @@ $(data_dirs):
 
 
 clean:
-	rm -rf $(figures_dir) $(input_dir) $(output_dir)
+	rm -rf $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir)
 
 clean_all:
 	rm -rf $(data_dirs)
