@@ -61,8 +61,8 @@ $(tmp_dir)/A00.bam:
 
 $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -A -E -u -f $(ref_genome) $< \
-		| bcftools call -m -V indels -Oz \
-		| bcftools reheader -s <(echo "ElSidron" | cat) \
+		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "ElSidron"| cat) \
 		> $@; \
 	tabix $@
 
