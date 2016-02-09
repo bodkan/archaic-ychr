@@ -19,6 +19,7 @@ deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
 a00_bam := $(bam_dir)/a00_ontarget.bam
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
+a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
@@ -30,7 +31,7 @@ ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
 
-genotype: $(data_dirs) $(sidron_vcf)
+genotypes: $(data_dirs) $(sidron_vcf) $(a00_vcf)
 
 analyze_bams:
 	jupyter nbconvert $(sidron_processing_notebook) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(sidron_processing_notebook)
@@ -63,6 +64,13 @@ $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -A -E -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) \
+		> $@; \
+	tabix $@
+
+$(a00_vcf): $(a00_bam)
+	samtools mpileup -A -E -u -f $(ref_genome) $< \
+		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "A00"| cat) \
 		> $@; \
 	tabix $@
 
