@@ -16,6 +16,7 @@ sidron_bam      := $(bam_dir)/sidron_ontarget.bam
 exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
+a00_bam := $(bam_dir)/a00_ontarget.bam
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 
@@ -27,7 +28,7 @@ ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 
 
-process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam)
+process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
 
 genotype: $(data_dirs) $(sidron_vcf)
 
@@ -49,6 +50,14 @@ $(exome_sidron_bam):
 	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $(targets_bed) \
 		> $@; \
 	samtools index $@
+
+$(a00_bam): $(tmp_dir)/A00.bam
+	bedtools intersect -a $< -b $(targets_bed) \
+		> $@; \
+	samtools index $@
+
+$(tmp_dir)/A00.bam:
+	cp /mnt/genotyping/sendru/Chiara/validation/A00.bam $@
 
 $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -A -E -u -f $(ref_genome) $< \
