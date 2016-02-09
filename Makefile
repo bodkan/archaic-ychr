@@ -23,19 +23,32 @@ a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
-nb_adna_features := $(doc_dir)/analyze_aDNA_features.ipynb
+nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
+nb_coverage_analysis := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
 
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 
+default:
+	@echo -e "Usage:"
+	@echo -e "\tmake init              -- create all necessary directories"
+	@echo -e "\tmake bam_processing    -- process all BAM files for the analysis"
+	@echo -e "\tmake genotypes         -- run genotyping on all processed BAM files"
+	@echo -e "\tmake ancient_features  -- analyze patterns of ancient DNA damage"
+	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
+
+
+init: $(data_dirs)
 
 process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
 
 genotypes: $(data_dirs) $(sidron_vcf) $(a00_vcf)
 
-analyze_bams:
-	jupyter nbconvert $(sidron_processing_notebook) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(sidron_processing_notebook)
+ancient_features: $(data_dirs)
+	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
 
+coverage_analysis: $(data_dirs)
+	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
 
 
 $(sidron_bam): $(targets_bed)
