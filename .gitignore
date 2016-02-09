@@ -4,5 +4,6 @@ bam/
 figures/
 input/
 tmp/
+vcf/
 */.ipynb_checkpoints
 */__pycache__
