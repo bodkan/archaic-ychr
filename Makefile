@@ -77,14 +77,14 @@ $(tmp_dir)/A00.bam:
 	cp /mnt/genotyping/sendru/Chiara/validation/A00.bam $@
 
 $(sidron_vcf): $(sidron_bam)
-	samtools mpileup -A -E -u -f $(ref_genome) $< \
+	samtools mpileup -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) \
 		> $@; \
 	tabix $@
 
 $(a00_vcf): $(a00_bam)
-	samtools mpileup -A -E -u -f $(ref_genome) $< \
+	samtools mpileup -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00"| cat) \
 		> $@; \
