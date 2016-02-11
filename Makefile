@@ -88,19 +88,19 @@ $(tmp_dir)/A00.bam:
 $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@; \
-	tabix $@
+		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
 $(a00_vcf): $(a00_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "A00"| cat) -o $@; \
-	tabix $@
+		| bcftools reheader -s <(echo -e "A00"| cat) -o $@
 
 $(hum_623_vcf): $(hum_623_bams)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
-		|  bcftools call --ploidy 1 -m -V indels -o $@; \
-	tabix $@
+		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@
+
+$(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
+	tabix $<
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
