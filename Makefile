@@ -29,6 +29,9 @@ nb_coverage_analysis := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 
+.PHONY: default init clean clean_all
+
+
 default:
 	@echo -e "Usage:"
 	@echo -e "\tmake init              -- create all necessary directories"
