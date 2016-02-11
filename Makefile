@@ -22,12 +22,14 @@ hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
+merged_vcf := $(vcf_dir)/merged_ontarget.vcf.gz
 
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
 a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
 hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
+merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
 
-all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
+all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(merged_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi) $(merged_tbi)
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
@@ -101,6 +103,10 @@ $(hum_623_vcf): $(hum_623_bams)
 
 $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 	tabix $<
+
+$(merged_vcf): $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
+	bcftools merge $^ \
+		| bcftools view -m2 -M2 -Oz -o $@
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
