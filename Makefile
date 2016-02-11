@@ -17,9 +17,11 @@ exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
 a00_bam := $(bam_dir)/a00_ontarget.bam
+hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
+hum_623_vcf := /mnt/scratch/mp/hum_623_ontarget.vcf.gz
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
@@ -45,13 +47,14 @@ init: $(data_dirs)
 
 process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
 
-genotypes: $(data_dirs) $(sidron_vcf) $(a00_vcf)
+genotypes: $(data_dirs) $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
 
 coverage_analysis: $(data_dirs)
 	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
+
 
 
 $(sidron_bam): $(targets_bed)
@@ -89,6 +92,10 @@ $(a00_vcf): $(a00_bam)
 		| bcftools reheader -s <(echo -e "A00"| cat) \
 		> $@; \
 	tabix $@
+
+$(hum_623_vcf): $(hum_623_bams)
+	samtools mpileup -A -Q 20 -u -f $(ref_genome) $^ \
+		|  bcftools call --ploidy 1 -m -V indels -o $@
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
