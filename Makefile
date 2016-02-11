@@ -23,6 +23,12 @@ sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 hum_623_vcf := /mnt/scratch/mp/hum_623_ontarget.vcf.gz
 
+sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
+a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
+hum_623_tbi := /mnt/scratch/mp/hum_623_ontarget.vcf.gz.tbi
+
+all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
+
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
 nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
@@ -47,7 +53,7 @@ init: $(data_dirs)
 
 process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
 
-genotypes: $(data_dirs) $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
+genotypes: $(data_dirs) $(all_vcfs)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -82,20 +88,19 @@ $(tmp_dir)/A00.bam:
 $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "ElSidron"| cat) \
-		> $@; \
+		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@; \
 	tabix $@
 
 $(a00_vcf): $(a00_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "A00"| cat) \
-		> $@; \
+		| bcftools reheader -s <(echo -e "A00"| cat) -o $@; \
 	tabix $@
 
 $(hum_623_vcf): $(hum_623_bams)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
-		|  bcftools call --ploidy 1 -m -V indels -o $@
+		|  bcftools call --ploidy 1 -m -V indels -o $@; \
+	tabix $@
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
