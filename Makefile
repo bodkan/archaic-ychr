@@ -21,11 +21,11 @@ hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
-hum_623_vcf := /mnt/scratch/mp/hum_623_ontarget.vcf.gz
+hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
 
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
 a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
-hum_623_tbi := /mnt/scratch/mp/hum_623_ontarget.vcf.gz.tbi
+hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 
 all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
 
