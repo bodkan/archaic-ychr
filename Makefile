@@ -16,8 +16,12 @@ sidron_bam      := $(bam_dir)/sidron_ontarget.bam
 exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
+den4_bam        := $(bam_dir)/den4_ontarget.bam
+deam_den4_bam   := $(bam_dir)/deam_den4_ontarget.bam
 a00_bam := $(bam_dir)/a00_ontarget.bam
 hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
+
+all_bams := $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
@@ -32,7 +36,7 @@ merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
 all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(merged_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi) $(merged_tbi)
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
-nb_den8_processing := $(doc_dir)/processing_of_Denisova_8_data.ipynb
+nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
 nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
 nb_coverage_analysis := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
 
@@ -45,7 +49,7 @@ ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 default:
 	@echo -e "Usage:"
 	@echo -e "\tmake init              -- create all necessary directories"
-	@echo -e "\tmake bam_processing    -- process all BAM files for the analysis"
+	@echo -e "\tmake bams              -- process all BAM files for the analysis"
 	@echo -e "\tmake genotypes         -- run genotyping on all processed BAM files"
 	@echo -e "\tmake ancient_features  -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
@@ -53,7 +57,7 @@ default:
 
 init: $(data_dirs)
 
-process_bams: $(data_dirs) $(sidron_bam) $(den8_bam) $(deam_den8_bam) $(exome_sidron_bam) $(a00_bam)
+bams: $(data_dirs) $(all_bams)
 
 genotypes: $(data_dirs) $(all_vcfs)
 
@@ -68,8 +72,8 @@ coverage_analysis: $(data_dirs)
 $(sidron_bam): $(targets_bed)
 	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing)
 
-$(den8_bam) $(den8_deam_bam): $(targets_bed)
-	jupyter nbconvert $(nb_den8_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_den8_processing)
+$(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) $(targets_bed)
+	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<
 
 $(exome_sidron_bam):
 	cd $(tmp_dir); \
