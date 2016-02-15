@@ -109,9 +109,8 @@ $(hum_623_vcf): $(hum_623_bams)
 $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 	tabix $<
 
-$(merged_vcf): $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
-	bcftools merge $^ \
-		| bcftools view -m2 -M2 -Oz -o $@
+$(merged_vcf): $(all_vcfs) $(all_tbis)
+	bcftools merge -m all $(all_vcfs) -Oz -o $@
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
