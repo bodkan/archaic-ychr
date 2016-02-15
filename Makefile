@@ -33,7 +33,8 @@ a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
 hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
 
-all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) $(merged_vcf) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi) $(merged_tbi)
+all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
+all_tbis :=  $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
@@ -59,7 +60,7 @@ init: $(data_dirs)
 
 bams: $(data_dirs) $(all_bams)
 
-genotypes: $(data_dirs) $(all_vcfs)
+genotypes: $(data_dirs) $(merged_vcf) $(merged_tbi)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
