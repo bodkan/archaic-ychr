@@ -24,11 +24,13 @@ hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission
 all_bams := $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
 
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
+den8_vcf := $(vcf_dir)/den8_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
 merged_vcf := $(vcf_dir)/merged_ontarget.vcf.gz
 
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
+den8_tbi := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
 a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
 hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
@@ -96,6 +98,11 @@ $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
+
+$(den8_vcf): $(den8_bam)
+	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
+		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "Denisova8"| cat) -o $@
 
 $(a00_vcf): $(a00_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
