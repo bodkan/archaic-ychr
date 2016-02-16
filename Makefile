@@ -8,6 +8,7 @@ input_dir := input
 figures_dir := figures
 output_dir := output
 vcf_dir := vcf
+src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 
 targets_bed := $(input_dir)/target_regions.bed
@@ -38,6 +39,8 @@ merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
 all_vcfs := $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
 all_tbis :=  $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
 
+targets_fasta := $(output_dir)/ontarget.fa
+
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
 nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
@@ -63,6 +66,8 @@ init: $(data_dirs)
 bams: $(data_dirs) $(all_bams)
 
 genotypes: $(data_dirs) $(merged_vcf) $(merged_tbi)
+
+fasta: $(targets_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -122,6 +127,9 @@ $(merged_vcf): $(all_vcfs) $(all_tbis)
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
+
+$(targets_fasta): $(merged_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
 
 $(data_dirs):
 	mkdir -p $@
