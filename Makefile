@@ -137,8 +137,14 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs) -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(all_vcfs) \
-		| bcftools view -m2 -M2 -Oz -o $@
+	bcftools merge -m all $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) \
+		| bcftools view -m2 -M2 -Oz -o $@_tmp; \
+	bedtools intersect -a $(chimp_vcf) -b $@_tmp -header | bgzip > $(chimp_vcf)_subset; \
+	tabix $@_tmp; \
+	tabix $(chimp_vcf)_subset; \
+	bcftools merge -m all $(chimp_vcf)_subset $@_tmp \
+		| bcftools view -m2 -M2 -Oz -o $@; \
+	rm $(chimp_vcf)_subset* $@_tmp*
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
