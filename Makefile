@@ -127,7 +127,7 @@ $(hum_623_vcf): $(hum_623_bams)
 		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@
 
 $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
-	tabix $<
+	tabix -f $<
 
 $(merged_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs) \
