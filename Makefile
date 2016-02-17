@@ -44,7 +44,8 @@ merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
 all_vcfs := $(chimp_vcf) $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
 all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
 
-targets_fasta := $(output_dir)/ontarget.fa
+all_fasta := $(output_dir)/merged_all_ontarget.fa
+var_fasta := $(output_dir)/merged_var_ontarget.fa
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
@@ -74,7 +75,7 @@ bams: $(data_dirs) $(all_bams)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
-fasta: $(targets_fasta)
+fasta: $(all_fasta) $(var_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -145,7 +146,7 @@ $(targets_bed):
 $(target_sites): $(targets_bed)
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format POS
 
-$(targets_fasta): $(merged_vcf)
+$(output_dir)/%.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
 
 $(sample_info):
