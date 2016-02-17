@@ -30,14 +30,16 @@ sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 den8_vcf := $(vcf_dir)/den8_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
-merged_vcf := $(vcf_dir)/merged_ontarget.vcf.gz
+merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
+merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
 chimp_tbi := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
 den8_tbi := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
 a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
 hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
-merged_tbi := $(vcf_dir)/merged_ontarget.vcf.gz.tbi
+merged_all_tbi := $(vcf_dir)/merged_all_ontarget.vcf.gz.tbi
+merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
 
 all_vcfs := $(chimp_vcf) $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
 all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
@@ -70,7 +72,7 @@ init: $(data_dirs)
 
 bams: $(data_dirs) $(all_bams)
 
-genotypes: $(data_dirs) $(merged_vcf) $(merged_tbi)
+genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
 fasta: $(targets_fasta)
 
@@ -130,7 +132,10 @@ $(hum_623_vcf): $(hum_623_bams)
 $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 	tabix -f $<
 
-$(merged_vcf): $(all_vcfs) $(all_tbis)
+$(merged_all_vcf): $(all_vcfs) $(all_tbis)
+	bcftools merge -m all $(all_vcfs) -Oz -o $@
+
+$(merged_var_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs) \
 		| bcftools view -m2 -M2 -Oz -o $@
 
