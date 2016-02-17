@@ -104,7 +104,8 @@ $(tmp_dir)/A00.bam:
 	cp /mnt/genotyping/sendru/Chiara/validation/A00.bam $@
 
 $(chimp_vcf): $(targets_sites) $(nb_chimpanzee_genotypes)
-	jupyter nbconvert $(nb_chimpanzee_genotypes) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_chimpanzee_genotypes)
+	jupyter nbconvert $(nb_chimpanzee_genotypes) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_chimpanzee_genotypes); \
+	touch $@
 
 $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
