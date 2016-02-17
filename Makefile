@@ -52,6 +52,7 @@ nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
+sample_info = $(input_dir)/sample_info.tsv
 
 .PHONY: default init clean clean_all
 
@@ -141,6 +142,9 @@ $(target_sites): $(targets_bed)
 
 $(targets_fasta): $(merged_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
+
+$(sample_info):
+	python3 -c "import pandas; df = pandas.read_excel('http://static-content.springer.com/esm/art%3A10.1186%2F2041-2223-5-13/MediaObjects/13323_2014_104_MOESM1_ESM.xlsx', skiprows=6, header=None, parse_cols=[0,1,2]); df.columns = ['name', 'popul', 'region']; df.to_csv('$@', sep='\t', index=False)"
 
 $(data_dirs):
 	mkdir -p $@
