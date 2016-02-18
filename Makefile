@@ -46,6 +46,8 @@ all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
 
 all_fasta := $(output_dir)/merged_all_ontarget.fa
 var_fasta := $(output_dir)/merged_var_ontarget.fa
+all_subset_fasta := $(output_dir)/merged_all_subset_ontarget.fa
+var_subset_fasta := $(output_dir)/merged_var_subset_ontarget.fa
 
 nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
@@ -56,6 +58,7 @@ nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 sample_info = $(input_dir)/sample_info.tsv
+sample_subset := Chimp ElSidron A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
 
 .PHONY: default init clean clean_all
 
@@ -76,7 +79,7 @@ bams: $(data_dirs) $(all_bams)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
-fasta: $(all_fasta) $(var_fasta)
+fasta: $(all_fasta) $(var_fasta) $(all_subset_fasta) $(var_subset_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -153,8 +156,17 @@ $(targets_bed):
 $(target_sites): $(targets_bed)
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format POS
 
-$(output_dir)/%.fa: $(vcf_dir)/%.vcf.gz
+$(all_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
+
+$(var_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
+
+$(all_subset_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_subset)
+
+$(var_subset_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_subset)
 
 $(sample_info):
 	python3 -c "import pandas; df = pandas.read_excel('http://static-content.springer.com/esm/art%3A10.1186%2F2041-2223-5-13/MediaObjects/13323_2014_104_MOESM1_ESM.xlsx', skiprows=6, header=None, parse_cols=[0,1,2]); df.columns = ['name', 'popul', 'region']; df.to_csv('$@', sep='\t', index=False)"
