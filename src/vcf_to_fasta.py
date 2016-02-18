@@ -31,7 +31,8 @@ if not args.sample_names:
 # iterate through the VCF and accumulate called bases for all samples
 samples_dict = defaultdict(list)
 for record in vcf_reader.fetch(args.chrom):
-    for call in record.samples:
+    for sample in args.sample_names:
+        call = record.genotype(sample)
         called_base = call.gt_bases if call.gt_bases else 'N'
         samples_dict[call.sample].append(called_base)
 
