@@ -12,7 +12,7 @@ src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 
 targets_bed := $(input_dir)/target_regions.bed
-target_sites := $(input_dir)/target_sites.pos
+target_sites := $(input_dir)/target_sites.bed
 
 sidron_bam      := $(bam_dir)/sidron_ontarget.bam
 exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
@@ -154,7 +154,7 @@ $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
 
 $(target_sites): $(targets_bed)
-	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format POS
+	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
 
 $(all_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
