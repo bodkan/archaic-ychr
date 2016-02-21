@@ -41,8 +41,8 @@ hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 merged_all_tbi := $(vcf_dir)/merged_all_ontarget.vcf.gz.tbi
 merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
 
-all_vcfs := $(chimp_vcf) $(sidron_vcf) $(a00_vcf) $(hum_623_vcf)
-all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(a00_tbi) $(hum_623_tbi)
+all_vcfs := $(chimp_vcf) $(sidron_vcf) $(den8_vcf) $(a00_vcf) $(hum_623_vcf)
+all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(den8_tbi) $(a00_tbi) $(hum_623_tbi)
 
 all_fasta := $(output_dir)/merged_all_ontarget.fa
 var_fasta := $(output_dir)/merged_var_ontarget.fa
@@ -120,10 +120,13 @@ $(sidron_vcf): $(sidron_bam)
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
-$(den8_vcf): $(den8_bam)
-	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
-		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "Denisova8"| cat) -o $@
+$(den8_vcf): $(target_regions) $(den8_bam)
+	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+		--bam $(den8_bam) --bed $(targets_bed) \
+		--ref $(ref_genome) --format VCF --sample-name Den8 \
+		--sampling-method random \
+	| bgzip \
+	> $@
 
 $(a00_vcf): $(a00_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
@@ -141,7 +144,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs) -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(sidron_vcf) $(a00_vcf) $(hum_623_vcf) \
+	bcftools merge -m all $(sidron_vcf) $(den8_vcf) $(a00_vcf) $(hum_623_vcf) \
 		| bcftools view -m2 -M2 -Oz -o $@_tmp; \
 	bedtools intersect -a $(chimp_vcf) -b $@_tmp -header | bgzip > $(chimp_vcf)_subset; \
 	tabix $@_tmp; \
