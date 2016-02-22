@@ -28,6 +28,7 @@ all_bams := $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den
 chimp_vcf := $(vcf_dir)/chimp_ontarget.vcf.gz
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 den8_vcf := $(vcf_dir)/den8_ontarget.vcf.gz
+deam_den8_vcf := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
 hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
@@ -36,13 +37,14 @@ merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 chimp_tbi := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
 den8_tbi := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
+deam_den8_tbi := $(vcf_dir)/deam_den8_ontarget.vcf.gz.tbi
 a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
 hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 merged_all_tbi := $(vcf_dir)/merged_all_ontarget.vcf.gz.tbi
 merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
 
-all_vcfs := $(chimp_vcf) $(sidron_vcf) $(den8_vcf) $(a00_vcf) $(hum_623_vcf)
-all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(den8_tbi) $(a00_tbi) $(hum_623_tbi)
+all_vcfs := $(chimp_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf)
+all_tbis :=  $(chimp_tbi) $(sidron_tbi) $(den8_tbi) $(deam_den8_tbi) $(a00_tbi) $(hum_623_tbi)
 
 all_fasta := $(output_dir)/merged_all_ontarget.fa
 var_fasta := $(output_dir)/merged_var_ontarget.fa
@@ -129,6 +131,14 @@ $(den8_vcf): $(target_regions) $(den8_bam)
 	| bgzip \
 	> $@
 
+$(deam_den8_vcf): $(target_regions) $(deam_den8_bam)
+	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+		--bam $(deam_den8_bam) --bed $(targets_bed) \
+		--ref $(ref_genome) --format VCF --sample-name Den8_deam \
+		--sampling-method majority \
+	| bgzip \
+	> $@
+
 $(a00_vcf): $(a00_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
@@ -145,7 +155,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs) -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(sidron_vcf) $(den8_vcf) $(a00_vcf) $(hum_623_vcf) \
+	bcftools merge -m all $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf) \
 		| bcftools view -m2 -M2 -Oz -o $@_tmp; \
 	bedtools intersect -a $(chimp_vcf) -b $@_tmp -header | bgzip > $(chimp_vcf)_subset; \
 	tabix $@_tmp; \
