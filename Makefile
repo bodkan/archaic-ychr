@@ -93,7 +93,8 @@ $(sidron_bam): $(targets_bed)
 	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing)
 
 $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) $(targets_bed)
-	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<
+	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<; \
+	touch $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam)
 
 $(exome_sidron_bam):
 	cd $(tmp_dir); \
