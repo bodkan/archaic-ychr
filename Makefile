@@ -153,6 +153,7 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 
 $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs)  \
+		| bcftools view -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
