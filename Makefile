@@ -127,7 +127,7 @@ $(den8_vcf): $(target_regions) $(den8_bam)
 	python3 ~/devel/sample-from-bam/sample_from_bam.py \
 		--bam $(den8_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Den8 \
-		--sampling-method majority \
+		--strand-check USER --sampling-method majority \
 	| bgzip \
 	> $@
 
@@ -135,7 +135,7 @@ $(deam_den8_vcf): $(target_regions) $(deam_den8_bam)
 	python3 ~/devel/sample-from-bam/sample_from_bam.py \
 		--bam $(deam_den8_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Den8_deam \
-		--sampling-method majority \
+		--strand-check USER --sampling-method majority \
 	| bgzip \
 	> $@
 
