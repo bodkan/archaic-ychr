@@ -125,7 +125,7 @@ $(den8_vcf): $(target_regions) $(den8_bam)
 	python3 ~/devel/sample-from-bam/sample_from_bam.py \
 		--bam $(den8_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Den8 \
-		--sampling-method random \
+		--sampling-method majority \
 	| bgzip \
 	> $@
 
