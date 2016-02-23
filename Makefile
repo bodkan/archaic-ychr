@@ -14,6 +14,8 @@ data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(t
 targets_bed := $(input_dir)/target_regions.bed
 target_sites := $(input_dir)/target_sites.bed
 
+mez2_bam := $(bam_dir)/mez2_ontarget.bam
+spy_bam := $(bam_dir)/spy_ontarget.bam
 sidron_bam      := $(bam_dir)/sidron_ontarget.bam
 exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
 den8_bam        := $(bam_dir)/den8_ontarget.bam
@@ -23,9 +25,11 @@ deam_den4_bam   := $(bam_dir)/deam_den4_ontarget.bam
 a00_bam := $(bam_dir)/a00_ontarget.bam
 hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
-all_bams := $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
+all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
 
 chimp_vcf := $(vcf_dir)/chimp_ontarget.vcf.gz
+mez2_vcf := $(vcf_dir)/mez2_ontarget.vcf.gz
+spy_vcf := $(vcf_dir)/spy_ontarget.vcf.gz
 sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
 den8_vcf := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf := $(vcf_dir)/deam_den8_ontarget.vcf.gz
@@ -35,6 +39,8 @@ merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
 chimp_tbi := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
+mez2_tbi := $(vcf_dir)/mez2_ontarget.vcf.gz.tbi
+spy_tbi := $(vcf_dir)/spy_ontarget.vcf.gz.tbi
 sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
 den8_tbi := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
 deam_den8_tbi := $(vcf_dir)/deam_den8_ontarget.vcf.gz.tbi
@@ -90,6 +96,14 @@ coverage_analysis: $(data_dirs)
 	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
 
 
+
+$(mez2_bam): $(targets_bed)
+	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Mezmaiskaya2_final.bam -b $< -sorted \
+		> $@
+
+$(spy_bam): $(targets_bed)
+	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Spy_final.bam -b $< -sorted \
+		> $@
 
 $(sidron_bam): $(targets_bed)
 	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing)
