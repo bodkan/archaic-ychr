@@ -157,9 +157,14 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(all_vcfs) \
+	bcftools merge -m all $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf) \
 		| bcftools view -m2 -M2 \
-		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
+		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
+	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
+	tabix $@_tmp; tabix $(chimp_vcf)_subset; \
+	bcftools merge -m all $(chimp_vcf)_subset $@_tmp \
+		| bcftools view -m2 -M2 -Oz -o $@; \
+	rm $@_tmp $(chimp_vcf)_subset
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
