@@ -68,7 +68,7 @@ bam_sample := ~/devel/bam-utils/bam-sample.py
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 sample_info = $(input_dir)/sample_info.tsv
-sample_subset := Chimp ElSidron Den8 A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+sample_subset := Chimp ElSidron Mez2 Spy A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
 
 .PHONY: default init clean clean_all
 
