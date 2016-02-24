@@ -63,6 +63,8 @@ nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
 nb_coverage_analysis := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
 nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 
+bam_sample := ~/devel/bam-utils/bam-sample.py
+
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 sample_info = $(input_dir)/sample_info.tsv
@@ -138,34 +140,34 @@ $(sidron_vcf): $(sidron_bam)
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
 $(mez2_vcf): $(target_regions) $(mez2_bam)
-	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+	python3 $(bam_sample) \
 		--bam $(mez2_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Mez2 \
-		--strand-check USER --sampling-method majority \
+		--strand-check USER --method majority \
 	| bgzip \
 	> $@
 
 $(spy_vcf): $(target_regions) $(spy_bam)
-	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+	python3 $(bam_sample) \
 		--bam $(spy_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Spy \
-		--strand-check USER --sampling-method majority \
+		--strand-check USER --method majority \
 	| bgzip \
 	> $@
 
 $(den8_vcf): $(target_regions) $(den8_bam)
-	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+	python3 $(bam_sample) \
 		--bam $(den8_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Den8 \
-		--strand-check USER --sampling-method majority \
+		--strand-check USER --method majority \
 	| bgzip \
 	> $@
 
 $(deam_den8_vcf): $(target_regions) $(deam_den8_bam)
-	python3 ~/devel/sample-from-bam/sample_from_bam.py \
+	python3 $(bam_sample) \
 		--bam $(deam_den8_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Den8_deam \
-		--strand-check USER --sampling-method majority \
+		--strand-check USER --method majority \
 	| bgzip \
 	> $@
 
