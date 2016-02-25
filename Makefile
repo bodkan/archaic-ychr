@@ -143,7 +143,7 @@ $(mez2_vcf): $(target_regions) $(mez2_bam)
 	python3 $(bam_sample) \
 		--bam $(mez2_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Mez2 \
-		--strand-check USER --method majority \
+		--strand-check non-USER_all --method majority \
 	| bgzip \
 	> $@
 
@@ -151,7 +151,7 @@ $(spy_vcf): $(target_regions) $(spy_bam)
 	python3 $(bam_sample) \
 		--bam $(spy_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name Spy \
-		--strand-check USER --method majority \
+		--strand-check non-USER_all --method majority \
 	| bgzip \
 	> $@
 
