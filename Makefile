@@ -196,7 +196,7 @@ $(merged_var_vcf): $(all_vcfs) $(all_tbis)
 	tabix $@_tmp; tabix $(chimp_vcf)_subset; \
 	bcftools merge -m all $(chimp_vcf)_subset $@_tmp \
 		| bcftools view -m2 -M2 -Oz -o $@; \
-	rm $@_tmp $(chimp_vcf)_subset
+	rm $@_tmp $(chimp_vcf)_subset $@_tmp.tbi $(chimp_vcf)_subset.tbi
 
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
