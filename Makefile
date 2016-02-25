@@ -1,7 +1,9 @@
 SHELL := /bin/bash
 
+#
+# directories
+#
 doc_dir := doc
-
 bam_dir := bam
 tmp_dir := tmp
 input_dir := input
@@ -11,64 +13,90 @@ vcf_dir := vcf
 src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 
-targets_bed := $(input_dir)/target_regions.bed
-target_sites := $(input_dir)/target_sites.bed
+#
+# BAM files
+#
+mez2_bam         := $(bam_dir)/mez2_ontarget.bam
+spy_bam          := $(bam_dir)/spy_ontarget.bam
+sidron_bam       := $(bam_dir)/sidron_ontarget.bam
+exome_sidron_bam := $(bam_dir)/exome_sidron_ontarget.bam
 
-mez2_bam := $(bam_dir)/mez2_ontarget.bam
-spy_bam := $(bam_dir)/spy_ontarget.bam
-sidron_bam      := $(bam_dir)/sidron_ontarget.bam
-exome_sidron_bam      := $(bam_dir)/exome_sidron_ontarget.bam
-den8_bam        := $(bam_dir)/den8_ontarget.bam
-deam_den8_bam   := $(bam_dir)/deam_den8_ontarget.bam
-den4_bam        := $(bam_dir)/den4_ontarget.bam
-deam_den4_bam   := $(bam_dir)/deam_den4_ontarget.bam
-a00_bam := $(bam_dir)/a00_ontarget.bam
-hum_623_bams := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
+den8_bam         := $(bam_dir)/den8_ontarget.bam
+deam_den8_bam    := $(bam_dir)/deam_den8_ontarget.bam
+den4_bam         := $(bam_dir)/den4_ontarget.bam
+deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
+
+a00_bam          := $(bam_dir)/a00_ontarget.bam
+hum_623_bams     := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
 all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
 
-chimp_vcf := $(vcf_dir)/chimp_ontarget.vcf.gz
-mez2_vcf := $(vcf_dir)/mez2_ontarget.vcf.gz
-spy_vcf := $(vcf_dir)/spy_ontarget.vcf.gz
-sidron_vcf := $(vcf_dir)/sidron_ontarget.vcf.gz
-den8_vcf := $(vcf_dir)/den8_ontarget.vcf.gz
-deam_den8_vcf := $(vcf_dir)/deam_den8_ontarget.vcf.gz
-a00_vcf := $(vcf_dir)/a00_ontarget.vcf.gz
-hum_623_vcf := $(vcf_dir)/hum_623_ontarget.vcf.gz
+#
+# VCF files
+#
+chimp_vcf      := $(vcf_dir)/chimp_ontarget.vcf.gz
+
+mez2_vcf       := $(vcf_dir)/mez2_ontarget.vcf.gz
+spy_vcf        := $(vcf_dir)/spy_ontarget.vcf.gz
+sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
+
+den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
+deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
+
+a00_vcf        := $(vcf_dir)/a00_ontarget.vcf.gz
+hum_623_vcf    := $(vcf_dir)/hum_623_ontarget.vcf.gz
+
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-chimp_tbi := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
-mez2_tbi := $(vcf_dir)/mez2_ontarget.vcf.gz.tbi
-spy_tbi := $(vcf_dir)/spy_ontarget.vcf.gz.tbi
-sidron_tbi := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
-den8_tbi := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
-deam_den8_tbi := $(vcf_dir)/deam_den8_ontarget.vcf.gz.tbi
-a00_tbi := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
-hum_623_tbi := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
+#
+# Tabix index files
+#
+chimp_tbi      := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
+mez2_tbi       := $(vcf_dir)/mez2_ontarget.vcf.gz.tbi
+spy_tbi        := $(vcf_dir)/spy_ontarget.vcf.gz.tbi
+sidron_tbi     := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
+den8_tbi       := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
+deam_den8_tbi  := $(vcf_dir)/deam_den8_ontarget.vcf.gz.tbi
+a00_tbi        := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
+hum_623_tbi    := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
 merged_all_tbi := $(vcf_dir)/merged_all_ontarget.vcf.gz.tbi
 merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
 
 all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf)
 all_tbis :=  $(chimp_tbi) $(mez2_tbi) $(spy_tbi) $(sidron_tbi) $(den8_tbi) $(deam_den8_tbi) $(a00_tbi) $(hum_623_tbi)
 
-all_fasta := $(output_dir)/merged_all_ontarget.fa
-var_fasta := $(output_dir)/merged_var_ontarget.fa
+#
+# FASTA files
+#
+fasta_subset := Chimp ElSidron Mez2 Spy A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+
+all_fasta        := $(output_dir)/merged_all_ontarget.fa
+var_fasta        := $(output_dir)/merged_var_ontarget.fa
 all_subset_fasta := $(output_dir)/merged_all_subset_ontarget.fa
 var_subset_fasta := $(output_dir)/merged_var_subset_ontarget.fa
 
-nb_sidron_processing := $(doc_dir)/processing_of_El_Sidron_data.ipynb
-nb_den_processing := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
-nb_ancient_features := $(doc_dir)/aDNA_features_analysis.ipynb
-nb_coverage_analysis := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
+nb_sidron_processing    := $(doc_dir)/processing_of_El_Sidron_data.ipynb
+nb_den_processing       := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
+nb_ancient_features     := $(doc_dir)/aDNA_features_analysis.ipynb
+nb_coverage_analysis    := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
 nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 
+#
+# scripts and binaries
+#
 bam_sample := ~/devel/bam-utils/bam-sample.py
 
+#
+# other files
+#
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
+targets_bed := $(input_dir)/target_regions.bed
+target_sites := $(input_dir)/target_sites.bed
+
 sample_info = $(input_dir)/sample_info.tsv
-sample_subset := Chimp ElSidron Mez2 Spy A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+
 
 .PHONY: default init clean clean_all
 
@@ -98,7 +126,9 @@ coverage_analysis: $(data_dirs)
 	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
 
 
-
+#
+# BAM processing
+#
 $(mez2_bam): $(targets_bed)
 	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Mezmaiskaya2_final.bam -b $< -sorted \
 		> $@
@@ -109,6 +139,7 @@ $(spy_bam): $(targets_bed)
 
 $(sidron_bam): $(targets_bed)
 	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing)
+
 
 $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) $(targets_bed)
 	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<; \
@@ -130,6 +161,10 @@ $(a00_bam): $(tmp_dir)/A00.bam
 $(tmp_dir)/A00.bam:
 	cp /mnt/genotyping/sendru/Chiara/validation/A00.bam $@
 
+
+#
+# VCF processing
+#
 $(chimp_vcf): $(targets_sites) $(nb_chimpanzee_genotypes)
 	jupyter nbconvert $(nb_chimpanzee_genotypes) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_chimpanzee_genotypes); \
 	touch $@
@@ -180,9 +215,6 @@ $(hum_623_vcf): $(hum_623_bams)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
 		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@
 
-$(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
-	tabix -f $<
-
 $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs)  \
 		| bcftools view -M2 \
@@ -198,12 +230,13 @@ $(merged_var_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools view -m2 -M2 -Oz -o $@; \
 	rm $@_tmp $(chimp_vcf)_subset $@_tmp.tbi $(chimp_vcf)_subset.tbi
 
-$(targets_bed):
-	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
+$(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
+	tabix -f $<
 
-$(target_sites): $(targets_bed)
-	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
 
+#
+# FASTA generation
+#
 $(all_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
 
@@ -211,17 +244,28 @@ $(var_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
 
 $(all_subset_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_subset)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
 
 $(var_subset_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_subset)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
+
+
+#
+# other things
+#
+$(targets_bed):
+	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
+
+$(target_sites): $(targets_bed)
+	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
 
 $(sample_info):
 	python3 -c "import pandas; df = pandas.read_excel('http://static-content.springer.com/esm/art%3A10.1186%2F2041-2223-5-13/MediaObjects/13323_2014_104_MOESM1_ESM.xlsx', skiprows=6, header=None, parse_cols=[0,1,2]); df.columns = ['name', 'popul', 'region']; df.to_csv('$@', sep='\t', index=False)"
 
+
+
 $(data_dirs):
 	mkdir -p $@
-
 
 
 clean:
