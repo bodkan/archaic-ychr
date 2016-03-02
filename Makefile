@@ -117,7 +117,7 @@ bams: $(data_dirs) $(all_bams)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
-fasta: $(data_dirs) $(all_fasta) $(var_fasta) $(all_subset_fasta) $(var_subset_fasta)
+fasta: $(data_dirs) $(all_subset_fasta) $(var_subset_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
