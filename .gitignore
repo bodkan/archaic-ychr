@@ -3,6 +3,7 @@
 bam/
 figures/
 input/
+output/
 tmp/
 vcf/
 */.ipynb_checkpoints
