@@ -50,22 +50,8 @@ hum_623_vcf    := $(vcf_dir)/hum_623_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-#
-# Tabix index files
-#
-chimp_tbi      := $(vcf_dir)/chimp_ontarget.vcf.gz.tbi
-mez2_tbi       := $(vcf_dir)/mez2_ontarget.vcf.gz.tbi
-spy_tbi        := $(vcf_dir)/spy_ontarget.vcf.gz.tbi
-sidron_tbi     := $(vcf_dir)/sidron_ontarget.vcf.gz.tbi
-den8_tbi       := $(vcf_dir)/den8_ontarget.vcf.gz.tbi
-deam_den8_tbi  := $(vcf_dir)/deam_den8_ontarget.vcf.gz.tbi
-a00_tbi        := $(vcf_dir)/a00_ontarget.vcf.gz.tbi
-hum_623_tbi    := $(vcf_dir)/hum_623_ontarget.vcf.gz.tbi
-merged_all_tbi := $(vcf_dir)/merged_all_ontarget.vcf.gz.tbi
-merged_var_tbi := $(vcf_dir)/merged_var_ontarget.vcf.gz.tbi
-
 all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf)
-all_tbis :=  $(chimp_tbi) $(mez2_tbi) $(spy_tbi) $(sidron_tbi) $(den8_tbi) $(deam_den8_tbi) $(a00_tbi) $(hum_623_tbi)
+all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
 # FASTA files
