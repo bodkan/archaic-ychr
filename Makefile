@@ -29,7 +29,8 @@ deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
 a00_bam          := $(bam_dir)/a00_ontarget.bam
 hum_623_bams     := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
-all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(hum_623_bams)
+all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam)
+all_bais := $(addsuffix .bai,$(all_bams))
 
 #
 # VCF files
@@ -113,7 +114,7 @@ default:
 
 init: $(data_dirs)
 
-bams: $(data_dirs) $(all_bams)
+bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
@@ -229,6 +230,9 @@ $(merged_var_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(chimp_vcf)_subset $@_tmp \
 		| bcftools view -m2 -M2 -Oz -o $@; \
 	rm $@_tmp $(chimp_vcf)_subset $@_tmp.tbi $(chimp_vcf)_subset.tbi
+
+$(bam_dir)/%.bai: $(bam_dir)/%
+	samtools index $<
 
 $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 	tabix -f $<
