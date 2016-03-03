@@ -8,10 +8,10 @@ bam_dir := bam
 tmp_dir := tmp
 input_dir := input
 figures_dir := figures
-output_dir := output
+fasta_dir := fasta
 vcf_dir := vcf
 src_dir := src
-data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
+data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tmp_dir)
 
 # subset of 623 Y chromosome data from Lippold et al.
 human_ids := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
@@ -59,11 +59,16 @@ all_tbis := $(addsuffix .tbi,$(all_vcfs))
 #
 # FASTA files
 #
-fasta_subset := Chimp ElSidron Mez2 Spy A00 $(human_ids)
+chimp_nea_humans_all_fasta    := $(fasta_dir)/all_sites__chimp_nea_humans.fa
+chimp_nea_humans_var_fasta    := $(fasta_dir)/var_sites__chimp_nea_humans.fa
+chimp_sidron_humans_all_fasta := $(fasta_dir)/all_sites__chimp_sidron_humans.fa
+chimp_sidron_humans_var_fasta := $(fasta_dir)/var_sites__chimp_sidron_humans.fa
+sidron_humans_all_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
+sidron_humans_var_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
 
-all_fasta := $(output_dir)/merged_all_ontarget.fa
-var_fasta := $(output_dir)/merged_var_ontarget.fa
-
+#
+# Jupyter notebooks used for processing and analysis
+#
 nb_sidron_processing    := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing       := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
 nb_ancient_features     := $(doc_dir)/aDNA_features_analysis.ipynb
@@ -96,7 +101,7 @@ default:
 	@echo -e "\tmake genotypes         -- run genotyping on all processed BAM files"
 	@echo -e "\tmake ancient_features  -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
-	@echo -e "\tmake fasta             -- generate FASTA alignments from VCF files"
+	@echo -e "\tmake alignments        -- generate FASTA alignments from VCF files"
 	@echo -e "\tmake clean             -- delete all generated output file"
 
 
@@ -106,7 +111,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi
 
-fasta: $(data_dirs) $(all_fasta) $(var_fasta)
+alignments: $(data_dirs) $(chimp_nea_humans_all_fasta) $(chimp_nea_humans_var_fasta) $(chimp_sidron_humans_all_fasta) $(chimp_sidron_humans_var_fasta) $(sidron_humans_all_fasta) $(sidron_humans_var_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -229,11 +234,27 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-$(all_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
+ids := ElSidron A00 $(human_ids)
 
-$(var_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
+$(chimp_nea_humans_all_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(ids)
+
+$(chimp_nea_humans_var_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(ids)
+
+
+$(chimp_sidron_humans_all_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(ids)
+
+$(chimp_sidron_humans_var_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(ids)
+
+
+$(sidron_humans_all_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(ids)
+
+$(sidron_humans_var_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(ids)
 
 
 #
