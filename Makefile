@@ -97,6 +97,7 @@ default:
 	@echo -e "\tmake ancient_features  -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake fasta             -- generate FASTA alignments from VCF files"
+	@echo -e "\tmake clean             -- delete all generated output file"
 
 
 init: $(data_dirs)
