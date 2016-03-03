@@ -13,6 +13,9 @@ vcf_dir := vcf
 src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir) $(tmp_dir)
 
+# subset of 623 Y chromosome data from Lippold et al.
+human_ids := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+
 #
 # BAM files
 #
@@ -27,7 +30,7 @@ den4_bam         := $(bam_dir)/den4_ontarget.bam
 deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
 
 a00_bam          := $(bam_dir)/a00_ontarget.bam
-hum_623_bams     := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
+humans_bams      := $(addsuffix _chrY.bam,$(addprefix /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/,$(human_ids)))
 
 all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
@@ -45,23 +48,21 @@ den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 
 a00_vcf        := $(vcf_dir)/a00_ontarget.vcf.gz
-hum_623_vcf    := $(vcf_dir)/hum_623_ontarget.vcf.gz
+humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(humans_vcf)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
 # FASTA files
 #
-fasta_subset := Chimp ElSidron Mez2 Spy A00 HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+fasta_subset := Chimp ElSidron Mez2 Spy A00 $(human_ids)
 
-all_fasta        := $(output_dir)/merged_all_ontarget.fa
-var_fasta        := $(output_dir)/merged_var_ontarget.fa
-all_subset_fasta := $(output_dir)/merged_all_subset_ontarget.fa
-var_subset_fasta := $(output_dir)/merged_var_subset_ontarget.fa
+all_fasta := $(output_dir)/merged_all_ontarget.fa
+var_fasta := $(output_dir)/merged_var_ontarget.fa
 
 nb_sidron_processing    := $(doc_dir)/processing_of_El_Sidron_data.ipynb
 nb_den_processing       := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
@@ -104,7 +105,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
 
-fasta: $(data_dirs) $(all_subset_fasta) $(var_subset_fasta)
+fasta: $(data_dirs) $(all_fasta) $(var_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -198,7 +199,7 @@ $(a00_vcf): $(a00_bam)
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00"| cat) -o $@
 
-$(hum_623_vcf): $(hum_623_bams)
+$(humans_vcf): $(humans_bams)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
 		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@
 
@@ -208,7 +209,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(hum_623_vcf) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(humans_vcf) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
@@ -228,15 +229,9 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 # FASTA generation
 #
 $(all_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
-
-$(var_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y
-
-$(all_subset_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
 
-$(var_subset_fasta): $(merged_var_vcf)
+$(var_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(fasta_subset)
 
 
