@@ -152,7 +152,7 @@ $(tmp_dir)/A00.bam:
 #
 # VCF processing
 #
-$(chimp_vcf): $(targets_sites) $(nb_chimpanzee_genotypes)
+$(chimp_vcf): $(target_sites) $(nb_chimpanzee_genotypes)
 	jupyter nbconvert $(nb_chimpanzee_genotypes) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_chimpanzee_genotypes); \
 	touch $@
 
