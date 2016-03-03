@@ -254,7 +254,4 @@ $(data_dirs):
 
 
 clean:
-	rm -rf $(vcf_dir) $(figures_dir) $(input_dir) $(output_dir)
-
-clean_all:
 	rm -rf $(data_dirs)
