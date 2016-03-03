@@ -104,7 +104,7 @@ init: $(data_dirs)
 
 bams: $(data_dirs) $(all_bams) $(all_bais)
 
-genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_tbi) $(merged_var_tbi)
+genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi
 
 fasta: $(data_dirs) $(all_fasta) $(var_fasta)
 
