@@ -14,7 +14,7 @@ src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tmp_dir)
 
 # subset of 623 Y chromosome data from Lippold et al.
-human_ids := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+humans_subset := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
 
 #
 # BAM files
@@ -30,7 +30,7 @@ den4_bam         := $(bam_dir)/den4_ontarget.bam
 deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
 
 a00_bam          := $(bam_dir)/a00_ontarget.bam
-humans_bams      := $(addsuffix _chrY.bam,$(addprefix /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/,$(human_ids)))
+humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
 all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
@@ -234,27 +234,27 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-ids := ElSidron A00 $(human_ids)
+sample_ids := ElSidron A00 $(humans_subset)
 
 $(chimp_nea_humans_all_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
 $(chimp_nea_humans_var_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
 
 $(chimp_sidron_humans_all_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
 
 $(chimp_sidron_humans_var_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
 
 
 $(sidron_humans_all_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 $(sidron_humans_var_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(ids)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 
 #
