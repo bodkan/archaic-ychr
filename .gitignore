@@ -1,6 +1,9 @@
 *.swp
 
 bam/
+beast/*.log
+beast/*.trees
+beast/*.xml.state
 figures/
 input/
 fasta/
