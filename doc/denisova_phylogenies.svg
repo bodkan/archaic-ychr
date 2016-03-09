@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1052.3622"
+   height="744.09448"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="y_trees.svg"
+   inkscape:export-filename="/mnt/expressions/mp/y/doc/two_trees.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path4366"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend"
+       style="overflow:visible">
+      <path
+         id="path4384"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-1"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4366-2"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-2"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4366-0"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend-5"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4384-4"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend-3"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4384-0"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend-56"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4384-9"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend-52"
+       style="overflow:visible">
+      <path
+         id="path4384-5"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="440.69409"
+     inkscape:cy="391.63557"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-308.2677)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.86148781px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 243.55084,462.6386 72.435038,633.62111"
+       id="path2985-9"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.85899389px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 242.92135,462.75985 413.0479,633.74238"
+       id="path2985-7-0"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.87248623px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 345.92093,566.0163 -60.85299,68.51429"
+       id="path3023-8-5"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="44.912346"
+       y="664.22296"
+       id="text3043-8"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         x="44.912346"
+         y="664.22296"
+         style="font-size:13.78380489px"
+         id="tspan3957">Reference</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="366.63651"
+       y="667.51544"
+       id="text3043-4-6"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-9-1"
+         x="366.63651"
+         y="667.51544"
+         style="font-size:13.78380489px;fill:#000000;fill-opacity:1">Denisova 8</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="242.55197"
+       y="667.51544"
+       id="text3043-0-1"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-2-1"
+         x="242.55197"
+         y="667.51544"
+         style="font-size:13.78380489px;fill:#000000">El Sidron</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3070"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion3072"><rect
+           id="rect3074"
+           width="1178.848"
+           height="350.52295"
+           x="-60.609154"
+           y="25.87602" /></flowRegion><flowPara
+         id="flowPara3076" /></flowRoot>    <path
+       style="fill:none;stroke:#000000;stroke-width:0.86148781px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 244.20721,766.9172 73.091408,937.89971"
+       id="path2985-9-0"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.85899389px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 243.57773,767.03845 413.70428,938.02098"
+       id="path2985-7-0-8"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.86148781px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 181.33024,828.17167 287.12576,944.16312"
+       id="path3023-5-6"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="45.559097"
+       y="973.03192"
+       id="text3043-8-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         x="45.559097"
+         y="973.03192"
+         style="font-size:13.78380489px"
+         id="tspan3957-9">Reference</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="368.09732"
+       y="976.32446"
+       id="text3043-0-1-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-2-1-9"
+         x="368.09732"
+         y="976.32446"
+         style="font-size:13.78380489px;fill:#000000">Denisova 8</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="241.10864"
+       y="974.40192"
+       id="text3043-0-1-1"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-2-1-7"
+         x="241.10864"
+         y="974.40192"
+         style="font-size:13.78380489px;fill:#000000">El Sidron</tspan></text>
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 272.74119,626.07781 326.27928,565.46866 242.43661,485.6666 98.994948,628.09811"
+       id="path4086"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#00b800;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 428.34529,625.04735 243.48738,438.16913 57.619301,619.99659"
+       id="path4088"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 261.62951,940.23526 179.80716,852.35198 96.974648,936.19464"
+       id="path4090"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#00b800;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 432.40621,928.11342 244.51783,740.22505 56.609155,924.07281"
+       id="path4092"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 242.94169,463.19071 64.41209,-64.40466 251.15163,233.71163"
+       id="path4149"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 243.17138,767.75913 307.58347,703.35447 561.76556,937.0661"
+       id="path4149-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="508.79153"
+       y="669.39246"
+       id="text3043-4-6-6"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-9-1-8"
+         x="508.79153"
+         y="669.39246"
+         style="font-size:13.78380489px;fill:#000000;fill-opacity:1">Chimpanzee</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:34.45951462px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="509.4903"
+       y="977.51562"
+       id="text3043-4-6-6-8"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/mnt/expressions/mp/y/doc/y_trees.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1.0148889,0.98532953)"><tspan
+         sodipodi:role="line"
+         id="tspan3045-9-1-8-4"
+         x="509.4903"
+         y="977.51562"
+         style="font-size:13.78380489px;fill:#000000;fill-opacity:1">Chimpanzee</tspan></text>
+  </g>
+</svg>
