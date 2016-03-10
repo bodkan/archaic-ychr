@@ -13,9 +13,6 @@ vcf_dir := vcf
 src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tmp_dir)
 
-# subset of 623 Y chromosome data from Lippold et al.
-humans_subset := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
-
 #
 # BAM files
 #
@@ -67,6 +64,7 @@ chimp_sidron_humans_all_sites_fasta := $(fasta_dir)/all_sites__chimp_sidron_huma
 chimp_sidron_humans_var_sites_fasta := $(fasta_dir)/var_sites__chimp_sidron_humans.fa
 sidron_humans_all_sites_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
 sidron_humans_var_sites_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
+sidron_more_humans_all_sites_fasta  := $(fasta_dir)/all_sites__sidron_more_humans.fa
 
 #
 # Jupyter notebooks used for processing and analysis
@@ -92,6 +90,11 @@ target_sites := $(input_dir)/target_sites.bed
 
 sample_info = $(input_dir)/sample_info.tsv
 
+# subset of 623 Y chromosome data from Lippold et al.
+humans_subset := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
+
+# subset of 5 individuals from each population from Lippold et al.
+humans_more := $(shell for p in Africa America CentralAsia EastAsia Europe MiddleEast mixed Oceania; do grep $$p input/sample_info.tsv | head -5 | cut -f1 | tr '\n' ' '; done)
 
 .PHONY: default init clean clean_all
 
@@ -113,7 +116,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi
 
-alignments: $(data_dirs) $(chimp_nea_humans_all_sites_fasta) $(chimp_nea_humans_var_sites_fasta) $(chimp_sidron_humans_all_sites_fasta) $(chimp_sidron_humans_var_sites_fasta) $(sidron_humans_all_sites_fasta) $(sidron_humans_var_sites_fasta)
+alignments: $(data_dirs) $(chimp_nea_humans_all_sites_fasta) $(chimp_nea_humans_var_sites_fasta) $(chimp_sidron_humans_all_sites_fasta) $(chimp_sidron_humans_var_sites_fasta) $(sidron_humans_all_sites_fasta) $(sidron_humans_var_sites_fasta) $(sidron_more_humans_all_sites_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -270,6 +273,10 @@ $(sidron_humans_all_sites_fasta): $(merged_all_vcf)
 
 $(sidron_humans_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
+
+
+$(sidron_more_humans_all_sites_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names ElSidron A00_1 A00_2 $(humans_more)
 
 
 #
