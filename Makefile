@@ -61,12 +61,12 @@ all_tbis := $(addsuffix .tbi,$(all_vcfs))
 #
 # FASTA files
 #
-chimp_nea_humans_all_fasta    := $(fasta_dir)/all_sites__chimp_nea_humans.fa
-chimp_nea_humans_var_fasta    := $(fasta_dir)/var_sites__chimp_nea_humans.fa
-chimp_sidron_humans_all_fasta := $(fasta_dir)/all_sites__chimp_sidron_humans.fa
-chimp_sidron_humans_var_fasta := $(fasta_dir)/var_sites__chimp_sidron_humans.fa
-sidron_humans_all_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
-sidron_humans_var_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
+chimp_nea_humans_all_sites_fasta    := $(fasta_dir)/all_sites__chimp_nea_humans.fa
+chimp_nea_humans_var_sites_fasta    := $(fasta_dir)/var_sites__chimp_nea_humans.fa
+chimp_sidron_humans_all_sites_fasta := $(fasta_dir)/all_sites__chimp_sidron_humans.fa
+chimp_sidron_humans_var_sites_fasta := $(fasta_dir)/var_sites__chimp_sidron_humans.fa
+sidron_humans_all_sites_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
+sidron_humans_var_sites_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
 
 #
 # Jupyter notebooks used for processing and analysis
@@ -113,7 +113,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi
 
-alignments: $(data_dirs) $(chimp_nea_humans_all_fasta) $(chimp_nea_humans_var_fasta) $(chimp_sidron_humans_all_fasta) $(chimp_sidron_humans_var_fasta) $(sidron_humans_all_fasta) $(sidron_humans_var_fasta)
+alignments: $(data_dirs) $(chimp_nea_humans_all_sites_fasta) $(chimp_nea_humans_var_sites_fasta) $(chimp_sidron_humans_all_sites_fasta) $(chimp_sidron_humans_var_sites_fasta) $(sidron_humans_all_sites_fasta) $(sidron_humans_var_sites_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -251,24 +251,24 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 sample_ids := ElSidron A00_1 A00_2 $(humans_subset)
 
-$(chimp_nea_humans_all_fasta): $(merged_all_vcf)
+$(chimp_nea_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
-$(chimp_nea_humans_var_fasta): $(merged_var_vcf)
+$(chimp_nea_humans_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
 
-$(chimp_sidron_humans_all_fasta): $(merged_all_vcf)
+$(chimp_sidron_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
 
-$(chimp_sidron_humans_var_fasta): $(merged_var_vcf)
+$(chimp_sidron_humans_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
 
 
-$(sidron_humans_all_fasta): $(merged_all_vcf)
+$(sidron_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
-$(sidron_humans_var_fasta): $(merged_var_vcf)
+$(sidron_humans_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 
