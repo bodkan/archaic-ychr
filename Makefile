@@ -29,12 +29,11 @@ deam_den8_bam    := $(bam_dir)/deam_den8_ontarget.bam
 den4_bam         := $(bam_dir)/den4_ontarget.bam
 deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
 
-a00_bam          := $(bam_dir)/a00_ontarget.bam
 a00_1_bam        := $(bam_dir)/a00_1_ontarget.bam
 a00_2_bam        := $(bam_dir)/a00_2_ontarget.bam
 humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
-all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_bam) $(a00_1_bam) $(a00_2_bam)
+all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
 
 #
@@ -49,7 +48,6 @@ sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
 den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 
-a00_vcf        := $(vcf_dir)/a00_ontarget.vcf.gz
 a00_1_vcf      := $(vcf_dir)/a00_1_ontarget.vcf.gz
 a00_2_vcf      := $(vcf_dir)/a00_2_ontarget.vcf.gz
 humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
@@ -57,7 +55,7 @@ humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -151,11 +149,6 @@ $(exome_sidron_bam):
 		> $@; \
 	samtools index $@
 
-$(a00_bam): $(tmp_dir)/A00.bam
-	bedtools intersect -a $< -b $(targets_bed) \
-		> $@; \
-	samtools index $@
-
 $(a00_1_bam): $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
 		> $@; \
@@ -165,9 +158,6 @@ $(a00_2_bam):  $(tmp_dir)/GRC13292546.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
 		> $@; \
 	samtools index $@
-
-$(tmp_dir)/A00.bam:
-	cp /mnt/genotyping/sendru/Chiara/validation/A00.bam $@
 
 $(tmp_dir)/GRC13292545.chrY.bam:
 	cd $(tmp_dir); curl -O http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
@@ -220,11 +210,6 @@ $(deam_den8_vcf): $(target_regions) $(deam_den8_bam)
 	| bgzip \
 	> $@
 
-$(a00_vcf): $(a00_bam)
-	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
-		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "A00"| cat) -o $@
-
 $(a00_1_vcf): $(a00_1_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
@@ -245,7 +230,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
