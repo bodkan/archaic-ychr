@@ -4,6 +4,7 @@ bam/
 beast/*.log
 beast/*.trees
 beast/*.xml.state
+beast/*.mcmc.tree
 figures/
 input/
 fasta/
