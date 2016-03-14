@@ -41,6 +41,7 @@ chimp_vcf      := $(vcf_dir)/chimp_ontarget.vcf.gz
 mez2_vcf       := $(vcf_dir)/mez2_ontarget.vcf.gz
 spy_vcf        := $(vcf_dir)/spy_ontarget.vcf.gz
 sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
+sidron_maj_vcf := $(vcf_dir)/sidron_maj_ontarget.vcf.gz
 
 den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
@@ -52,7 +53,7 @@ humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -182,6 +183,15 @@ $(sidron_vcf): $(sidron_bam)
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
+$(sidron_maj_vcf): $(sidron_bam)
+	python3 $(bam_sample) \
+		--bam $(sidron_bam) --bed $(targets_bed) \
+		--ref $(ref_genome) --format VCF --sample-name ElSidronMaj \
+		--strand-check USER --method majority \
+		--minbq 20 --mincov 3 \
+	| bgzip \
+	> $@
+
 $(mez2_vcf): $(target_regions) $(mez2_bam)
 	python3 $(bam_sample) \
 		--bam $(mez2_bam) --bed $(targets_bed) \
@@ -234,7 +244,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
@@ -253,7 +263,7 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-sample_ids := ElSidron A00_1 A00_2 $(humans_subset)
+sample_ids := ElSidron ElSidronMaj A00_1 A00_2 $(humans_subset)
 
 $(chimp_nea_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
