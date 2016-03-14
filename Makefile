@@ -183,7 +183,7 @@ $(sidron_maj_vcf): $(sidron_bam)
 	python3 $(bam_sample) \
 		--bam $(sidron_bam) --bed $(targets_bed) \
 		--ref $(ref_genome) --format VCF --sample-name ElSidronMaj \
-		--strand-check USER --method majority \
+		--strand-check USER_term5 --method majority \
 		--minbq 20 --mincov 3 \
 	| bgzip \
 	> $@
