@@ -242,7 +242,8 @@ $(a00_2_vcf): $(a00_2_bam)
 
 $(humans_vcf): $(humans_bams)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
-		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@
+		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@; \
+	chmod -w $@
 
 $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs)  \
