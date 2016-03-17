@@ -19,6 +19,7 @@ data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tm
 mez2_bam         := $(bam_dir)/mez2_ontarget.bam
 spy_bam          := $(bam_dir)/spy_ontarget.bam
 sidron_bam       := $(bam_dir)/sidron_ontarget.bam
+sidron_dq_bam    := $(bam_dir)/sidron_dq_ontarget.bam
 exome_sidron_bam := $(bam_dir)/exome_sidron_ontarget.bam
 
 den8_bam         := $(bam_dir)/den8_ontarget.bam
@@ -30,7 +31,7 @@ a00_1_bam        := $(bam_dir)/a00_1_ontarget.bam
 a00_2_bam        := $(bam_dir)/a00_2_ontarget.bam
 humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
-all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
+all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(sidron_dq_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
 
 #
@@ -41,6 +42,7 @@ chimp_vcf      := $(vcf_dir)/chimp_ontarget.vcf.gz
 mez2_vcf       := $(vcf_dir)/mez2_ontarget.vcf.gz
 spy_vcf        := $(vcf_dir)/spy_ontarget.vcf.gz
 sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
+sidron_dq_vcf  := $(vcf_dir)/sidron_dq_ontarget.vcf.gz
 sidron_maj_vcf := $(vcf_dir)/sidron_maj_ontarget.vcf.gz
 
 den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
@@ -53,7 +55,7 @@ humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -135,7 +137,10 @@ $(spy_bam): $(targets_bed)
 		> $@
 
 $(sidron_bam): $(targets_bed)
-	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing)
+	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing);
+
+$(sidron_dq_bam): $(sidron_bam)
+	/r1/people/gabriel_renaud/scripts/libbam/decrQualDeaminatedDoubleStranded -n 5 $< $@
 
 
 $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) $(targets_bed)
@@ -178,6 +183,11 @@ $(sidron_vcf): $(sidron_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
+
+$(sidron_dq_vcf): $(sidron_dq_bam)
+	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
+		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "ElSidronDQ"| cat) -o $@
 
 $(sidron_maj_vcf): $(sidron_bam)
 	python3 $(bam_sample) \
