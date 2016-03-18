@@ -90,6 +90,7 @@ ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
 targets_bed := $(input_dir)/target_regions.bed
 target_sites := $(input_dir)/target_sites.bed
+exome_targets_bed := $(input_dir)/exome_target_regions.bed
 
 sample_info = $(input_dir)/sample_info.tsv
 
@@ -147,13 +148,13 @@ $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) 
 	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<; \
 	touch $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam)
 
-$(exome_sidron_bam):
+$(exome_sidron_bam): $(exome_targets_bed)
 	cd $(tmp_dir); \
 	curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
+	samtools index Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
 	cd ..; \
-	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $(targets_bed) \
-		> $@; \
-	samtools index $@
+	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $< -sorted \
+		> $@
 
 $(a00_1_bam): $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
@@ -302,6 +303,12 @@ $(humans_all_sites_fasta): $(merged_all_vcf)
 #
 $(targets_bed):
 	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
+
+$(exome_targets_bed):
+	curl http://cdna.eva.mpg.de/neandertal/exomes/coordinates/primary_target.longest_CDS.CDS_3multiple.hg19_1000g.bed \
+		| grep '^Y' \
+		| tr ' ' '\t' \
+		> $@
 
 $(target_sites): $(targets_bed)
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
