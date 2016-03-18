@@ -82,7 +82,7 @@ nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 #
 # scripts and binaries
 #
-bam_sample := ~/devel/bam-utils/bam-sample.py
+bam_sample := ~/devel/bam-utils/bam_sample.py
 
 #
 # other files
