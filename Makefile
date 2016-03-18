@@ -44,6 +44,7 @@ spy_vcf        := $(vcf_dir)/spy_ontarget.vcf.gz
 sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
 sidron_dq_vcf  := $(vcf_dir)/sidron_dq_ontarget.vcf.gz
 sidron_maj_vcf := $(vcf_dir)/sidron_maj_ontarget.vcf.gz
+exome_sidron_vcf := $(vcf_dir)/exome_sidron_ontarget.vcf.gz
 
 den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
@@ -198,6 +199,12 @@ $(sidron_maj_vcf): $(sidron_bam)
 		--minbq 20 --mincov 3 \
 	| bgzip \
 	> $@
+
+$(exome_sidron_vcf): $(exome_sidron_bam)
+	samtools mpileup -l $(exome_targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
+		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "ElSidronExome"| cat) -o $@; \
+	tabix $@
 
 $(mez2_vcf): $(target_regions) $(mez2_bam)
 	python3 $(bam_sample) \
