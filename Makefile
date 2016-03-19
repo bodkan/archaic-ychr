@@ -87,6 +87,7 @@ nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 # scripts and binaries
 #
 bam_sample := ~/devel/bam-utils/bam_sample.py
+bam_plotdamage := ~/devel/bam-utils/bam_plotdamage.py
 
 #
 # other files
@@ -113,6 +114,7 @@ default:
 	@echo -e "\tmake ancient_features  -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
 	@echo -e "\tmake alignments        -- generate FASTA alignments from VCF files"
+	@echo -e "\tmake damage_patterns   -- generate plots with damage patterns"
 	@echo -e "\tmake clean             -- delete all generated output file"
 
 
@@ -130,6 +132,12 @@ ancient_features: $(data_dirs)
 coverage_analysis: $(data_dirs)
 	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
 
+damage_patterns: $(a00_1_bam) $(sidron_bam) $(exome_sidron_bam) $(exome17_sidron_bam)
+	@cd $(figures_dir); \
+	for bam in $^; do \
+		echo $$bam; \
+		python3 $(bam_plotdamage) --bam ../$$bam; \
+	done
 
 #
 # BAM processing
