@@ -21,6 +21,7 @@ spy_bam          := $(bam_dir)/spy_ontarget.bam
 sidron_bam       := $(bam_dir)/sidron_ontarget.bam
 sidron_dq_bam    := $(bam_dir)/sidron_dq_ontarget.bam
 exome_sidron_bam := $(bam_dir)/exome_sidron_ontarget.bam
+exome17_sidron_bam := $(bam_dir)/exome17_sidron_ontarget.bam
 
 den8_bam         := $(bam_dir)/den8_ontarget.bam
 deam_den8_bam    := $(bam_dir)/deam_den8_ontarget.bam
@@ -31,7 +32,7 @@ a00_1_bam        := $(bam_dir)/a00_1_ontarget.bam
 a00_2_bam        := $(bam_dir)/a00_2_ontarget.bam
 humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
-all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(sidron_dq_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
+all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(sidron_dq_bam) $(exome_sidron_bam) $(exome17_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
 
 #
@@ -45,6 +46,7 @@ sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
 sidron_dq_vcf  := $(vcf_dir)/sidron_dq_ontarget.vcf.gz
 sidron_maj_vcf := $(vcf_dir)/sidron_maj_ontarget.vcf.gz
 exome_sidron_vcf := $(vcf_dir)/exome_sidron_ontarget.vcf.gz
+exome17_sidron_vcf := $(vcf_dir)/exome17_sidron_ontarget.vcf.gz
 
 den8_vcf       := $(vcf_dir)/den8_ontarget.vcf.gz
 deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
@@ -116,7 +118,7 @@ init: $(data_dirs)
 
 bams: $(data_dirs) $(all_bams) $(all_bais)
 
-genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi
+genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi $(exome_sidron_vcf) $(exome17_sidron_vcf) $(exome17_sidron_vcf).tbi $(exome_sidron_vcf).tbi
 
 alignments: $(data_dirs) $(chimp_nea_humans_all_sites_fasta) $(chimp_nea_humans_var_sites_fasta) $(chimp_sidron_humans_all_sites_fasta) $(chimp_sidron_humans_var_sites_fasta) $(sidron_humans_all_sites_fasta) $(sidron_humans_var_sites_fasta) $(humans_all_sites_fasta)
 
@@ -156,6 +158,13 @@ $(exome_sidron_bam): $(exome_targets_bed)
 	cd ..; \
 	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $< -sorted \
 		> $@
+
+$(exome17_sidron_bam):
+	cd $(tmp_dir); \
+	curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
+	samtools index Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
+	cd ..; \
+	samtools view -h $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam 17 -o $@
 
 $(a00_1_bam): $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
@@ -203,6 +212,12 @@ $(sidron_maj_vcf): $(sidron_bam)
 $(exome_sidron_vcf): $(exome_sidron_bam)
 	samtools mpileup -l $(exome_targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
+		| bcftools reheader -s <(echo -e "ElSidronExome"| cat) -o $@; \
+	tabix $@
+
+$(exome17_sidron_vcf): $(exome17_sidron_bam)
+	samtools mpileup -A -Q 20 -u -f $(ref_genome) $< \
+		| bcftools call --ploidy GRCh37 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidronExome"| cat) -o $@; \
 	tabix $@
 
