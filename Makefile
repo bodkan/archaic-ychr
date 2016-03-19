@@ -35,6 +35,8 @@ humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submis
 all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(sidron_dq_bam) $(exome_sidron_bam) $(exome17_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
 
+whole_exome_bam := $(tmp_dir)/whole_exome.bam
+
 #
 # VCF files
 #
@@ -151,20 +153,12 @@ $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam): $(nb_den_processing) 
 	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<; \
 	touch $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam)
 
-$(exome_sidron_bam): $(exome_targets_bed)
-	cd $(tmp_dir); \
-	curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
-	samtools index Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
-	cd ..; \
-	bedtools intersect -a $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -b $< -sorted \
+$(exome_sidron_bam): $(exome_targets_bed) $(tmp_dir)/whole_exome.bam
+	bedtools intersect -a $(tmp_dir)/whole_exome.bam -b $< -sorted \
 		> $@
 
-$(exome17_sidron_bam):
-	cd $(tmp_dir); \
-	curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
-	samtools index Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
-	cd ..; \
-	samtools view -h $(tmp_dir)/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam 17 -o $@
+$(exome17_sidron_bam): $(tmp_dir)/whole_exome.bam
+	samtools view -h $< 17 -o $@
 
 $(a00_1_bam): $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
@@ -174,6 +168,10 @@ $(a00_1_bam): $(tmp_dir)/GRC13292545.chrY.bam
 $(a00_2_bam):  $(tmp_dir)/GRC13292546.chrY.bam
 	bedtools intersect -a $< -b $(targets_bed) \
 		> $@; \
+	samtools index $@
+
+$(tmp_dir)/whole_exome.bam:
+	curl http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -o $@; \
 	samtools index $@
 
 $(tmp_dir)/GRC13292545.chrY.bam:
