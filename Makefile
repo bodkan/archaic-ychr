@@ -46,6 +46,7 @@ mez2_vcf       := $(vcf_dir)/mez2_ontarget.vcf.gz
 spy_vcf        := $(vcf_dir)/spy_ontarget.vcf.gz
 sidron_vcf     := $(vcf_dir)/sidron_ontarget.vcf.gz
 sidron_dq_vcf  := $(vcf_dir)/sidron_dq_ontarget.vcf.gz
+sidron_q_vcf   := $(vcf_dir)/sidron_q_ontarget.vcf.gz
 sidron_maj_vcf := $(vcf_dir)/sidron_maj_ontarget.vcf.gz
 exome_sidron_vcf := $(vcf_dir)/exome_sidron_ontarget.vcf.gz
 exome17_sidron_vcf := $(vcf_dir)/exome17_sidron_ontarget.vcf.gz
@@ -60,7 +61,7 @@ humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -205,6 +206,11 @@ $(sidron_dq_vcf): $(sidron_dq_bam)
 	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $< \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidronDQ"| cat) -o $@
+
+$(sidron_q_vcf): $(targets_bed)
+	 bcftools view /mnt/454/Carbon_beast_QM/Y_Sidron_TY/1_Extended_VCF/Sidron.hg19_evan.Y.mod.vcf.gz -R $< \
+		 | bgzip\
+		 > $@
 
 $(sidron_maj_vcf): $(sidron_bam)
 	python3 $(bam_sample) \
