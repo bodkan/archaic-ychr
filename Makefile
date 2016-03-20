@@ -208,9 +208,11 @@ $(sidron_dq_vcf): $(sidron_dq_bam)
 		| bcftools reheader -s <(echo -e "ElSidronDQ"| cat) -o $@
 
 $(sidron_q_vcf): $(targets_bed)
-	 bcftools view /mnt/454/Carbon_beast_QM/Y_Sidron_TY/1_Extended_VCF/Sidron.hg19_evan.Y.mod.vcf.gz -R $< \
-		 | bgzip\
-		 > $@
+	 bcftools view -V indels /mnt/454/Carbon_beast_QM/Y_Sidron_TY/1_Extended_VCF/Sidron.hg19_evan.Y.mod.vcf.gz -R $< \
+		| grep -v "LowQual" \
+		| sed 's/0\/0/0/; s/1\/1/1/; s/\.\/\./\./' \
+		| grep -v "0\/1" \
+		| bcftools annotate -x INFO,FORMAT -Oz -o $@
 
 $(sidron_maj_vcf): $(sidron_bam)
 	python3 $(bam_sample) \
