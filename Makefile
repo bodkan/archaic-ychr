@@ -288,7 +288,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(sidron_q_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
@@ -307,7 +307,7 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-sample_ids := ElSidron ElSidronMaj A00_1 A00_2 $(humans_subset)
+sample_ids := ElSidron ElSidronMaj ElSidronDQ Sidron A00_1 A00_2 $(humans_subset)
 
 $(chimp_nea_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
