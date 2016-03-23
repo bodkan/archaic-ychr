@@ -125,7 +125,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi $(exome_sidron_vcf) $(exome17_sidron_vcf) $(exome17_sidron_vcf).tbi $(exome_sidron_vcf).tbi
 
-alignments: $(data_dirs) $(chimp_nea_humans_all_sites_fasta) $(chimp_nea_humans_var_sites_fasta) $(chimp_sidron_humans_all_sites_fasta) $(chimp_sidron_humans_var_sites_fasta) $(sidron_humans_all_sites_fasta) $(sidron_humans_var_sites_fasta) $(humans_all_sites_fasta)
+alignments: $(data_dirs) $(sidron_humans_all_sites_fasta) $(humans_all_sites_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -307,7 +307,7 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-sample_ids := ElSidron ElSidronMaj ElSidronDQ Sidron A00_1 A00_2 $(humans_subset)
+sample_ids := ElSidronDQ A00_1 A00_2 $(humans_subset)
 
 $(chimp_nea_humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
