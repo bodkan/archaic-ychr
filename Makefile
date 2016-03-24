@@ -95,7 +95,7 @@ bam_plotdamage := ~/devel/bam-utils/bam_plotdamage.py
 #
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
-targets_bed := $(input_dir)/target_regions.bed
+targets_bed := $(input_dir)/target_regions_map35-99.bed
 target_sites := $(input_dir)/target_sites.bed
 exome_targets_bed := $(input_dir)/exome_target_regions.bed
 
@@ -338,7 +338,10 @@ $(humans_all_sites_fasta): $(merged_all_vcf)
 # other things
 #
 $(targets_bed):
-	cp /mnt/454/Carbon_beast_QM/QF_chrY_region.bed $@
+	bedtools intersect -a /mnt/454/Carbon_beast_QM/QF_chrY_region.bed \
+		-b /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_99.bed.gz \
+		| sort -k1,1n -k2,2n \
+		> $@
 
 $(exome_targets_bed):
 	curl http://cdna.eva.mpg.de/neandertal/exomes/coordinates/primary_target.longest_CDS.CDS_3multiple.hg19_1000g.bed \
