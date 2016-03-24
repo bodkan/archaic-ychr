@@ -344,10 +344,7 @@ $(targets_bed):
 		> $@
 
 $(exome_targets_bed):
-	curl http://cdna.eva.mpg.de/neandertal/exomes/coordinates/primary_target.longest_CDS.CDS_3multiple.hg19_1000g.bed \
-		| grep '^Y' \
-		| tr ' ' '\t' \
-		> $@
+	cp /mnt/scratch/sergi/exome/coordinates/chr/Y_primary_target+tile_margins.MPI.hg19_1000g.bed $@
 
 $(target_sites): $(targets_bed)
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
