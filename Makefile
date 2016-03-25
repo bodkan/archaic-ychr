@@ -131,7 +131,7 @@ ancient_features: $(data_dirs)
 coverage_analysis: $(data_dirs)
 	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
 
-damage_patterns: $(a00_1_bam) $(sidron_bam) $(exome_sidron_bam)
+damage_patterns: bam/Sidron.hg19_evan.Y.dq_ontarget.bam $(a00_1_bam) $(sidron_bam) $(exome_sidron_bam)
 	@cd $(figures_dir); \
 	for bam in $^; do \
 		echo $$bam; \
