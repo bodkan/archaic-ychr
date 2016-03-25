@@ -16,8 +16,10 @@ data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tm
 # table with information about males from the B-team
 bteam_info := $(input_dir)/bteam_info.tsv
 
-# sample IDs of B-team males
-bteam_samples := $(shell cut -f1 $(bteam_info) | tr '\n' ' ')
+# sample IDs of B-team males (used in VCF file names)
+bteam_ids := $(shell cut -f1 $(bteam_info) | tr '\n' ' ')
+# sample populations of B-team males (used in VCF headers)
+bteam_names := $(shell cut -f3 $(bteam_info) | tr '\n' ' ')
 
 #
 # BAM files
@@ -61,12 +63,12 @@ deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 a00_1_vcf      := $(vcf_dir)/a00_1_ontarget.vcf.gz
 a00_2_vcf      := $(vcf_dir)/a00_2_ontarget.vcf.gz
 humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
-bteam_vcfs     := $(addsuffix .vcf.gz,$(addprefix vcf/bteam_,$(bteam_samples)))
+bteam_vcfs     := $(addsuffix .vcf.gz,$(addprefix vcf/bteam_,$(bteam_ids)))
 
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) $(bteam_vcfs)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(bteam_vcfs) $(humans_vcf) 
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -79,6 +81,9 @@ chimp_sidron_humans_var_sites_fasta := $(fasta_dir)/var_sites__chimp_sidron_huma
 sidron_humans_all_sites_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
 sidron_humans_var_sites_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
 humans_all_sites_fasta			    := $(fasta_dir)/all_sites__humans.fa
+sidron_bteam_all_sites_fasta        := $(fasta_dir)/all_sites__sidron_bteam.fa
+sidron_bteam_var_sites_fasta        := $(fasta_dir)/var_sites__sidron_bteam.fa
+bteam_all_sites_fasta			    := $(fasta_dir)/all_sites__bteam.fa
 
 #
 # Jupyter notebooks used for processing and analysis
@@ -131,7 +136,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi $(exome_sidron_vcf) $(exome_sidron_vcf).tbi
 
-alignments: $(data_dirs) $(sidron_humans_all_sites_fasta) $(humans_all_sites_fasta)
+alignments: $(data_dirs) $(sidron_humans_all_sites_fasta) $(humans_all_sites_fasta) $(sidron_bteam_all_sites_fasta) $(bteam_all_sites_fasta) 
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -289,7 +294,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(sidron_q_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(sidron_q_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) $(bteam_vcfs) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
@@ -334,6 +339,17 @@ $(sidron_humans_var_sites_fasta): $(merged_var_vcf)
 $(humans_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00_1 A00_2 $(humans_subset)
 
+
+
+$(sidron_bteam_all_sites_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names ElSidronDQ A00_1 A00_2  $(bteam_names)
+
+$(sidron_bteam_var_sites_fasta): $(merged_var_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names ElSidronDQ A00_1 A00_2  $(bteam_names)
+
+
+$(bteam_all_sites_fasta): $(merged_all_vcf)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00_1 A00_2 $(bteam_names)
 
 #
 # other things
