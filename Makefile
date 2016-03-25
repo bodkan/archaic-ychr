@@ -13,6 +13,12 @@ vcf_dir := vcf
 src_dir := src
 data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tmp_dir)
 
+# table with information about males from the B-team
+bteam_info := $(input_dir)/bteam_info.tsv
+
+# sample IDs of B-team males
+bteam_samples := $(shell cut -f1 $(bteam_info) | tr '\n' ' ')
+
 #
 # BAM files
 #
@@ -55,11 +61,12 @@ deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 a00_1_vcf      := $(vcf_dir)/a00_1_ontarget.vcf.gz
 a00_2_vcf      := $(vcf_dir)/a00_2_ontarget.vcf.gz
 humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
+bteam_vcfs     := $(addsuffix .vcf.gz,$(addprefix vcf/bteam_,$(bteam_samples)))
 
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf)
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) $(bteam_vcfs)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
@@ -87,6 +94,7 @@ nb_chimpanzee_genotypes := $(doc_dir)/get_chimpanzee_genotypes.ipynb
 #
 bam_sample := ~/devel/bam-utils/bam_sample.py
 bam_plotdamage := ~/devel/bam-utils/bam_plotdamage.py
+process_bteam_vcf := $(src_dir)/process_bteam_vcf.sh
 
 #
 # other files
@@ -271,6 +279,10 @@ $(humans_vcf): $(humans_bams)
 		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@; \
 	chmod -w $@
 
+$(vcf_dir)/bteam_%.vcf.gz: $(bteam_info) $(targets_bed)
+	id=$(subst .vcf.gz,,$(subst bteam_,,$(notdir $@))); \
+	$(process_bteam_vcf) $$id $^
+
 $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 	bcftools merge -m all $(all_vcfs)  \
 		| bcftools view -M2 \
@@ -341,6 +353,13 @@ $(target_sites): $(targets_bed)
 $(sample_info):
 	python3 -c "import pandas; df = pandas.read_excel('http://static-content.springer.com/esm/art%3A10.1186%2F2041-2223-5-13/MediaObjects/13323_2014_104_MOESM1_ESM.xlsx', skiprows=6, header=None, parse_cols=[0,1,2]); df.columns = ['name', 'popul', 'region']; df.to_csv('$@', sep='\t', index=False)"
 
+$(bteam_info):
+	grep '^SS.*M$$' /mnt/454/HighCovNeandertalGenome/1_Extended_VCF/Individuals.txt \
+		| tr '\t' ' ' \
+		| tr -s ' ' \
+		| tr ' ' '\t' \
+		| cut -f1,2,3 \
+		> $@
 
 
 $(data_dirs):
