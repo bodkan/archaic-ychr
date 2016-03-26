@@ -5,6 +5,7 @@ beast/*.log
 beast/*.trees
 beast/*.xml.state
 beast/*.mcmc.tree
+beast/*.mcc.tree
 figures/
 input/
 fasta/
