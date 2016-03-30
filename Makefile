@@ -37,7 +37,6 @@ deam_den4_bam    := $(bam_dir)/deam_den4_ontarget.bam
 
 a00_1_bam        := $(bam_dir)/a00_1_ontarget.bam
 a00_2_bam        := $(bam_dir)/a00_2_ontarget.bam
-humans_bams      := $(wildcard /mnt/scratch/basti/HGDP_chrY_data/raw_data_submission/*.bam)
 
 all_bams := $(mez2_bam) $(spy_bam) $(sidron_bam) $(sidron_dq_bam) $(exome_sidron_bam) $(den8_bam) $(deam_den8_bam) $(den4_bam) $(deam_den4_bam) $(a00_1_bam) $(a00_2_bam)
 all_bais := $(addsuffix .bai,$(all_bams))
@@ -62,28 +61,24 @@ deam_den8_vcf  := $(vcf_dir)/deam_den8_ontarget.vcf.gz
 
 a00_1_vcf      := $(vcf_dir)/a00_1_ontarget.vcf.gz
 a00_2_vcf      := $(vcf_dir)/a00_2_ontarget.vcf.gz
-humans_vcf     := $(vcf_dir)/humans_ontarget.vcf.gz
 bteam_vcfs     := $(addsuffix .vcf.gz,$(addprefix vcf/bteam_,$(bteam_ids)))
 
 merged_all_vcf := $(vcf_dir)/merged_all_ontarget.vcf.gz
 merged_var_vcf := $(vcf_dir)/merged_var_ontarget.vcf.gz
 
-all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(bteam_vcfs) $(humans_vcf) 
+all_vcfs := $(chimp_vcf) $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_q_vcf) $(sidron_maj_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(bteam_vcfs)
 all_tbis := $(addsuffix .tbi,$(all_vcfs))
 
 #
 # FASTA files
 #
-chimp_nea_humans_all_sites_fasta    := $(fasta_dir)/all_sites__chimp_nea_humans.fa
-chimp_nea_humans_var_sites_fasta    := $(fasta_dir)/var_sites__chimp_nea_humans.fa
-chimp_sidron_humans_all_sites_fasta := $(fasta_dir)/all_sites__chimp_sidron_humans.fa
-chimp_sidron_humans_var_sites_fasta := $(fasta_dir)/var_sites__chimp_sidron_humans.fa
-sidron_humans_all_sites_fasta       := $(fasta_dir)/all_sites__sidron_humans.fa
-sidron_humans_var_sites_fasta       := $(fasta_dir)/var_sites__sidron_humans.fa
-humans_all_sites_fasta			    := $(fasta_dir)/all_sites__humans.fa
-sidron_bteam_all_sites_fasta        := $(fasta_dir)/all_sites__sidron_bteam.fa
-sidron_bteam_var_sites_fasta        := $(fasta_dir)/var_sites__sidron_bteam.fa
-bteam_all_sites_fasta			    := $(fasta_dir)/all_sites__bteam.fa
+chimp_nea_bteam_all_sites_fasta    := $(fasta_dir)/all_sites__chimp_nea_bteam.fa
+chimp_nea_bteam_var_sites_fasta    := $(fasta_dir)/var_sites__chimp_nea_bteam.fa
+chimp_sidron_bteam_all_sites_fasta := $(fasta_dir)/all_sites__chimp_sidron_bteam.fa
+chimp_sidron_bteam_var_sites_fasta := $(fasta_dir)/var_sites__chimp_sidron_bteam.fa
+sidron_bteam_all_sites_fasta       := $(fasta_dir)/all_sites__sidron_bteam.fa
+sidron_bteam_var_sites_fasta       := $(fasta_dir)/var_sites__sidron_bteam.fa
+bteam_all_sites_fasta			   := $(fasta_dir)/all_sites__bteam.fa
 
 #
 # Jupyter notebooks used for processing and analysis
@@ -110,10 +105,6 @@ targets_bed := $(input_dir)/target_regions_map35-99.bed
 target_sites := $(input_dir)/target_sites.bed
 exome_targets_bed := $(input_dir)/exome_target_regions.bed
 
-sample_info = $(input_dir)/sample_info.tsv
-
-# subset of 623 Y chromosome data from Lippold et al.
-humans_subset := HGDP00001 HGDP00099 HGDP00449 HGDP00511 HGDP00540 HGDP00608 HGDP00703 HGDP00786
 
 .PHONY: default init clean clean_all
 
@@ -136,7 +127,7 @@ bams: $(data_dirs) $(all_bams) $(all_bais)
 
 genotypes: $(data_dirs) $(merged_all_vcf) $(merged_var_vcf) $(merged_all_vcf).tbi $(merged_var_vcf).tbi $(exome_sidron_vcf) $(exome_sidron_vcf).tbi
 
-alignments: $(data_dirs) $(sidron_humans_all_sites_fasta) $(humans_all_sites_fasta) $(sidron_bteam_all_sites_fasta) $(bteam_all_sites_fasta) 
+alignments: $(data_dirs) $(sidron_bteam_all_sites_fasta) $(bteam_all_sites_fasta)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
@@ -279,11 +270,6 @@ $(a00_2_vcf): $(a00_2_bam)
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00_2"| cat) -o $@
 
-$(humans_vcf): $(humans_bams)
-	samtools mpileup -l $(targets_bed) -A -Q 20 -u -f $(ref_genome) $^ \
-		|  bcftools call --ploidy 1 -m -V indels -Oz -o $@; \
-	chmod -w $@
-
 $(vcf_dir)/bteam_%.vcf.gz: $(bteam_info) $(targets_bed)
 	id=$(subst .vcf.gz,,$(subst bteam_,,$(notdir $@))); \
 	$(process_bteam_vcf) $$id $^
@@ -294,7 +280,7 @@ $(merged_all_vcf): $(all_vcfs) $(all_tbis)
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
 
 $(merged_var_vcf): $(all_vcfs) $(all_tbis)
-	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(sidron_q_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(humans_vcf) $(bteam_vcfs) \
+	bcftools merge -m all $(mez2_vcf) $(spy_vcf) $(sidron_vcf) $(sidron_dq_vcf) $(sidron_maj_vcf) $(sidron_q_vcf) $(den8_vcf) $(deam_den8_vcf) $(a00_1_vcf) $(a00_2_vcf) $(bteam_vcfs) \
 		| bcftools view -m2 -M2 \
 		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@_tmp; \
 	bcftools view $(chimp_vcf) -R $@_tmp -Oz -o $(chimp_vcf)_subset; \
@@ -313,43 +299,32 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-sample_ids := ElSidronDQ A00_1 A00_2 $(humans_subset)
+sample_ids := ElSidronDQ A00_1 A00_2 $(bteam_names)
 
-$(chimp_nea_humans_all_sites_fasta): $(merged_all_vcf)
+$(chimp_nea_bteam_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
-$(chimp_nea_humans_var_sites_fasta): $(merged_var_vcf)
+$(chimp_nea_bteam_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
 
 
-$(chimp_sidron_humans_all_sites_fasta): $(merged_all_vcf)
+$(chimp_sidron_bteam_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
 
-$(chimp_sidron_humans_var_sites_fasta): $(merged_var_vcf)
+$(chimp_sidron_bteam_var_sites_fasta): $(merged_var_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp $(sample_ids)
-
-
-$(sidron_humans_all_sites_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
-
-$(sidron_humans_var_sites_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
-
-
-$(humans_all_sites_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00_1 A00_2 $(humans_subset)
-
 
 
 $(sidron_bteam_all_sites_fasta): $(merged_all_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names ElSidronDQ A00_1 A00_2  $(bteam_names)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 $(sidron_bteam_var_sites_fasta): $(merged_var_vcf)
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names ElSidronDQ A00_1 A00_2  $(bteam_names)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 
 $(bteam_all_sites_fasta): $(merged_all_vcf)
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00_1 A00_2 $(bteam_names)
+
 
 #
 # other things
@@ -365,9 +340,6 @@ $(exome_targets_bed):
 
 $(target_sites): $(targets_bed)
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
-
-$(sample_info):
-	python3 -c "import pandas; df = pandas.read_excel('http://static-content.springer.com/esm/art%3A10.1186%2F2041-2223-5-13/MediaObjects/13323_2014_104_MOESM1_ESM.xlsx', skiprows=6, header=None, parse_cols=[0,1,2]); df.columns = ['name', 'popul', 'region']; df.to_csv('$@', sep='\t', index=False)"
 
 $(bteam_info):
 	grep '^SS.*M$$' /mnt/454/HighCovNeandertalGenome/1_Extended_VCF/Individuals.txt \
