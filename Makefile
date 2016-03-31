@@ -47,14 +47,15 @@ exome_tbis   := $(addsuffix .tbi,$(exome_vcfs))
 
 lippold_merged_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_merged_vcf   := $(vcf_dir)/merged_exome.vcf.gz
-comb_merged_vcf    := $(vcf_dir)/combined.vcf.gz
+comb_merged_vcf    := $(vcf_dir)/merged_combined.vcf.gz
 
 #
 # FASTA files
 #
 fastas := chimp_nea_bteam.fa sidron_bteam.fa bteam.fa
-lippold_fastas := $(addprefix $(fasta_dir)/lippold_,$(fastas))
-exome_fastas   := $(addprefix $(fasta_dir)/exome_,$(fastas))
+lippold_fastas  := $(addprefix $(fasta_dir)/lippold_,$(fastas))
+exome_fastas    := $(addprefix $(fasta_dir)/exome_,$(fastas))
+combined_fastas := $(addprefix $(fasta_dir)/combined_,$(fastas))
 
 #
 # Jupyter notebooks used for processing and analysis
@@ -105,7 +106,7 @@ bams: $(data_dirs) $(lippold_bams) $(lippold_bais) $(exome_bams) $(exome_bais) $
 
 genotypes: $(data_dirs) $(comb_merged_vcf) $(comb_merged_vcf).tbi $(lippold_merged_vcf) $(lippold_merged_vcf).tbi $(exome_merged_vcf) $(exome_merged_vcf).tbi
 
-alignments: $(data_dirs) $(lippold_fastas) $(exome_fastas)
+alignments: $(data_dirs) $(lippold_fastas) $(exome_fastas) $(combined_fastas)
 
 ancient_features: $(data_dirs)
 	jupyter nbconvert $(nb_ancient_features) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_ancient_features)
