@@ -45,8 +45,9 @@ exome_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_,$(all_vcfs)))
 lippold_tbis := $(addsuffix .tbi,$(lippold_vcfs))
 exome_tbis   := $(addsuffix .tbi,$(exome_vcfs))
 
-lippold_merged_all_vcf := $(vcf_dir)/merged_lippold.vcf.gz
-exome_merged_all_vcf   := $(vcf_dir)/merged_exome.vcf.gz
+lippold_merged_vcf := $(vcf_dir)/merged_lippold.vcf.gz
+exome_merged_vcf   := $(vcf_dir)/merged_exome.vcf.gz
+comb_merged_vcf    := $(vcf_dir)/combined.vcf.gz
 
 #
 # FASTA files
@@ -102,7 +103,7 @@ init: $(data_dirs) $(bteam_info)
 
 bams: $(data_dirs) $(lippold_bams) $(lippold_bais) $(exome_bams) $(exome_bais) $(denisova_bams)
 
-genotypes: $(data_dirs) $(lippold_merged_all_vcf) $(lippold_merged_all_vcf).tbi $(exome_merged_all_vcf) $(exome_merged_all_vcf).tbi
+genotypes: $(data_dirs) $(comb_merged_vcf) $(comb_merged_vcf).tbi $(lippold_merged_vcf) $(lippold_merged_vcf).tbi $(exome_merged_vcf) $(exome_merged_vcf).tbi
 
 alignments: $(data_dirs) $(lippold_fastas) $(exome_fastas)
 
@@ -240,6 +241,16 @@ $(vcf_dir)/merged_exome.vcf.gz: $(exome_vcfs) $(exome_tbis)
 	bcftools merge -m all $(exome_vcfs) \
 		| bcftools view -M2 \
 		| bcftools annotate -x INFO -Oz -o $@
+
+$(comb_merged_vcf): $(exome_merged_vcf) $(lippold_merged_vcf)
+	bcftools concat $^ \
+		| bcftools annotate -x INFO -Oz -o $@_unsorted; \
+	zgrep '^#' $@_unsorted > $@_tmp; \
+	zgrep -v '^#' $@_unsorted \
+		| sort -k1,1n -k2,2n \
+		>> $@_tmp; \
+	bgzip -c $@_tmp > $@; \
+	rm $@_unsorted
 
 #
 # index files
