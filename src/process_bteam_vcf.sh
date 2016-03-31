@@ -18,4 +18,4 @@ bcftools view -g hom -V indels ${bteam_path}/${sample_id}/${sample_id}.hg19_1000
     | grep -v "LowQual" \
     | bcftools reheader -s <(echo -e $sample_pop | cat) \
     | sed 's/0\/0/0/; s/1\/1/1/' \
-    | bcftools annotate -x INFO,FORMAT -Oz -o $output_vcf
+    | bcftools annotate -x INFO,FORMAT/GQ,FORMAT/PL,FORMAT/A,FORMAT/C,FORMAT/G,FORMAT/T,FORMAT/IR -Oz -o $output_vcf

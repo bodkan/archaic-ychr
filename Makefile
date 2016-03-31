@@ -234,12 +234,12 @@ $(vcf_dir)/exome_bteam_%.vcf.gz: $(bteam_info) $(exome_regions_bed)
 $(vcf_dir)/merged_lippold.vcf.gz: $(lippold_vcfs) $(lippold_tbis)
 	bcftools merge -m all $(lippold_vcfs) \
 		| bcftools view -M2 \
-		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
+		| bcftools annotate -x INFO -Oz -o $@
 
 $(vcf_dir)/merged_exome.vcf.gz: $(exome_vcfs) $(exome_tbis)
 	bcftools merge -m all $(exome_vcfs) \
 		| bcftools view -M2 \
-		| bcftools annotate -x INFO,FORMAT/PL -Oz -o $@
+		| bcftools annotate -x INFO -Oz -o $@
 
 #
 # index files
