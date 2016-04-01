@@ -301,6 +301,15 @@ $(bteam_info):
 		| cut -f1,2,3 \
 		> $@
 
+$(input_dir)/coords_of_Y_exons.bed:
+	curl http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/knownGene.txt.gz \
+		| gunzip -c \
+		| grep 'chrY' \
+		| awk -vOFS='\t' '{ if ($$6 != $$7) { print $$2, $$6, $$7 }}' \
+		| sed 's/chr//' \
+		| sort -k1,1n -k2,2n \
+		| bedtools merge -i stdin \
+		> $@
 
 $(data_dirs):
 	mkdir -p $@
