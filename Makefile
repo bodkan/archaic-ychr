@@ -251,7 +251,7 @@ $(comb_merged_vcf): $(exome_merged_vcf) $(lippold_merged_vcf)
 		| sort -k1,1n -k2,2n \
 		>> $@_tmp; \
 	bgzip -c $@_tmp > $@; \
-	rm $@_unsorted
+	rm $@_unsorted $@_tmp
 
 #
 # index files
