@@ -283,7 +283,7 @@ $(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 #
 $(lippold_regions_bed):
 	bedtools intersect -a /mnt/454/Carbon_beast_QM/QF_chrY_region.bed \
-		-b /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_99.bed.gz \
+		-b /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_50.bed.gz \
 		| sort -k1,1n -k2,2n \
 		> $@
 
