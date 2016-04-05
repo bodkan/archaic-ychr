@@ -175,7 +175,7 @@ $(vcf_dir)/lippold_chimp.vcf.gz $(vcf_dir)/exome_chimp.vcf.gz: $(lippold_sites_b
 	touch $@
 
 $(vcf_dir)/%_sidron.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_sidron.bam
-	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -u -f $(ref_genome) $(word 2,$^) \
+	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
@@ -212,12 +212,12 @@ $(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
 	> $@
 
 $(vcf_dir)/%_a00_1.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00_1.bam
-	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -u -f $(ref_genome) $(word 2,$^) \
+	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00_1"| cat) -o $@
 
 $(vcf_dir)/%_a00_2.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00_2.bam
-	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -u -f $(ref_genome) $(word 2,$^) \
+	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00_2"| cat) -o $@
 
