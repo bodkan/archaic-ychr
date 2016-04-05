@@ -179,21 +179,20 @@ $(vcf_dir)/%_sidron.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_sidron.bam
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
+$(vcf_dir)/%_sidron_cons.vcf.gz: $(bam_dir)/%_sidron.bam $(input_dir)/%_regions.bed
+	python3 $(bam_sample) \
+		--bam $(word 1,$^) --bed $(word 2,$^) \
+		--ref $(ref_genome) --format VCF --sample-name ElSidronCons \
+		--method consensus --minbq 20 --mincov 3 \
+	| bgzip \
+	> $@
+
 $(vcf_dir)/%_qiaomei_sidron.vcf.gz: $(input_dir)/%_regions.bed
 	 bcftools view -V indels /mnt/454/Carbon_beast_QM/Y_Sidron_TY/1_Extended_VCF/Sidron.hg19_evan.Y.mod.vcf.gz -R $< \
 		| grep -v "LowQual" \
 		| sed 's/0\/0/0/; s/1\/1/1/; s/\.\/\./\./' \
 		| grep -v "0\/1" \
 		| bcftools annotate -x INFO,FORMAT -Oz -o $@
-
-$(vcf_dir)/%_sidron_maj.vcf.gz: $(bam_dir)/%_sidron.bam $(input_dir)/%_regions.bed
-	python3 $(bam_sample) \
-		--bam $(word 1,$^) --bed $(word 2,$^) \
-		--ref $(ref_genome) --format VCF --sample-name ElSidronMaj \
-		--strand-check USER_term5 --method majority \
-		--minbq 20 --mincov 3 \
-	| bgzip \
-	> $@
 
 $(vcf_dir)/%_mez2.vcf.gz: $(bam_dir)/%_mez2.bam $(input_dir)/%_regions.bed
 	python3 $(bam_sample) \
