@@ -49,6 +49,10 @@ lippold_merged_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_merged_vcf   := $(vcf_dir)/merged_exome.vcf.gz
 comb_merged_vcf    := $(vcf_dir)/merged_combined.vcf.gz
 
+dpfilt_lippold_merged_vcf := $(vcf_dir)/dpfilt_merged_lippold.vcf.gz
+dpfilt_exome_merged_vcf   := $(vcf_dir)/dpfilt_merged_exome.vcf.gz
+dpfilt_comb_merged_vcf    := $(vcf_dir)/dpfilt_merged_combined.vcf.gz
+
 #
 # FASTA files
 #
@@ -104,7 +108,7 @@ init: $(data_dirs) $(bteam_info)
 
 bams: $(data_dirs) $(lippold_bams) $(lippold_bais) $(exome_bams) $(exome_bais) $(denisova_bams)
 
-genotypes: $(data_dirs) $(comb_merged_vcf) $(comb_merged_vcf).tbi $(lippold_merged_vcf) $(lippold_merged_vcf).tbi $(exome_merged_vcf) $(exome_merged_vcf).tbi
+genotypes: $(data_dirs) $(comb_merged_vcf) $(comb_merged_vcf).tbi $(lippold_merged_vcf) $(lippold_merged_vcf).tbi $(exome_merged_vcf) $(exome_merged_vcf).tbi $(dpfilt_comb_merged_vcf) $(dpfilt_comb_merged_vcf).tbi $(dpfilt_lippold_merged_vcf) $(dpfilt_lippold_merged_vcf).tbi $(dpfilt_exome_merged_vcf) $(dpfilt_exome_merged_vcf).tbi
 
 alignments: $(data_dirs) $(lippold_fastas) $(exome_fastas) $(combined_fastas)
 
@@ -251,6 +255,12 @@ $(comb_merged_vcf): $(exome_merged_vcf) $(lippold_merged_vcf)
 		>> $@_tmp; \
 	bgzip -c $@_tmp > $@; \
 	rm $@_unsorted $@_tmp
+
+$(vcf_dir)/dpfilt_%.vcf.gz: $(vcf_dir)/%.vcf.gz
+	vcftools --gzvcf $< --out $@_tmp --minDP 3 --recode; \
+	bgzip $@_tmp.recode.vcf; \
+	bcftools view -s ^Chimp,Mez2,Spy $@_tmp.recode.vcf.gz -Oz -o $@; \
+	rm $@_tmp.recode.vcf.gz $@_tmp.log
 
 #
 # index files
