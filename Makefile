@@ -24,7 +24,7 @@ bteam_names := $(shell cut -f3 $(bteam_info) | tr '\n' ' ')
 #
 # BAM files
 #
-all_bams := mez2.bam spy.bam sidron.bam a00_1.bam a00_2.bam
+all_bams := mez2.bam spy.bam sidron.bam a00.bam
 
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_,$(all_bams)))
 exome_bams   := $(addprefix $(bam_dir)/, $(addprefix exome_,$(all_bams)))
@@ -38,7 +38,7 @@ denisova_bams := $(addprefix $(bam_dir)/,den8_ontarget.bam deam_den8_ontarget.ba
 #
 # individual VCF files
 #
-all_vcfs := chimp.vcf.gz mez2.vcf.gz spy.vcf.gz sidron.vcf.gz a00_1.vcf.gz a00_2.vcf.gz $(addsuffix .vcf.gz,$(addprefix bteam_,$(bteam_ids)))
+all_vcfs := chimp.vcf.gz mez2.vcf.gz spy.vcf.gz sidron.vcf.gz a00.vcf.gz $(addsuffix .vcf.gz,$(addprefix bteam_,$(bteam_ids)))
 
 lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_,$(all_vcfs)))
 exome_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_,$(all_vcfs)))
@@ -146,6 +146,9 @@ $(bam_dir)/exome_sidron.bam: $(exome_regions_bed) $(tmp_dir)/whole_exome.bam
 	bedtools intersect -a $(tmp_dir)/whole_exome.bam -b $< -sorted \
 		> $@
 
+$(bam_dir)/%_a00.bam: $(bam_dir)/%_a00_1.bam $(bam_dir)/%_a00_2.bam
+	samtools merge $@ $^
+
 $(bam_dir)/%_a00_1.bam: $(input_dir)/%_regions.bed $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $(tmp_dir)/GRC13292545.chrY.bam -b $< \
 		> $@; \
@@ -214,15 +217,10 @@ $(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
 	| bgzip \
 	> $@
 
-$(vcf_dir)/%_a00_1.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00_1.bam
+$(vcf_dir)/%_a00.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "A00_1"| cat) -o $@
-
-$(vcf_dir)/%_a00_2.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00_2.bam
-	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
-		| bcftools call --ploidy 1 -m -V indels -Oz \
-		| bcftools reheader -s <(echo -e "A00_2"| cat) -o $@
+		| bcftools reheader -s <(echo -e "A00"| cat) -o $@
 
 $(vcf_dir)/lippold_bteam_%.vcf.gz: $(bteam_info) $(lippold_regions_bed)
 	id=$(subst .vcf.gz,,$(subst lippold_bteam_,,$(notdir $@))); \
@@ -275,7 +273,7 @@ $(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
 #
 # FASTA generation
 #
-sample_ids := ElSidron A00_1 A00_2 $(bteam_names)
+sample_ids := ElSidron A00 $(bteam_names)
 
 $(fasta_dir)/%_chimp_nea_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
@@ -284,7 +282,7 @@ $(fasta_dir)/%_sidron_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
 
 $(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00_1 A00_2 $(bteam_names)
+	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00 $(bteam_names)
 
 
 #
