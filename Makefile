@@ -297,7 +297,9 @@ $(lippold_regions_bed):
 		> $@
 
 $(exome_regions_bed):
-	cp /mnt/scratch/sergi/exome/coordinates/chr/Y_primary_target+tile_margins.MPI.hg19_1000g.bed $@
+	curl http://www.cell.com/cms/attachment/2052899616/2060015784/mmc2.zip \
+		| gunzip -c \
+		> $@
 
 $(input_dir)/%_sites.bed: $(input_dir)/%_regions.bed
 	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
