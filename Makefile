@@ -144,7 +144,8 @@ $(bam_dir)/lippold_sidron.bam: $(lippold_regions_bed)
 
 $(bam_dir)/exome_sidron.bam: $(exome_regions_bed) $(tmp_dir)/whole_exome.bam
 	bedtools intersect -a $(tmp_dir)/whole_exome.bam -b $< -sorted \
-		> $@
+		> $@_unfilt; \
+	bam-rmdup -l 35 -q 37 -r -o $@ $@_unfilt
 
 $(bam_dir)/%_a00.bam: $(bam_dir)/%_a00_1.bam $(bam_dir)/%_a00_2.bam
 	samtools merge $@ $^
