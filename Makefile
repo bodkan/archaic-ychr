@@ -75,6 +75,7 @@ nb_denisova_processing  := $(doc_dir)/processing_of_Denisova_shotgun_data.ipynb
 #
 bam_sample := ~/devel/bam-utils/bam_sample.py
 bam_plotdamage := ~/devel/bam-utils/bam_plotdamage.py
+bam_plotlength := ~/devel/bam-utils/bam_plotlength.py
 process_bteam_vcf := $(src_dir)/process_bteam_vcf.sh
 decrease_bquals := /r1/people/gabriel_renaud/scripts/libbam/decrQualDeaminatedDoubleStranded
 
@@ -121,7 +122,13 @@ coverage_analysis: $(data_dirs)
 damage_patterns: $(bam_dir)/lippold_sidron.bam $(bam_dir)/exome_sidron.bam $(tmp_dir)/sidron_rmdup_len35mapq37_sorted.bam
 	@cd $(figures_dir); \
 	for bam in $^; do \
-		python3 $(bam_plotdamage) --bam ../$$bam; \
+		python3 $(bam_plotdamage) --bam ../$$bam & \
+	done
+
+read_lengths: $(bam_dir)/lippold_sidron.bam $(bam_dir)/exome_sidron.bam
+	@cd $(figures_dir); \
+	for bam in $^; do \
+		python3 $(bam_plotlength) --bam ../$$bam & \
 	done
 
 
