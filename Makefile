@@ -38,7 +38,7 @@ denisova_bams := $(addprefix $(bam_dir)/,den8_ontarget.bam deam_den8_ontarget.ba
 #
 # individual VCF files
 #
-all_vcfs := chimp.vcf.gz mez2.vcf.gz spy.vcf.gz sidron.vcf.gz a00.vcf.gz $(addsuffix .vcf.gz,$(addprefix bteam_,$(bteam_ids)))
+all_vcfs := chimp.vcf.gz mez2.vcf.gz spy.vcf.gz sidron.vcf.gz ust_ishim.vcf.gz a00.vcf.gz $(addsuffix .vcf.gz,$(addprefix bteam_,$(bteam_ids)))
 
 lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_,$(all_vcfs)))
 exome_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_,$(all_vcfs)))
@@ -224,6 +224,12 @@ $(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
 		--strand-check non-USER_all --method majority \
 	| bgzip \
 	> $@
+
+$(vcf_dir)/%_ust_ishim.vcf.gz: $(input_dir)/%_regions.bed
+	bcftools view -g hom -V indels /mnt/454/Ust_Ishim/1_Extended_VCF/Ust_Ishim.hg19_1000g.Y.mod.vcf.gz -R $< \
+		| grep -v "LowQual" \
+		| sed 's/0\/0/0/; s/1\/1/1/' \
+		| bcftools annotate -x INFO,^FORMAT/GT -Oz -o $@
 
 $(vcf_dir)/%_a00.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
