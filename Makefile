@@ -24,7 +24,7 @@ bteam_names := $(shell cut -f3 $(bteam_info) | tr '\n' ' ')
 #
 # BAM files
 #
-all_bams := mez2.bam spy.bam sidron.bam a00.bam
+all_bams := mez2.bam spy.bam sidron.bam ust_ishim.bam a00.bam
 
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_,$(all_bams)))
 exome_bams   := $(addprefix $(bam_dir)/, $(addprefix exome_,$(all_bams)))
@@ -154,6 +154,10 @@ $(bam_dir)/exome_sidron.bam: $(exome_regions_bed) $(tmp_dir)/whole_exome.bam
 		> $@_unfilt; \
 	bam-rmdup -l 35 -q 37 -r -o $@ $@_unfilt
 
+$(bam_dir)/%_ust_ishim.bam: $(input_dir)/%_regions.bed
+	bedtools intersect -a /mnt/expressions/mp/y-selection/bam/y_ustishim.bam -b $< \
+		> $@
+
 $(bam_dir)/%_a00.bam: $(bam_dir)/%_a00_1.bam $(bam_dir)/%_a00_2.bam
 	samtools merge $@ $^
 
@@ -225,11 +229,9 @@ $(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
 	| bgzip \
 	> $@
 
-$(vcf_dir)/%_ust_ishim.vcf.gz: $(input_dir)/%_regions.bed
-	bcftools view -g hom -V indels /mnt/454/Ust_Ishim/1_Extended_VCF/Ust_Ishim.hg19_1000g.Y.mod.vcf.gz -R $< \
-		| grep -v "LowQual" \
-		| sed 's/0\/0/0/; s/1\/1/1/' \
-		| bcftools annotate -x INFO,^FORMAT/GT -Oz -o $@
+$(vcf_dir)/%_ust_ishim.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_ust_ishim.bam
+	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
+		| bcftools call --ploidy 1 -m -V indels -Oz -o $@
 
 $(vcf_dir)/%_a00.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
