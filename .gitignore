@@ -1,5 +1,6 @@
 *.swp
 
+data/
 bam/
 beast/*.log
 beast/*.trees
