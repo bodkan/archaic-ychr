@@ -1,167 +1,102 @@
 SHELL := /bin/bash
 
-#
 # directories
-#
-doc_dir := doc
-bam_dir := bam
+data_dir := data
+bam_dir := $(data_dir)/bam
+fasta_dir := $(data_dir)/fasta
+vcf_dir := $(data_dir)/vcf
+coord_dir := $(data_dir)/coord
 tmp_dir := tmp
-input_dir := input
-figures_dir := figures
-fasta_dir := fasta
-vcf_dir := vcf
+dep_dir := dep
+fig_dir := fig
 src_dir := src
-data_dirs := $(bam_dir) $(vcf_dir) $(figures_dir) $(input_dir) $(fasta_dir) $(tmp_dir)
+dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(dep_dir) $(tmp_dir)
 
-# table with information about males from the B-team
-bteam_info := $(input_dir)/bteam_info.tsv
-
-# sample IDs of B-team males (used in VCF file names)
-bteam_ids := $(shell cut -f1 $(bteam_info) | tr '\n' ' ')
-# sample populations of B-team males (used in VCF headers)
-bteam_names := $(shell cut -f3 $(bteam_info) | tr '\n' ' ')
-
-#
 # BAM files
-#
-all_bams := mez2.bam spy.bam sidron.bam ust_ishim.bam a00.bam
+all_bams := mez2.bam spy.bam elsidron.bam ustishim.bam a00.bam
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_,$(all_bams)))
 
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_,$(all_bams)))
-exome_bams   := $(addprefix $(bam_dir)/, $(addprefix exome_,$(all_bams)))
-lippold_bais := $(addsuffix .bai,$(lippold_bams))
-exome_bais   := $(addsuffix .bai,$(exome_bams))
+# VCF files
+all_vcfs := mez2.vcf.gz spy.vcf.gz elsidron.vcf.gz ustishim.vcf.gz a00.vcf.gz
+exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_,$(all_vcfs)))
 
-# Denisova 4/8 BAMS -- not used for actual analysis, but at least to
-# know the coverage, number of available sites etc...
-denisova_bams := $(addprefix $(bam_dir)/,den8_ontarget.bam deam_den8_ontarget.bam den4_ontarget.bam deam_den4_ontarget.bam)
-
-#
-# individual VCF files
-#
-all_vcfs := chimp.vcf.gz mez2.vcf.gz spy.vcf.gz sidron.vcf.gz ust_ishim.vcf.gz a00.vcf.gz $(addsuffix .vcf.gz,$(addprefix bteam_,$(bteam_ids)))
-
-lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_,$(all_vcfs)))
-exome_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_,$(all_vcfs)))
-lippold_tbis := $(addsuffix .tbi,$(lippold_vcfs))
-exome_tbis   := $(addsuffix .tbi,$(exome_vcfs))
-
-lippold_merged_vcf := $(vcf_dir)/merged_lippold.vcf.gz
-exome_merged_vcf   := $(vcf_dir)/merged_exome.vcf.gz
-comb_merged_vcf    := $(vcf_dir)/merged_combined.vcf.gz
-
-dpfilt_lippold_merged_vcf := $(vcf_dir)/dpfilt_merged_lippold.vcf.gz
-dpfilt_exome_merged_vcf   := $(vcf_dir)/dpfilt_merged_exome.vcf.gz
-dpfilt_comb_merged_vcf    := $(vcf_dir)/dpfilt_merged_combined.vcf.gz
-
-#
 # FASTA files
-#
 fastas := chimp_nea_bteam.fa sidron_bteam.fa bteam.fa
-lippold_fastas  := $(addprefix $(fasta_dir)/lippold_,$(fastas))
-exome_fastas    := $(addprefix $(fasta_dir)/exome_,$(fastas))
-combined_fastas := $(addprefix $(fasta_dir)/combined_,$(fastas))
+exome_fastas := $(addprefix $(fasta_dir)/exome_,$(fastas))
 
-#
-# Jupyter notebooks used for processing and analysis
-#
-nb_sidron_processing    := $(doc_dir)/data_processing__El_Sidron_captures.ipynb
-nb_denisova_processing  := $(doc_dir)/data_processing__Denisova_shotgun.ipynb
-nb_chimpanzee_genotypes := $(doc_dir)/data_processing__chimpanzee_genotypes.ipynb
-nb_coverage_analysis    := $(doc_dir)/capture_efficiency_and_coverage__Python.ipynb
+# scripts
+bam_sample := $(dep_dir)/bam-sample/bam-sample
+run_nb := $(src_dir)/run_nb.sh
 
-#
-# scripts and binaries
-#
-bam_sample := ~/devel/bam-utils/bam_sample.py
-bam_plotdamage := ~/devel/bam-utils/bam_plotdamage.py
-bam_plotlength := ~/devel/bam-utils/bam_plotlength.py
-process_bteam_vcf := $(src_dir)/process_bteam_vcf.sh
-decrease_bquals := /r1/people/gabriel_renaud/scripts/libbam/decrQualDeaminatedDoubleStranded
+# coordinates
+full_coord := $(coord_dir)/capture_full.bed
+lippold_coord := $(coord_dir)/capture_lippold.bed
+exome_coord := $(coord_dir)/capture_exome.bed
+annot_coord := $(coord_dir)/cds.bed $(coord_dir)/phastcons.bed $(coord_dir)/genes.bed $(coord_dir)/pseudogenes.bed
 
-#
-# other files
-#
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
-lippold_regions_bed := $(input_dir)/lippold_regions.bed
-exome_regions_bed   := $(input_dir)/exome_regions.bed
-lippold_sites_bed   := $(input_dir)/lippold_sites.bed
-exome_sites_bed     := $(input_dir)/exome_sites.bed
 
+.PHONY: default init bam vcf fasta diagnostics clean
 
-.PHONY: default init clean clean_all
 
 
 default:
 	@echo -e "Usage:"
-	@echo -e "\tmake init              -- create all necessary directories"
-	@echo -e "\tmake bams              -- process all BAM files for the analysis"
-	@echo -e "\tmake genotypes         -- run genotyping on all processed BAM files"
-	@echo -e "\tmake coverage_analysis -- analyze patterns of ancient DNA damage"
-	@echo -e "\tmake alignments        -- generate FASTA alignments from VCF files"
-	@echo -e "\tmake damage_patterns   -- generate plots with damage patterns"
-	@echo -e "\tmake clean             -- delete all generated output file"
+	@echo -e "\tmake init         -- create all necessary directories"
+	@echo -e "\tmake bam          -- process and filter BAM files"
+	@echo -e "\tmake vcf          -- run consensus-based genotyping"
+	@echo -e "\tmake fasta        -- generate FASTA alignments from VCF files"
+	@echo -e "\tmake diagnostics  -- generate diagnostic plots on BAMs"
+	@echo -e "\tmake clean        -- delete all generated output file"
 
+init: $(dirs) $(full_coord) $(lippold_coord) $(exome_coord) $(annot_coord)
 
-init: $(data_dirs) $(bteam_info)
+bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
 
-bams: $(data_dirs) $(lippold_bams) $(lippold_bais) $(exome_bams) $(exome_bais) $(denisova_bams)
+vcf: $(dirs) $(full_vcfs) $(lippold_vcfs) $(exome_vcfs)
 
-genotypes: $(data_dirs) $(comb_merged_vcf) $(comb_merged_vcf).tbi $(lippold_merged_vcf) $(lippold_merged_vcf).tbi $(exome_merged_vcf) $(exome_merged_vcf).tbi $(dpfilt_comb_merged_vcf) $(dpfilt_comb_merged_vcf).tbi $(dpfilt_lippold_merged_vcf) $(dpfilt_lippold_merged_vcf).tbi $(dpfilt_exome_merged_vcf) $(dpfilt_exome_merged_vcf).tbi
+fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
-alignments: $(data_dirs) $(lippold_fastas) $(exome_fastas) $(combined_fastas)
+damage_patterns:
 
-coverage_analysis: $(data_dirs)
-	jupyter nbconvert $(nb_coverage_analysis) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_coverage_analysis)
-
-damage_patterns: $(bam_dir)/lippold_sidron.bam $(bam_dir)/exome_sidron.bam $(tmp_dir)/sidron_rmdup_len35mapq37_sorted.bam
-	@cd $(figures_dir); \
-	for bam in $^; do \
-		python3 $(bam_plotdamage) --bam ../$$bam & \
-	done
-
-read_lengths: $(bam_dir)/lippold_sidron.bam $(bam_dir)/exome_sidron.bam
-	@cd $(figures_dir); \
-	for bam in $^; do \
-		python3 $(bam_plotlength) --bam ../$$bam & \
-	done
 
 
 #
 # BAM processing
 #
-$(bam_dir)/%_mez2.bam: $(input_dir)/%_regions.bed
+$(bam_dir)/%_mez2.bam: $(input_dir)/%_capture.bed
 	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Mezmaiskaya2_final.bam -b $< -sorted \
 		> $@
 
-$(bam_dir)/%_spy.bam: $(input_dir)/%_regions.bed
+$(bam_dir)/%_spy.bam: $(input_dir)/%_capture.bed
 	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Spy_final.bam -b $< -sorted \
 		> $@
 
-$(bam_dir)/lippold_sidron.bam: $(lippold_regions_bed)
+$(bam_dir)/lippold_sidron.bam: $(lippold_coord)
 	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing); \
 	mv $@ $@_tmp; \
 	$(decrease_bquals) -n 5 $@_tmp $@; \
 	rm $@_tmp
 
-$(bam_dir)/exome_sidron.bam: $(exome_regions_bed) $(tmp_dir)/whole_exome.bam
+$(bam_dir)/exome_sidron.bam: $(exome_coord) $(tmp_dir)/whole_exome.bam
 	bedtools intersect -a $(tmp_dir)/whole_exome.bam -b $< -sorted \
 		> $@_unfilt; \
 	bam-rmdup -l 35 -q 37 -r -o $@ $@_unfilt
 
-$(bam_dir)/%_ust_ishim.bam: $(input_dir)/%_regions.bed
+$(bam_dir)/%_ust_ishim.bam: $(input_dir)/%_capture.bed
 	bedtools intersect -a /mnt/expressions/mp/y-selection/bam/y_ustishim.bam -b $< \
 		> $@
 
 $(bam_dir)/%_a00.bam: $(bam_dir)/%_a00_1.bam $(bam_dir)/%_a00_2.bam
 	samtools merge $@ $^
 
-$(bam_dir)/%_a00_1.bam: $(input_dir)/%_regions.bed $(tmp_dir)/GRC13292545.chrY.bam
+$(bam_dir)/%_a00_1.bam: $(input_dir)/%_capture.bed $(tmp_dir)/GRC13292545.chrY.bam
 	bedtools intersect -a $(tmp_dir)/GRC13292545.chrY.bam -b $< \
 		> $@; \
 	samtools index $@
 
-$(bam_dir)/%_a00_2.bam: $(input_dir)/%_regions.bed $(tmp_dir)/GRC13292546.chrY.bam
+$(bam_dir)/%_a00_2.bam: $(input_dir)/%_capture.bed $(tmp_dir)/GRC13292546.chrY.bam
 	bedtools intersect -a $(tmp_dir)/GRC13292546.chrY.bam -b $< \
 		> $@; \
 	samtools index $@
@@ -177,9 +112,6 @@ $(tmp_dir)/GRC13292546.chrY.bam:
 	cd $(tmp_dir); curl -O http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
 
 
-$(denisova_bams): $(nb_denisova_processing) $(lippold_regions_bed)
-	jupyter nbconvert $< --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $<; \touch $(denisova_bams)
-
 
 #
 # VCF processing
@@ -188,12 +120,12 @@ $(vcf_dir)/lippold_chimp.vcf.gz $(vcf_dir)/exome_chimp.vcf.gz: $(lippold_sites_b
 	jupyter nbconvert $(nb_chimpanzee_genotypes) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_chimpanzee_genotypes); \
 	touch $@
 
-$(vcf_dir)/%_sidron.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_sidron.bam
+$(vcf_dir)/%_sidron.vcf.gz: $(input_dir)/%_capture.bed $(bam_dir)/%_sidron.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "ElSidron"| cat) -o $@
 
-$(vcf_dir)/%_sidron_cons.vcf.gz: $(bam_dir)/%_sidron.bam $(input_dir)/%_regions.bed
+$(vcf_dir)/%_sidron_cons.vcf.gz: $(bam_dir)/%_sidron.bam $(input_dir)/%_capture.bed
 	python3 $(bam_sample) \
 		--bam $(word 1,$^) --bed $(word 2,$^) \
 		--ref $(ref_genome) --format VCF --sample-name ElSidronCons \
@@ -201,14 +133,14 @@ $(vcf_dir)/%_sidron_cons.vcf.gz: $(bam_dir)/%_sidron.bam $(input_dir)/%_regions.
 	| bgzip \
 	> $@
 
-$(vcf_dir)/%_qiaomei_sidron.vcf.gz: $(input_dir)/%_regions.bed
+$(vcf_dir)/%_qiaomei_sidron.vcf.gz: $(input_dir)/%_capture.bed
 	 bcftools view -V indels /mnt/454/Carbon_beast_QM/Y_Sidron_TY/1_Extended_VCF/Sidron.hg19_evan.Y.mod.vcf.gz -R $< \
 		| grep -v "LowQual" \
 		| sed 's/0\/0/0/; s/1\/1/1/; s/\.\/\./\./' \
 		| grep -v "0\/1" \
 		| bcftools annotate -x INFO,FORMAT -Oz -o $@
 
-$(vcf_dir)/%_mez2.vcf.gz: $(bam_dir)/%_mez2.bam $(input_dir)/%_regions.bed
+$(vcf_dir)/%_mez2.vcf.gz: $(bam_dir)/%_mez2.bam $(input_dir)/%_capture.bed
 	python3 $(bam_sample) \
 		--bam $(word 1,$^) --bed $(word 2,$^) \
 		--ref $(ref_genome) --format VCF --sample-name Mez2 \
@@ -216,7 +148,7 @@ $(vcf_dir)/%_mez2.vcf.gz: $(bam_dir)/%_mez2.bam $(input_dir)/%_regions.bed
 	| bgzip \
 	> $@
 
-$(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
+$(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_capture.bed
 	python3 $(bam_sample) \
 		--bam $(word 1,$^) --bed $(word 2,$^) \
 		--ref $(ref_genome) --format VCF --sample-name Spy \
@@ -224,22 +156,23 @@ $(vcf_dir)/%_spy.vcf.gz: $(bam_dir)/%_spy.bam $(input_dir)/lippold_regions.bed
 	| bgzip \
 	> $@
 
-$(vcf_dir)/%_ust_ishim.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_ust_ishim.bam
+$(vcf_dir)/%_ust_ishim.vcf.gz: $(input_dir)/%_capture.bed $(bam_dir)/%_ust_ishim.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $@
 
-$(vcf_dir)/%_a00.vcf.gz: $(input_dir)/%_regions.bed $(bam_dir)/%_a00.bam
+$(vcf_dir)/%_a00.vcf.gz: $(input_dir)/%_capture.bed $(bam_dir)/%_a00.bam
 	samtools mpileup -l $(word 1,$^) -t DP -A -Q 20 -q 30 -u -f $(ref_genome) $(word 2,$^) \
 		| bcftools call --ploidy 1 -m -V indels -Oz \
 		| bcftools reheader -s <(echo -e "A00"| cat) -o $@
 
-$(vcf_dir)/lippold_bteam_%.vcf.gz: $(bteam_info) $(lippold_regions_bed)
+$(vcf_dir)/lippold_bteam_%.vcf.gz: $(bteam_info) $(lippold_coord)
 	id=$(subst .vcf.gz,,$(subst lippold_bteam_,,$(notdir $@))); \
 	$(process_bteam_vcf) $$id $^ $@
 
-$(vcf_dir)/exome_bteam_%.vcf.gz: $(bteam_info) $(exome_regions_bed)
+$(vcf_dir)/exome_bteam_%.vcf.gz: $(bteam_info) $(exome_coord)
 	id=$(subst .vcf.gz,,$(subst exome_bteam_,,$(notdir $@))); \
 	$(process_bteam_vcf) $$id $^ $@
+
 
 
 #
@@ -271,18 +204,10 @@ $(vcf_dir)/dpfilt_%.vcf.gz: $(vcf_dir)/%.vcf.gz
 	bcftools view -s ^Chimp,Mez2,Spy $@_tmp.recode.vcf.gz -Oz -o $@; \
 	rm $@_tmp.recode.vcf.gz $@_tmp.log
 
-#
-# index files
-#
-$(bam_dir)/%.bai: $(bam_dir)/%
-	samtools index $<
-
-$(vcf_dir)/%.vcf.gz.tbi: $(vcf_dir)/%.vcf.gz
-	tabix -f $<
 
 
 #
-# FASTA generation
+# FASTA alignments for three different capture sets
 #
 sample_ids := ElSidron A00 $(bteam_names)
 
@@ -296,44 +221,41 @@ $(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00 $(bteam_names)
 
 
+
 #
-# other things
+# coordinate files
 #
-$(lippold_regions_bed):
-	bedtools intersect -a /mnt/454/Carbon_beast_QM/QF_chrY_region.bed \
-		-b /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_50.bed.gz \
-		| sort -k1,1n -k2,2n \
-		> $@
 
-$(exome_regions_bed):
-	curl http://www.cell.com/cms/attachment/2052899616/2060015784/mmc2.zip \
-		| gunzip -c \
-		> $@
+# Y chromosome capture regions from Lippold et al. (~570 kb)
+$(lippold_coord):
+	scp bionc11.eva.mpg.de:/mnt/genotyping/sendru/basti_design.bed $@
 
-$(input_dir)/%_sites.bed: $(input_dir)/%_regions.bed
-	python $(src_dir)/sites_in_bed.py --bed-file $< --output-file $@ --format BED
+# Y chromosome capture regions designed by Qiaomei (~6Mb)
+$(full_coord):
+	scp bionc11.eva.mpg.de:/mnt/454/Carbon_beast_QM/array_2015_0729/array_order/Y.filt35_50_SRepeat_100.bed $(tmp_dir)/; \
+	perl -lane 'print $$F[0] . "\t" . $$F[1] . "\t" . $$F[2]' $(tmp_dir)/Y.filt35_50_SRepeat_100.bed \
+	    > $@
 
-$(bteam_info):
-	grep '^SS.*M$$' /mnt/454/HighCovNeandertalGenome/1_Extended_VCF/Individuals.txt \
-		| tr '\t' ' ' \
-		| tr -s ' ' \
-		| tr ' ' '\t' \
-		| cut -f1,2,3 \
-		> $@
+# Y chromosome exome capture regions
+$(exome_coord):
+	wget http://www.cell.com/cms/attachment/2052899616/2060015784/mmc2.zip
+	unzip mmc2.zip; rm mmc2.zip
+	mv ajhg2064mmc2_V1.txt $@
 
-$(input_dir)/coords_of_Y_exons.bed:
-	curl http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/knownGene.txt.gz \
-		| gunzip -c \
-		| grep 'chrY' \
-		| awk -vOFS='\t' '{ if ($$6 != $$7) { print $$2, $$6, $$7 }}' \
-		| sed 's/chr//' \
-		| sort -k1,1n -k2,2n \
-		| bedtools merge -i stdin \
-		> $@
+# functional annotation coordinates
+$(coord_dir)/cds.bed $(coord_dir)/phastcons.bed $(coord_dir)/genes.bed $(coord_dir)/pseudogenes.bed:
+	$(run_nb) notebooks/annotated_regions.ipynb
 
-$(data_dirs):
+
+
+#
+# other dependencies
+#
+$(bam_sample):
+	git clone https://github.com/bodkan/bam-sample $(dep_dir)/bam-sample
+
+$(dirs):
 	mkdir -p $@
 
-
 clean:
-	rm -rf $(data_dirs)
+	rm -rf $(dirs)
