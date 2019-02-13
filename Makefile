@@ -13,8 +13,10 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(dep_dir) $(tmp_dir)
 
 # BAM files
-all_bams := mez2.bam spy.bam elsidron.bam ustishim.bam a00.bam
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_,$(all_bams)))
+sgdp_bams :=  S_French-1.Y.bam S_Sardinian-1.Y.bam S_Han-2.Y.bam S_Dai-2.Y.bam S_Papuan-2.Y.bam S_Karitiana-1.Y.bam S_Dinka-1.Y.bam S_Mbuti-1.Y.bam S_Yoruba-2.Y.bam S_Mandenka-1.Y.bam
+published_bams := ustishim.bam a00_1.bam a00_2.bam
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
 
 # VCF files
 all_vcfs := mez2.vcf.gz spy.vcf.gz elsidron.vcf.gz ustishim.vcf.gz a00.vcf.gz
@@ -27,12 +29,18 @@ exome_fastas := $(addprefix $(fasta_dir)/exome_,$(fastas))
 # scripts
 bam_sample := $(dep_dir)/bam-sample/bam-sample
 run_nb := $(src_dir)/run_nb.sh
+split_and_merge := $(src_dir)/split_and_merge.sh
+split_bam := /r1/people/mmeyer/perlscripts/solexa/filework/splitBAM.pl
+analyze_bam := /home/mmeyer/perlscripts/solexa/analysis/analyzeBAM.pl
 
 # coordinates
 full_coord := $(coord_dir)/capture_full.bed
 lippold_coord := $(coord_dir)/capture_lippold.bed
 exome_coord := $(coord_dir)/capture_exome.bed
 annot_coord := $(coord_dir)/cds.bed $(coord_dir)/phastcons.bed $(coord_dir)/genes.bed $(coord_dir)/pseudogenes.bed
+full_sites := $(coord_dir)/sites_full.bed
+lippold_sites := $(coord_dir)/sites_lippold.bed
+exome_sites := $(coord_dir)/sites_exome.bed
 
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
@@ -59,57 +67,49 @@ vcf: $(dirs) $(full_vcfs) $(lippold_vcfs) $(exome_vcfs)
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
 damage_patterns:
+	bams=$(shell ls $(bam_dir)/*.bam); \
+	cd $(fig_dir); \
+	for $$bam in $$bams; do \
+	    /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$bam; \
+	done
 
 
 
 #
 # BAM processing
 #
-$(bam_dir)/%_mez2.bam: $(input_dir)/%_capture.bed
-	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Mezmaiskaya2_final.bam -b $< -sorted \
-		> $@
-
-$(bam_dir)/%_spy.bam: $(input_dir)/%_capture.bed
-	bedtools intersect -a /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/Merged_per_individual_L35MQ0/Spy_final.bam -b $< -sorted \
-		> $@
-
-$(bam_dir)/lippold_sidron.bam: $(lippold_coord)
-	jupyter nbconvert $(nb_sidron_processing) --to notebook --execute --ExecutePreprocessor.timeout=-1 --output $(nb_sidron_processing); \
-	mv $@ $@_tmp; \
-	$(decrease_bquals) -n 5 $@_tmp $@; \
-	rm $@_tmp
-
-$(bam_dir)/exome_sidron.bam: $(exome_coord) $(tmp_dir)/whole_exome.bam
-	bedtools intersect -a $(tmp_dir)/whole_exome.bam -b $< -sorted \
-		> $@_unfilt; \
-	bam-rmdup -l 35 -q 37 -r -o $@ $@_unfilt
-
-$(bam_dir)/%_ust_ishim.bam: $(input_dir)/%_capture.bed
-	bedtools intersect -a /mnt/expressions/mp/y-selection/bam/y_ustishim.bam -b $< \
-		> $@
-
-$(bam_dir)/%_a00.bam: $(bam_dir)/%_a00_1.bam $(bam_dir)/%_a00_2.bam
-	samtools merge $@ $^
-
-$(bam_dir)/%_a00_1.bam: $(input_dir)/%_capture.bed $(tmp_dir)/GRC13292545.chrY.bam
-	bedtools intersect -a $(tmp_dir)/GRC13292545.chrY.bam -b $< \
-		> $@; \
+$(bam_dir)/exome_%.bam: $(tmp_dir)/%.bam
+	bedtools intersect -a $< -b $(coord_dir)/capture_exome.bed > $@
 	samtools index $@
 
-$(bam_dir)/%_a00_2.bam: $(input_dir)/%_capture.bed $(tmp_dir)/GRC13292546.chrY.bam
-	bedtools intersect -a $(tmp_dir)/GRC13292546.chrY.bam -b $< \
-		> $@; \
+$(bam_dir)/lippold_%.bam: $(tmp_dir)/%.bam
+	bedtools intersect -a $< -b $(coord_dir)/capture_lippold.bed > $@
 	samtools index $@
 
-$(tmp_dir)/whole_exome.bam:
+$(addprefix $(tmp_dir)/, $(sgdp_bams)):
+	cp /mnt/genotyping/sk_pipelines/datasets/Mallick2016_SGDP_Ychromosome/$(notdir $@) $@
+
+$(tmp_dir)/ustishim.bam:
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/454/Vindija/high_cov/final_bam/Ust_Ishim/chrY.bam
+	mv $(tmp_dir)/chrY.uniq.L35MQ25.bam $@
+	samtools index $@
+
+# A00 Y
+$(tmp_dir)/a00_1.bam:
+	curl -o $@ http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
+$(tmp_dir)/a00_2.bam:
+	curl -o $@ http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
+
+$(tmp_dir)/elsidron1.bam:
 	curl http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -o $@; \
 	samtools index $@
 
-$(tmp_dir)/GRC13292545.chrY.bam:
-	cd $(tmp_dir); curl -O http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
-
-$(tmp_dir)/GRC13292546.chrY.bam:
-	cd $(tmp_dir); curl -O http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
+$(tmp_dir)/elsidron2.bam:
+	$(split_and_merge) elsidron_run1 /mnt/ngs_data/130917_SN7001204_0228_BH06Y0ADXX_R_PEdi_A3207_A3208/Ibis/BWA/s_2-hg19_evan.bam input/elsidron.txt
+	$(split_and_merge) elsidron_run2 /mnt/ngs_data/131129_SN7001204_0235_BH72E4ADXX_R_PEdi_A3601_A3605/Bustard/BWA/s_2_sequence_ancient_hg19_evan.bam input/elsidron.txt
+	samtools merge $(tmp_dir)/elsidron_run1/*.bam $(tmp_dir)/elsidron_run2/*.bam > $(tmp_dir)/elsidron_both_runs.bam
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 $(tmp_dir)/elsidron_both_runs.bam
+	mv $(tmp_dir)/elsidron_both_runs.uniq.L35Q25.bam $@
 
 
 
@@ -244,6 +244,9 @@ $(exome_coord):
 $(coord_dir)/cds.bed $(coord_dir)/phastcons.bed $(coord_dir)/genes.bed $(coord_dir)/pseudogenes.bed:
 	$(run_nb) notebooks/annotated_regions.ipynb
 
+# sites within BED files
+$(coord_dir)/sites_%.pos: $(coord_dir)/capture_%.bed
+	$(src_dir)/sites_in_bed.py --bed $< --format pos --output $@
 
 
 #
