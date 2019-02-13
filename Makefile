@@ -228,13 +228,11 @@ $(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 
 # Y chromosome capture regions from Lippold et al. (~570 kb)
 $(lippold_coord):
-	scp bionc11.eva.mpg.de:/mnt/genotyping/sendru/basti_design.bed $@
+	cp input/basti_design.bed $@
 
 # Y chromosome capture regions designed by Qiaomei (~6Mb)
 $(full_coord):
-	scp bionc11.eva.mpg.de:/mnt/454/Carbon_beast_QM/array_2015_0729/array_order/Y.filt35_50_SRepeat_100.bed $(tmp_dir)/; \
-	perl -lane 'print $$F[0] . "\t" . $$F[1] . "\t" . $$F[2]' $(tmp_dir)/Y.filt35_50_SRepeat_100.bed \
-	    > $@
+	perl -lane 'print $$F[0] . "\t" . $$F[1] . "\t" . $$F[2]' input/Y.filt35_50_SRepeat_100.bed > $@
 
 # Y chromosome exome capture regions
 $(exome_coord):
