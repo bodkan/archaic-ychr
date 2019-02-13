@@ -79,12 +79,16 @@ damage_patterns:
 #
 # BAM processing
 #
-$(bam_dir)/exome_%.bam: $(tmp_dir)/%.bam
-	bedtools intersect -a $< -b $(coord_dir)/capture_exome.bed > $@
+$(bam_dir)/full_%.bam: $(tmp_dir)/%.bam
+	bedtools intersect -a $< -b $(coord_dir)/capture_lippold.bed > $@
 	samtools index $@
 
 $(bam_dir)/lippold_%.bam: $(tmp_dir)/%.bam
 	bedtools intersect -a $< -b $(coord_dir)/capture_lippold.bed > $@
+	samtools index $@
+
+$(bam_dir)/exome_%.bam: $(tmp_dir)/%.bam
+	bedtools intersect -a $< -b $(coord_dir)/capture_exome.bed > $@
 	samtools index $@
 
 $(addprefix $(tmp_dir)/, $(sgdp_bams)):
