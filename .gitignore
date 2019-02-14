@@ -9,3 +9,4 @@ tmp/
 notebooks/.ipynb_checkpoints
 .DS_Store
 dep/
+test/
