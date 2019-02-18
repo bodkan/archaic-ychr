@@ -15,7 +15,7 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams :=  S_French-1.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Mandenka-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam denisova8.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
 
@@ -67,11 +67,12 @@ vcf: $(dirs) $(full_vcfs) $(lippold_vcfs) $(exome_vcfs)
 
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
-damage_patterns:
-	bams=$(shell ls $(bam_dir)/*.bam); \
-	cd $(fig_dir); \
+diagnostics:
+	@bams=`ls $(bam_dir)/*.bam`; \
+	mkdir $(fig_dir)/damage; \
+	cd $(fig_dir)/damage; \
 	for $$bam in $$bams; do \
-	    /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$bam; \
+	    /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl ../../$${bam}; \
 	done
 
 
@@ -153,6 +154,26 @@ $(tmp_dir)/loschbour.bam:
 	samtools index $@
 # 	curl -o $@ ftp://ftp.sra.ebi.ac.uk/vol1/ERA346/ERA346665/bam/Loschbour.hg19_1000g.bam
 # 	samtools index $@
+
+$(tmp_dir)/denisova8.bam:
+	$(split_and_merge) denisova8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 denisova8/denisova8.bam
+	mv $(tmp_dir)/denisova8.uniq.L35MQ25.bam $@
+	samtools index $@
+
+$(tmp_dir)/spy1.bam:
+	$(split_and_merge) spy1 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Spy1.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 spy1/spy1.bam
+	mv $(tmp_dir)/spy1.uniq.L35MQ25.bam $@
+	samtools index $@
+
+$(tmp_dir)/mez2.bam:
+	$(split_and_merge) mez2 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Mez2.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2/mez2.bam
+	mv $(tmp_dir)/mez2.uniq.L35MQ25.bam $@
+	samtools index $@
+
+
 
 #
 # VCF processing
