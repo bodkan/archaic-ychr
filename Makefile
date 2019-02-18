@@ -13,8 +13,8 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(dep_dir) $(tmp_dir)
 
 # BAM files
-sgdp_bams :=  S_French-1.Y.bam S_Sardinian-1.Y.bam S_Han-2.Y.bam S_Dai-2.Y.bam S_Papuan-2.Y.bam S_Karitiana-1.Y.bam S_Dinka-1.Y.bam S_Mbuti-1.Y.bam S_Yoruba-2.Y.bam S_Mandenka-1.Y.bam
-published_bams := $(sgdp_bams) ustishim.bam a00_1.bam a00_2.bam
+sgdp_bams :=  S_French-1.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Mandenka-1.bam
+published_bams := $(sgdp_bams) ustishim.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
@@ -80,7 +80,7 @@ damage_patterns:
 # BAM processing
 #
 $(bam_dir)/full_%.bam: $(tmp_dir)/%.bam
-	bedtools intersect -a $< -b $(coord_dir)/capture_lippold.bed > $@
+	bedtools intersect -a $< -b $(coord_dir)/capture_full.bed > $@
 	samtools index $@
 
 $(bam_dir)/lippold_%.bam: $(tmp_dir)/%.bam
@@ -92,12 +92,7 @@ $(bam_dir)/exome_%.bam: $(tmp_dir)/%.bam
 	samtools index $@
 
 $(addprefix $(tmp_dir)/, $(sgdp_bams)):
-	cp /mnt/genotyping/sk_pipelines/datasets/Mallick2016_SGDP_Ychromosome/$(notdir $@) $@
-
-$(tmp_dir)/ustishim.bam:
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/454/Vindija/high_cov/final_bam/Ust_Ishim/chrY.bam
-	mv $(tmp_dir)/chrY.uniq.L35MQ25.bam $@
-	samtools index $@
+	cp /mnt/genotyping/sk_pipelines/datasets/Mallick2016_SGDP_Ychromosome/$(basename $(notdir $@)).Y.bam $@
 
 # A00 Y
 $(tmp_dir)/a00_1.bam:
@@ -110,14 +105,54 @@ $(tmp_dir)/elsidron1.bam:
 	curl http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -o $@; \
 	samtools index $@
 
-$(tmp_dir)/elsidron2.bam:
+$(tmp_dir)/elsidron2.bam: $(tmp_dir)/elsidron_run1/elsidron_run1.bam $(tmp_dir)/elsidron_run2/elsidron_run2.bam
+	samtools merge $(tmp_dir)/elsidron_both_runs.bam $(tmp_dir)/elsidron_run1/elsidron_run1.bam $(tmp_dir)/elsidron_run2/elsidron_run2.bam
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 elsidron_both_runs.bam
+	mv $(tmp_dir)/elsidron_both_runs.uniq.L35MQ25.bam $@
+	samtools index $@
+
+$(tmp_dir)/elsidron_run1/elsidron_run1.bam:
 	$(split_and_merge) elsidron_run1 /mnt/ngs_data/130917_SN7001204_0228_BH06Y0ADXX_R_PEdi_A3207_A3208/Ibis/BWA/s_2-hg19_evan.bam input/elsidron.txt
+$(tmp_dir)/elsidron_run2/elsidron_run2.bam:
 	$(split_and_merge) elsidron_run2 /mnt/ngs_data/131129_SN7001204_0235_BH72E4ADXX_R_PEdi_A3601_A3605/Bustard/BWA/s_2_sequence_ancient_hg19_evan.bam input/elsidron.txt
-	samtools merge $(tmp_dir)/elsidron_run1/*.bam $(tmp_dir)/elsidron_run2/*.bam > $(tmp_dir)/elsidron_both_runs.bam
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 $(tmp_dir)/elsidron_both_runs.bam
-	mv $(tmp_dir)/elsidron_both_runs.uniq.L35Q25.bam $@
 
+$(tmp_dir)/ustishim.bam:
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/454/Vindija/high_cov/final_bam/Ust_Ishim/chrY.bam
+	mv $(tmp_dir)/chrY.uniq.L35MQ25.bam $@
+	samtools index $@
 
+$(tmp_dir)/kk1.bam:
+	cp /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam $@
+	samtools index $@
+	# curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA535/ERA535225/bam/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam \
+	# 	| samtools view -h \
+	# 	| sed 's/chr//g' \
+	# 	| samtools view -b -o $@
+	# samtools index $@
+
+$(tmp_dir)/bichon.bam:
+	cp /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam $@
+	samtools index $@
+# 	curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA535/ERA535226/bam/Bichon.sort.rmdup.IR.q30.mapDamage.bam \
+# 		| samtools view -h \
+# 		| sed 's/chr//g' \
+# 		| samtools view -b -o $@
+# 	samtools index $@
+
+$(tmp_dir)/mota.bam:
+	cp /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam $@
+	samtools index $@
+# 	curl ftp://biodisk.org/Store/Genome/African/Mota_man/Bam_and_VCF/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam \
+# 		| samtools view -h \
+# 		| sed 's/chr//g' \
+# 		| samtools view -b -o $@
+# 	samtools index $@
+
+$(tmp_dir)/loschbour.bam:
+	cp /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam $@
+	samtools index $@
+# 	curl -o $@ ftp://ftp.sra.ebi.ac.uk/vol1/ERA346/ERA346665/bam/Loschbour.hg19_1000g.bam
+# 	samtools index $@
 
 #
 # VCF processing
