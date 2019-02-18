@@ -111,8 +111,8 @@ $(tmp_dir)/elsidron1.bam:
 	samtools index $@
 
 $(tmp_dir)/elsidron2.bam:
-	$(split_and_merge) elsidron_run1 /mnt/ngs_data/130917_SN7001204_0228_BH06Y0ADXX_R_PEdi_A3207_A3208/Ibis/BWA/s_2-hg19_evan.bam input/elsidron.txt
-	$(split_and_merge) elsidron_run2 /mnt/ngs_data/131129_SN7001204_0235_BH72E4ADXX_R_PEdi_A3601_A3605/Bustard/BWA/s_2_sequence_ancient_hg19_evan.bam input/elsidron.txt
+	$(split_and_merge) elsidron_run1 /mnt/ngs_data/130917_SN7001204_0228_BH06Y0ADXX_R_PEdi_A3207_A3208/Ibis/BWA/s_2-hg19_evan.bam input/A2970_A3206_A3208.txt
+	$(split_and_merge) elsidron_run2 /mnt/ngs_data/131129_SN7001204_0235_BH72E4ADXX_R_PEdi_A3601_A3605/Bustard/BWA/s_2_sequence_ancient_hg19_evan.bam input/A2970_A3206_A3208.txt
 	samtools merge $(tmp_dir)/elsidron_run1/*.bam $(tmp_dir)/elsidron_run2/*.bam > $(tmp_dir)/elsidron_both_runs.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 $(tmp_dir)/elsidron_both_runs.bam
 	mv $(tmp_dir)/elsidron_both_runs.uniq.L35Q25.bam $@
