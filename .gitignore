@@ -10,3 +10,4 @@ notebooks/.ipynb_checkpoints
 .DS_Store
 dep/
 test/
+doc/.ipynb_checkpoints
