@@ -11,3 +11,4 @@ notebooks/.ipynb_checkpoints
 dep/
 test/
 doc/.ipynb_checkpoints
+~*
