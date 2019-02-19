@@ -45,6 +45,8 @@ exome_sites := $(coord_dir)/sites_exome.bed
 
 ref_genome := /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
 
+map_filter := /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_99.bed.gz
+
 
 .PHONY: default init bam vcf fasta diagnostics clean
 
@@ -97,19 +99,23 @@ $(addprefix $(tmp_dir)/, $(sgdp_bams)):
 
 # A00 Y
 $(tmp_dir)/a00_1.bam:
-	curl -o $@ http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
+	cd $(tmp_dir); curl http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
+	bedtools intersect -a $(tmp_dir)/GRC13292545.chrY.bam -b $(map_filter) > $@
 
 $(tmp_dir)/a00_2.bam:
-	curl -o $@ http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
+	cd $(tmp_dir); curl http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
+	bedtools intersect -a $(tmp_dir)/GRC13292546.chrY.bam -b $(map_filter) > $@
 
 $(tmp_dir)/elsidron1.bam:
 	curl http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam -o $@; \
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 $(notdir $@)
+	bedtools intersect -a $(tmp_dir)/elsidron1.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/elsidron2.bam: $(tmp_dir)/elsidron_run1/elsidron_run1.bam $(tmp_dir)/elsidron_run2/elsidron_run2.bam
 	samtools merge $(tmp_dir)/elsidron_both_runs.bam $(tmp_dir)/elsidron_run1/elsidron_run1.bam $(tmp_dir)/elsidron_run2/elsidron_run2.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 elsidron_both_runs.bam
-	mv $(tmp_dir)/elsidron_both_runs.uniq.L35MQ25.bam $@
+	bedtools intersect -a $(tmp_dir)/elsidron_both_runs.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/elsidron_run1/elsidron_run1.bam:
@@ -119,58 +125,41 @@ $(tmp_dir)/elsidron_run2/elsidron_run2.bam:
 
 $(tmp_dir)/ustishim.bam:
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/454/Vindija/high_cov/final_bam/Ust_Ishim/chrY.bam
-	mv $(tmp_dir)/chrY.uniq.L35MQ25.bam $@
+	bedtools intersect -a $(tmp_dir)/chrY.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/kk1.bam:
-	cp /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam $@
+	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam -b $(map_filter) > $@
 	samtools index $@
-	# curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA535/ERA535225/bam/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam \
-	# 	| samtools view -h \
-	# 	| sed 's/chr//g' \
-	# 	| samtools view -b -o $@
-	# samtools index $@
 
 $(tmp_dir)/bichon.bam:
-	cp /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam $@
+	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam -b $(map_filter) > $@
 	samtools index $@
-# 	curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA535/ERA535226/bam/Bichon.sort.rmdup.IR.q30.mapDamage.bam \
-# 		| samtools view -h \
-# 		| sed 's/chr//g' \
-# 		| samtools view -b -o $@
-# 	samtools index $@
 
 $(tmp_dir)/mota.bam:
-	cp /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam $@
+	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam -b $(map_filter) > $@
 	samtools index $@
-# 	curl ftp://biodisk.org/Store/Genome/African/Mota_man/Bam_and_VCF/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam \
-# 		| samtools view -h \
-# 		| sed 's/chr//g' \
-# 		| samtools view -b -o $@
-# 	samtools index $@
 
 $(tmp_dir)/loschbour.bam:
-	cp /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam $@
+	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam -b $(map_filter) > $@
 	samtools index $@
-# 	curl -o $@ ftp://ftp.sra.ebi.ac.uk/vol1/ERA346/ERA346665/bam/Loschbour.hg19_1000g.bam
-# 	samtools index $@
 
 $(tmp_dir)/denisova8.bam:
 	$(split_and_merge) denisova8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 denisova8/denisova8.bam
-	mv $(tmp_dir)/denisova8.uniq.L35MQ25.bam $@
+	bedtools intersect -a $(tmp_dir)/denisova8.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/spy1.bam:
 	$(split_and_merge) spy1 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Spy1.txt
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 spy1/spy1.bam
-	mv $(tmp_dir)/spy1.uniq.L35MQ25.bam $@
+	bedtools intersect -a $(tmp_dir)/spy1.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/mez2.bam:
 	$(split_and_merge) mez2 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Mez2.txt
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2/mez2.bam
-	mv $(tmp_dir)/mez2.uniq.L35MQ25.bam $@
+	bedtools intersect -a $(tmp_dir)/mez2.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 
