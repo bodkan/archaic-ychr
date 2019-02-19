@@ -129,19 +129,23 @@ $(tmp_dir)/ustishim.bam:
 	samtools index $@
 
 $(tmp_dir)/kk1.bam:
-	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam -b $(map_filter) > $@
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam
+	bedtools intersect -a $(tmp_dir)/KK1_sort_rmdup_merge_IR_q30_mapDamage.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/bichon.bam:
-	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam -b $(map_filter) > $@
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam
+	bedtools intersect -a $(tmp_dir)/Bichon.sort.rmdup.IR.q30.mapDamage.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/mota.bam:
-	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam -b $(map_filter) > $@
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam
+	bedtools intersect -a $(tmp_dir)/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/loschbour.bam:
-	bedtools intersect -a /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam -b $(map_filter) > $@
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam
+	bedtools intersect -a $(tmp_dir)/Loschbour.hg19_1000g.uniq.L35MQ25.bam -b $(map_filter) > $@
 	samtools index $@
 
 $(tmp_dir)/denisova8.bam:
