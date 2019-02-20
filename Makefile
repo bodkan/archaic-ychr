@@ -183,13 +183,19 @@ $(tmp_dir)/mez2.bam:
 #
 
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO -Oz -o $@
+	bcftools merge $^ | bcftools annotate -x INFO -Oz -o $@.all
+	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
+	tabix $@
 
 $(vcf_dir)/merged_lippold.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO -Oz -o $@
+	bcftools merge $^ | bcftools annotate -x INFO -Oz -o $@.all
+	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
+	tabix $@
 
 $(vcf_dir)/merged_exome.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO -Oz -o $@
+	bcftools merge $^ |  bcftools annotate -x INFO -Oz -o $@.all
+	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
+	tabix $@
 
 $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 	$(src_dir)/chimp_vcf.sh $< $(basename $@)
