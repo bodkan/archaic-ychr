@@ -121,3 +121,12 @@ s6 2 {
 
     sim.simulationFinished();
 }
+
+function (float)ancestry_prop(lifso<Subpopulation> pop) {
+    if (chrom_type == "A")
+        ploidy = 2;
+    else
+        ploidy = 1;
+
+    return(sum(pop.individuals.countOfMutationsOfType(m0)) / pop.individualCount / length(marker_pos) / 2);
+}
