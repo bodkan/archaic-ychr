@@ -6,22 +6,27 @@ initialize() {
     defineConstant("gene_count", 2);
     defineConstant("chrom_length", 6000000);
 
-    defineConstant("ancestral_Ne", 2);
+    defineConstant("ancestral_Ne", 100);
     defineConstant("human_Ne", 10000);
     defineConstant("archaic_Ne", 1000);
 
-    defineConstant("admix_time", 55000);    
-    defineConstant("admix_rate", 0.05);
+    defineConstant("admix_time", 55000);
+    defineConstant("admix_rate", 0.29);
     defineConstant("source", "p2");
     defineConstant("target", "p3");
-    
-    defineConstant("chrom_type", "X");
-        
-    initializeSex(chrom_type);
+
+    defineConstant("chrom_type", "A");
+
+    if (chrom_type == "A")
+        marker_count = asInteger(chrom_length / 10000);
+    else
+        marker_count = 1;
+
+    defineConstant("marker_pos", asInteger(seq(0, chrom_length - 1, length = marker_count)));
 
     initializeMutationRate(mut_rate);
     initializeRecombinationRate(recomb_rate);
-			
+
     // neutral mutation type
     initializeMutationType("m0", 0.5, "f", 0.0);
 
@@ -30,7 +35,9 @@ initialize() {
 
     // genomic element type of genic regions
     initializeGenomicElementType("g1", m1, 1.0);
-	
+
+    initializeSex(chrom_type);
+
     // uniform chromosome with uniformly distributed genic regions
     if (gene_count == 1) {
         starts = 0;
@@ -51,51 +58,66 @@ initialize() {
     defineConstant("burnin", 10 * ancestral_Ne);
     defineConstant("human_split", asInteger(575000 / 25));
     defineConstant("nonafr_split", asInteger(70000 / 25));
-    defineConstant("introgression", asInteger(admix_time / 25));
+    defineConstant("introgression", asInteger(admix_time / 25)); // time of admixture
+    defineConstant("bottleneck", asInteger(1000 / 25)); // duration of the bottleneck
 
     sim.rescheduleScriptBlock(s1, generations = burnin);
-    sim.rescheduleScriptBlock(s2, generations = burnin + human_split - nonafr_split); 
-    sim.rescheduleScriptBlock(s3, generations = burnin + human_split - introgression); 
-    sim.rescheduleScriptBlock(s4, generations = burnin + human_split); 
+    sim.rescheduleScriptBlock(s2, generations = burnin + human_split - nonafr_split);
+    sim.rescheduleScriptBlock(s3, generations = burnin + human_split - nonafr_split + bottleneck);
+    sim.rescheduleScriptBlock(s4, generations = burnin + human_split - introgression);
+    sim.rescheduleScriptBlock(s5, generations = burnin + human_split - introgression + 1);
+    sim.rescheduleScriptBlock(s6, generations = burnin + human_split); 
 }
 
 // end of the burn-in period - split of archaics from other humans
 s1 2 {
     cat("Split of archaics from modern humans - generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+
     sim.addSubpop("p2", archaic_Ne);
-    
 }
 
 // split of non-Africans from Africans
 s2 2 {
     cat("Split of non-Africans - generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
-    sim.addSubpop("p3", 1000);
-    
+
+    sim.addSubpop("p3", 2000);
 }
 
 s3 2 {
-    cat("Introgression from " + source + " to " + target + " - generation: " + sim.generation);
+    cat("End of the non-African bottleneck - generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
-    
-    if (chrom_type == "A" | chrom_type == "X")
-        marker_count = asInteger(chrom_length / 10000);
-    else
-        marker_count = 1;
 
-    defineConstant("marker_pos", asInteger(seq(0, chrom_length - 1, length = marker_count)));
-
-	 if (source == "p2" & target == "p3") {
-	     p3.setMigrationRates(p2, admix_rate);
-        p2.genomes.addNewDrawnMutation(m0, marker_pos);
-	 } else {
-	     p2.setMigrationRates(p3, admix_rate);
-        p3.genomes.addNewDrawnMutation(m0, marker_pos);
-	 }
+    p3.setSubpopulationSize(human_Ne);
 }
 
 s4 2 {
+    cat("Introgression from " + source + " to " + target + " - generation: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+
+    // place information markers before initiating admixture
+    // (the warning can be safely ignored, as only neutral mutations are added)
+    if (source == "p2" & target == "p3") {
+        p2.genomes.addNewDrawnMutation(m0, marker_pos);
+        p3.setMigrationRates(p2, admix_rate);
+    } else {
+        p3.genomes.addNewDrawnMutation(m0, marker_pos);
+        p2.setMigrationRates(p3, admix_rate);
+    }
+}
+
+s5 2 {
+    cat("End of introgression - generation: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+
+    p3.setMigrationRates(p2, 0);
+    p2.setMigrationRates(p3, 0);
+}
+
+s6 2 {
     cat("Simulation finished - generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+
+    sim.simulationFinished();
 }
