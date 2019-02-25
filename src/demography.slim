@@ -1,0 +1,174 @@
+// Calculate ancestry proportion using fixed neutral markers.
+function (float)ancestry_prop(lifso<Subpopulation> pop, lifso<MutationType> type) {
+    if (chrom_type == "A")
+        ploidy = 2;
+    else
+        ploidy = 1;
+
+    return(sum(pop.individuals.countOfMutationsOfType(type)) / pop.individualCount / length(marker_pos) / 2);
+}
+
+// Set a default value of a command-line argument.
+function (void)set(s arg, lifs default) {
+    if (!exists(arg)) defineConstant(arg, default);
+}
+
+// Check if a required command-line argument was specified.
+function (void)check_arg(s arg) {
+    if (!exists(arg)) stop("Required argument '" + arg + "' not specified!\n");
+}
+
+initialize() {
+    set("ancestral_Ne", 100);
+    set("human_Ne", 10000);
+    set("archaic_Ne", 1000);
+    set("mut_rate", 0);
+
+    check_arg("chrom_type");
+    check_arg("chrom_length");
+    check_arg("gene_total");
+    check_arg("gene_count");
+    check_arg("from");
+    check_arg("admix_time");
+    check_arg("admix_rate");
+    check_arg("output");
+
+    if (chrom_type == "A") {
+        marker_count = asInteger(chrom_length / 10000);
+        defineConstant("recomb_rate", 1e-8);
+    } else {
+        marker_count = 1;
+        defineConstant("recomb_rate", 0.0);
+    }
+
+    defineConstant("marker_pos", asInteger(seq(0, chrom_length - 1, length = marker_count)));
+
+    initializeMutationRate(mut_rate);
+    initializeRecombinationRate(recomb_rate);
+
+    // deleterious mutation type
+    initializeMutationType("m0", 0.5, "f", 0.0);
+
+    // modern human neutral marker
+    initializeMutationType("m1", 0.5, "f", 0.0);
+
+    // archaic neutral marker
+    initializeMutationType("m2", 0.5, "f", 0.0);
+
+    // genomic element type of genic regions
+    initializeGenomicElementType("g1", m1, 1.0);
+
+    initializeSex(chrom_type);
+
+    // uniform chromosome with uniformly distributed genic regions
+    if (gene_count == 1) {
+        starts = 0;
+        ends = chrom_length - 1;
+    } else {
+        gene_length = gene_total / gene_count;
+        step = (chrom_length - gene_total) / (gene_count - 1);
+        starts = asInteger(seq(0, chrom_length, by = step + gene_length));
+        ends = starts + gene_length - 1;
+    }
+    for (i in 1 : gene_count)
+        initializeGenomicElement(g1, asInteger(starts[i - 1]), asInteger(ends[i - 1]));
+}
+
+// create a population of human-archaic ancestors
+1 {
+    sim.addSubpop("p1", ancestral_Ne);
+
+    defineConstant("burnin", 10 * ancestral_Ne);
+    defineConstant("human_split", asInteger(575000 / 25));
+    defineConstant("nonafr_split", asInteger(70000 / 25));
+    defineConstant("introgression", asInteger(admix_time / 25));
+    defineConstant("bottleneck", asInteger(1000 / 25)); // duration of the bottleneck
+
+    start = burnin + human_split - introgression;
+    defineConstant("sampling", start + c(seq(0, 50), seq(200, introgression, by = 200)));
+
+    sim.rescheduleScriptBlock(s1, generations = burnin);
+    sim.rescheduleScriptBlock(s2, generations = burnin + human_split - nonafr_split);
+    sim.rescheduleScriptBlock(s3, generations = burnin + human_split - nonafr_split + bottleneck);
+    sim.rescheduleScriptBlock(s4, generations = burnin + human_split - introgression - 1);
+    sim.rescheduleScriptBlock(s5, generations = burnin + human_split - introgression);
+    sim.rescheduleScriptBlock(s6, generations = sampling);
+}
+
+// end of the burn-in period - split of archaics from other humans
+s1 2 late() {
+    cat("Generation: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- split of archaics from modern humans\n");
+
+    sim.addSubpop("p2", archaic_Ne);
+
+    // place ancestry informative markers
+    if (from == "archaic") {
+        cat("- placing neutral markers on the modern human lineage\n");
+        p1.genomes[!p1.genomes.isNullGenome].addNewDrawnMutation(m1, marker_pos);
+    } else {
+        cat("- placing neutral markers on the archaic lineage\n");
+        p2.genomes[!p2.genomes.isNullGenome].addNewDrawnMutation(m2, marker_pos);
+    }
+}
+
+// split of non-Africans from Africans
+s2 2 {
+    cat("\nGeneration: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- non-African bottleneck\n");
+
+    p1.setSubpopulationSize(2000);
+}
+
+s3 2 {
+    cat("\nGeneration: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- end of the non-African bottleneck\n");
+
+    p1.setSubpopulationSize(human_Ne);
+}
+
+s4 2 {
+    cat("\nGeneration: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+
+    //
+    if (from == "archaic") {
+        cat("- modern human -> archaic introgression\n");
+        p2.setMigrationRates(p1, admix_rate);
+    } else {
+        cat("- archaic -> modern human introgression\n");
+        p1.setMigrationRates(p2, admix_rate);
+    }
+}
+
+s5 2 {
+    cat("\nGeneration: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- end of introgression\n");
+
+    p1.setMigrationRates(p2, 0);
+    p2.setMigrationRates(p1, 0);
+}
+
+s6 2 {
+    if (sim.generation - (burnin + human_split - introgression) == 0) {
+        writeFile(output, "gen\tmh\tarchaic");
+    }
+
+    writeFile(
+        output,
+        paste(c(sim.generation - (burnin + human_split - introgression),
+                ancestry_prop(p1, m2),
+                ancestry_prop(p2, m1)), sep = "\t"),
+        append = T
+    );
+
+    if (sim.generation - (burnin + human_split) == 0) {
+        cat("\nGeneration: " + sim.generation);
+        cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+        cat("- simulation finished\n");
+    }
+}
