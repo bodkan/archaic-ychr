@@ -12,3 +12,4 @@ dep/
 test/
 doc/.ipynb_checkpoints
 ~*
+/fig
