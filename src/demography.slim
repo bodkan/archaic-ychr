@@ -1,4 +1,3 @@
-// set up a simple neutral simulation
 initialize() {
     defineConstant("mut_rate", 0);
     defineConstant("recomb_rate", 0);
@@ -6,16 +5,15 @@ initialize() {
     defineConstant("gene_count", 2);
     defineConstant("chrom_length", 6000000);
 
-    defineConstant("ancestral_Ne", 100);
+    defineConstant("ancestral_Ne", 1000);
     defineConstant("human_Ne", 10000);
     defineConstant("archaic_Ne", 1000);
 
-    defineConstant("admix_time", 55000);
-    defineConstant("admix_rate", 0.29);
     defineConstant("source", "p2");
-    defineConstant("target", "p3");
+    defineConstant("admix_time", 155000);
+    defineConstant("admix_rate", 0.5);
 
-    defineConstant("chrom_type", "A");
+    defineConstant("chrom_type", "Y");
 
     if (chrom_type == "A")
         marker_count = asInteger(chrom_length / 10000);
@@ -27,11 +25,14 @@ initialize() {
     initializeMutationRate(mut_rate);
     initializeRecombinationRate(recomb_rate);
 
-    // neutral mutation type
+    // deleterious mutation type
     initializeMutationType("m0", 0.5, "f", 0.0);
 
-    // deleterious mutation type
+    // modern human neutral marker
     initializeMutationType("m1", 0.5, "f", 0.0);
+
+    // archaic neutral marker
+    initializeMutationType("m2", 0.5, "f", 0.0);
 
     // genomic element type of genic regions
     initializeGenomicElementType("g1", m1, 1.0);
@@ -70,63 +71,78 @@ initialize() {
 }
 
 // end of the burn-in period - split of archaics from other humans
-s1 2 {
-    cat("Split of archaics from modern humans - generation: " + sim.generation);
+s1 2 late() {
+    cat("Generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- split of archaics from modern humans\n");
 
     sim.addSubpop("p2", archaic_Ne);
+
+    // place ancestry informative markers
+    if (source == "p1") {
+        cat("- placing neutral markers on the modern human lineage\n");
+        p1.genomes[!p1.genomes.isNullGenome].addNewDrawnMutation(m1, marker_pos);
+    } else {
+        cat("- placing neutral markers on the archaic lineage\n");
+        p2.genomes[!p2.genomes.isNullGenome].addNewDrawnMutation(m2, marker_pos);
+    }
 }
 
 // split of non-Africans from Africans
 s2 2 {
-    cat("Split of non-Africans - generation: " + sim.generation);
+    cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- non-African bottleneck\n");
 
-    sim.addSubpop("p3", 2000);
+    p1.setSubpopulationSize(2000);
 }
 
 s3 2 {
-    cat("End of the non-African bottleneck - generation: " + sim.generation);
+    cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- end of the non-African bottleneck\n");
 
-    p3.setSubpopulationSize(human_Ne);
+    p1.setSubpopulationSize(human_Ne);
 }
 
 s4 2 {
-    cat("Introgression from " + source + " to " + target + " - generation: " + sim.generation);
+    cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
 
-    // place information markers before initiating admixture
-    // (the warning can be safely ignored, as only neutral mutations are added)
-    if (source == "p2" & target == "p3") {
-        p2.genomes.addNewDrawnMutation(m0, marker_pos);
-        p3.setMigrationRates(p2, admix_rate);
+    //
+    if (source == "p1") {
+        cat("- modern human -> archaic introgression\n");
+        p2.setMigrationRates(p1, admix_rate);
     } else {
-        p3.genomes.addNewDrawnMutation(m0, marker_pos);
-        p2.setMigrationRates(p3, admix_rate);
+        cat("- archaic -> modern human introgression\n");
+        p1.setMigrationRates(p2, admix_rate);
     }
 }
 
 s5 2 {
-    cat("End of introgression - generation: " + sim.generation);
+    cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- end of introgression\n");
 
-    p3.setMigrationRates(p2, 0);
-    p2.setMigrationRates(p3, 0);
+    p1.setMigrationRates(p2, 0);
+    p2.setMigrationRates(p1, 0);
 }
 
 s6 2 {
-    cat("Simulation finished - generation: " + sim.generation);
+    cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- simulation finished\n\n");
 
+    cat("Archaic ancestry in modern humans: " + ancestry_prop(p1, m2) + "\n");
+    cat("Modern human ancestry in archaics: " + ancestry_prop(p2, m1) + "\n");
     sim.simulationFinished();
 }
 
-function (float)ancestry_prop(lifso<Subpopulation> pop) {
+function (float)ancestry_prop(lifso<Subpopulation> pop, lifso<MutationType> type) {
     if (chrom_type == "A")
         ploidy = 2;
     else
         ploidy = 1;
 
-    return(sum(pop.individuals.countOfMutationsOfType(m0)) / pop.individualCount / length(marker_pos) / 2);
-}
+    return(sum(pop.individuals.countOfMutationsOfType(type)) / pop.individualCount / length(marker_pos) / 2);
+ }
