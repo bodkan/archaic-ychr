@@ -75,11 +75,11 @@ vcf: $(dirs) $(full_vcf) $(lippold_vcf) $(exome_vcf)
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
 diagnostics:
-	@bams=`ls $(bam_dir)/*.bam`; \
-	mkdir $(fig_dir)/damage; \
+	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *kk1* *loschbour* *bichon* *mota* *denisova* *spy* *mez* *control* | grep 'bam$$' | xargs realpath`; \
+	mkdir -p $(fig_dir)/damage; \
 	cd $(fig_dir)/damage; \
-	for $$bam in $$bams; do \
-	    /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl ../../$${bam}; \
+	for b in $$bams; do \
+	    qsub -V -cwd -j y -l virtual_free=500M,h_vmem=500M,class=cow /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$b; \
 	done
 
 
