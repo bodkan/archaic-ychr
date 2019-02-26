@@ -28,9 +28,9 @@ initialize() {
     check_arg("chrom_length");
     check_arg("gene_total");
     check_arg("gene_count");
-    check_arg("from");
     check_arg("admix_time");
-    check_arg("admix_rate");
+    check_arg("archaic_rate");
+    check_arg("modern_rate");
     check_arg("output");
 
     if (chrom_type == "A") {
@@ -46,17 +46,14 @@ initialize() {
     initializeMutationRate(mut_rate);
     initializeRecombinationRate(recomb_rate);
 
+    // neutral ancestry marker
+    initializeMutationType("m0", 0.5, "f", 0.0);
+
     // deleterious mutation type
-    initializeMutationType("m0", 0.5, "g", -0.043, 0.23);
-
-    // modern human neutral marker
-    initializeMutationType("m1", 0.5, "f", 0.0);
-
-    // archaic neutral marker
-    initializeMutationType("m2", 0.5, "f", 0.0);
+    initializeMutationType("m1", 0.5, "g", -0.043, 0.23);
 
     // genomic element type of genic regions
-    initializeGenomicElementType("g1", m1, 1.0);
+    initializeGenomicElementType("g1", m0, 1.0);
 
     initializeSex(chrom_type);
 
@@ -103,14 +100,8 @@ s1 2 late() {
 
     sim.addSubpop("p2", archaic_Ne);
 
-    // place ancestry informative markers
-    if (from == "archaic") {
-        cat("- placing neutral markers on the modern human lineage\n");
-        p1.genomes[!p1.genomes.isNullGenome].addNewDrawnMutation(m1, marker_pos);
-    } else {
-        cat("- placing neutral markers on the archaic lineage\n");
-        p2.genomes[!p2.genomes.isNullGenome].addNewDrawnMutation(m2, marker_pos);
-    }
+    cat("- placing neutral markers on the archaic lineage\n");
+    p2.genomes[!p2.genomes.isNullGenome].addNewDrawnMutation(m0, marker_pos);
 }
 
 // split of non-Africans from Africans
@@ -122,8 +113,7 @@ s2 2 {
     p1.setSubpopulationSize(2000);
 }
 
-s3 2 {
-    cat("\nGeneration: " + sim.generation);
+s3 2 { cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
     cat("- end of the non-African bottleneck\n");
 
@@ -133,15 +123,12 @@ s3 2 {
 s4 2 {
     cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("- simulating introgression\n");
+    cat("\tarchaic admixture into modern humans: " + archaic_rate + "\n");
+    cat("\tmodern human admixture into archaics: " + modern_rate + "\n");
 
-    //
-    if (from == "archaic") {
-        cat("- modern human -> archaic introgression\n");
-        p2.setMigrationRates(p1, admix_rate);
-    } else {
-        cat("- archaic -> modern human introgression\n");
-        p1.setMigrationRates(p2, admix_rate);
-    }
+    p2.setMigrationRates(p1, modern_rate);
+    p1.setMigrationRates(p2, archaic_rate);
 }
 
 s5 2 {
@@ -154,15 +141,16 @@ s5 2 {
 }
 
 s6 2 {
-    if (sim.generation - (burnin + human_split - introgression) == 0) {
-        writeFile(output, "gen\tmh\tarchaic");
-    }
+    post_admixture = sim.generation - (burnin + human_split - introgression);
+
+    if (post_admixture == 0) writeFile(output, "gen\tmodern\tarchaic");
+
+    archaic_ancestry = ancestry_prop(p1, m0);
+    modern_ancestry = 1 - ancestry_prop(p2, m0);
 
     writeFile(
         output,
-        paste(c(sim.generation - (burnin + human_split - introgression),
-                ancestry_prop(p1, m2),
-                ancestry_prop(p2, m1)), sep = "\t"),
+        paste(c(post_admixture, archaic_ancestry, modern_ancestry), sep = "\t"),
         append = T
     );
 
