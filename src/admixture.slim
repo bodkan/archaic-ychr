@@ -79,7 +79,7 @@ initialize() {
 1 {
     sim.addSubpop("p1", ancestral_Ne);
 
-    defineConstant("burnin", 10 * ancestral_Ne);
+    defineConstant("burnin", 7 * ancestral_Ne);
     defineConstant("human_split", asInteger(575000 / 25));
     defineConstant("nonafr_split", asInteger(70000 / 25));
     defineConstant("introgression", asInteger(admix_time / 25));
