@@ -1,11 +1,13 @@
 // Calculate ancestry proportion using fixed neutral markers.
 function (float)ancestry_prop(lifso<Subpopulation> pop, lifso<MutationType> type) {
     if (chrom_type == "A")
-        ploidy = 2;
+        n = 2;
+    else if (chrom_type == "X")
+        n = 1.5;
     else
-        ploidy = 1;
+        n = 0.5;
 
-    return(sum(pop.individuals.countOfMutationsOfType(type)) / pop.individualCount / length(marker_pos) / 2);
+    return(sum(pop.individuals.countOfMutationsOfType(type)) / (n * pop.individualCount) / length(marker_pos));
 }
 
 // Set a default value of a command-line argument.
@@ -33,9 +35,11 @@ initialize() {
     check_arg("modern_rate");
     check_arg("output");
 
+    marker_count = asInteger(chrom_length / 10000);
     if (chrom_type == "A") {
-        marker_count = asInteger(chrom_length / 10000);
         defineConstant("recomb_rate", 1e-8);
+    } else if (chrom_type == "X") {
+        defineConstant("recomb_rate", 2/3 * 1e-8);
     } else {
         marker_count = 1;
         defineConstant("recomb_rate", 0.0);
