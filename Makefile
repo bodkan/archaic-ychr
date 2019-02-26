@@ -6,10 +6,11 @@ bam_dir := $(data_dir)/bam
 fasta_dir := $(data_dir)/fasta
 vcf_dir := $(data_dir)/vcf
 coord_dir := $(data_dir)/coord
+sim_dir := $(data_dir)/sim
 tmp_dir := tmp
 fig_dir := fig
 src_dir := src
-dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir)
+dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
 sgdp_bams :=  S_French-1.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Mandenka-1.bam
