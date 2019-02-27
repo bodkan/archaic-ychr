@@ -220,7 +220,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
-	$(bam_sample) --bam $< --ref $(ref_genome) --strategy consensus --format vcf \
+	$(bam_sample) --bam $< --ref $(ref_genome) --strategy consensus --mincov 3 --format vcf \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
