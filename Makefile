@@ -67,7 +67,8 @@ default:
 	@echo -e "\tmake diagnostics  -- generate diagnostic plots on BAMs"
 	@echo -e "\tmake clean        -- delete all generated output file"
 
-init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed)
+init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
+
 
 bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
 
