@@ -248,9 +248,12 @@ $(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
 #
 
 # Y chromosome capture regions from Lippold et al. (~570 kb)
+# /mnt/genotyping/sendru/basti_design.bed
 $(lippold_bed):
 	# cp input/basti_design.bed > $@
-	bedtools intersect -a input/basti_design.bed -b $(map_filter) > $@
+	bedtools intersect -a input/basti_design.bed -b $(map_filter) > $@.tmp
+	bedtools sort -i $@.tmp > $@; rm $@.tmp
+
 
 # Y chromosome capture regions designed by Qiaomei (~6Mb)
 $(full_bed):
