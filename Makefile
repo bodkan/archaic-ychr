@@ -15,13 +15,13 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams :=  S_French-1.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Mandenka-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, control_stuttgart.bam control_vindija.bam spy1.bam mez2.bam denisova8.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, control_stuttgart.bam control_vindija.bam spy1.bam mez2.bam comb_neand.bam denisova8.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, control_stuttgart.bam control_vindija.bam elsidron2.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, control_stuttgart.bam control_vindija.bam elsidron1.bam $(published_bams)))
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz denisova8.vcf.gz $(published_vcfs)))
+full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz denisova8.vcf.gz $(published_vcfs)))
 lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz $(published_vcfs)))
 exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz $(published_vcfs)))
 
@@ -179,6 +179,9 @@ $(tmp_dir)/mez2.bam:
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2/mez2.bam
 	mv $(tmp_dir)/mez2.uniq.L35MQ25.bam $@
 	samtools index $@
+
+$(tmp_dir)/comb_neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
+	samtools merge $@ $^
 
 $(tmp_dir)/control_vindija.bam:
 	samtools view -h -b /mnt/sequencedb/AncientGenomes/Unpublished/Vi33.19/final_bam/IndelRealign/Vi33.19.chrY.indel_realn.bam Y -o $(tmp_dir)/control_vindija.Y.bam
