@@ -244,6 +244,7 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.
 	tabix $(tmp_dir)/bcftools_ustishim.vcf.gz
 	bcftools merge $(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz $(vcf_dir)/full_denisova8.vcf.gz $(tmp_dir)/bcftools_denisova8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
 	    | bcftools view -v snps \
+	    | bcftools annotate -x INFO,FORMAT/PL \
 	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_denisova8\nbcftools_denisova8\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
 	    | bgzip -c > $@
 	tabix $@
