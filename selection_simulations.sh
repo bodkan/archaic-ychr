@@ -3,7 +3,7 @@
 for init in `seq 0.01 0.01 0.25`; do
 for type in A X Y; do
 for rep in `seq 1 25`; do
-    N="archaic_sel_chr${type}_rate${init}_rep${rep}"
+    N="archaic2modern_sel_chr${type}_rate${init}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
         slim \
             -d "chrom_type='${type}'" \
