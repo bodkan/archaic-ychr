@@ -201,17 +201,17 @@ $(tmp_dir)/control_stuttgart.bam:
 #
 
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -Oz -o $@.all
+	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
 $(vcf_dir)/merged_lippold.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -Oz -o $@.all
+	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
 $(vcf_dir)/merged_exome.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_vcfs)
-	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -v snps -Oz -o $@.all
+	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
