@@ -202,6 +202,10 @@ $(tmp_dir)/control_stuttgart.bam:
 # VCF processing
 #
 
+$(vcf_dir)/tv_%.vcf.gz: $(vcf_dit)/%.vcf.gz
+	echo zless $< | awk -F '\t' '!(($$4 == "A" && $$5 == "G") || ($$4 == "G" && $$5 == "A") || ($$4 == "C" && $5 == "T") || ($4 == "T" && $5 == "C")) || $$0 ~ /^#/' | bgzip -c > $@
+	tabix $@
+
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
