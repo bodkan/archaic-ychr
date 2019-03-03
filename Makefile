@@ -26,6 +26,7 @@ lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz 
 exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz $(published_vcfs)))
 
 full_vcf := $(vcf_dir)/merged_full.vcf.gz
+full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
 lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
 
@@ -72,7 +73,7 @@ init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_si
 
 bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
 
-vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf)
+vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf)
 
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
@@ -202,8 +203,8 @@ $(tmp_dir)/control_stuttgart.bam:
 # VCF processing
 #
 
-$(vcf_dir)/tv_%.vcf.gz: $(vcf_dit)/%.vcf.gz
-	echo zless $< | awk -F '\t' '!(($$4 == "A" && $$5 == "G") || ($$4 == "G" && $$5 == "A") || ($$4 == "C" && $5 == "T") || ($4 == "T" && $5 == "C")) || $$0 ~ /^#/' | bgzip -c > $@
+$(vcf_dir)/%_tv.vcf.gz: $(vcf_dir)/%.vcf.gz
+	zless $< | awk -F '\t' '!(($$4 == "A" && $$5 == "G") || ($$4 == "G" && $$5 == "A") || ($$4 == "C" && $$5 == "T") || ($$4 == "T" && $$5 == "C")) || $$0 ~ /^#/' | bgzip > $@
 	tabix $@
 
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
