@@ -70,7 +70,6 @@ default:
 
 init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
 
-
 bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
 
 vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf)
@@ -233,6 +232,23 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
 	    --strategy consensus --mincov 3 --minbq 20 --minmq 25 \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
+	bgzip $(basename $@)
+	tabix $@
+
+#
+# testing the coverage cutoff
+#
+test_cov_vcfs := $(addsuffix .vcf.gz, $(addprefix $(tmp_dir)/, $(addprefix test_cov_,$(shell seq 1 9))))
+
+$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(test_cov_vcfs)
+	bcftools merge $^ | bcftools view -v snps -M 2 -Oz -o $@
+	tabix $@
+
+$(tmp_dir)/test_cov_%.vcf.gz: $(bam_dir)/full_denisova8.bam
+	depth=`echo $@ | sed 's/.*\([0-9]\).*/\1/'`; \
+	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
+	    --strategy consensus --mincov $$depth --minbq 20 --minmq 25 \
+	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')_dp$${depth} --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
 
