@@ -15,9 +15,9 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams :=  S_French-1.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Mandenka-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, control_stuttgart.bam control_vindija.bam spy1.bam mez2.bam comb_neand.bam denisova8.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, control_stuttgart.bam control_vindija.bam elsidron2.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, control_stuttgart.bam control_vindija.bam elsidron1.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam denisova8.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
@@ -72,12 +72,12 @@ init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_si
 
 bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
 
-vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf)
+vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf) $(vcf_dir)/test_cov.vcf.gz $(vcf_dir)/test_gt.vcf.gz
 
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
 diagnostics:
-	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *kk1* *loschbour* *bichon* *mota* *denisova* *spy* *mez* *control* | grep 'bam$$' | xargs realpath`; \
+	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *kk1* *loschbour* *bichon* *mota* *denisova* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
 	mkdir -p $(fig_dir)/damage; \
 	cd $(fig_dir)/damage; \
 	for b in $$bams; do \
@@ -143,19 +143,19 @@ $(tmp_dir)/ustishim.bam:
 $(tmp_dir)/kk1.bam:
 	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam Y -o $(tmp_dir)/KK1.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 KK1.Y.bam
-	mv $(tmp_dir)/KK1.Y.uniq.L35MQ25.bam $@
+	samtools calmd $(tmp_dir)/KK1.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
 	samtools index $@
 
 $(tmp_dir)/bichon.bam:
 	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam Y -o $(tmp_dir)/Bichon.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 Bichon.Y.bam
-	mv $(tmp_dir)/Bichon.Y.uniq.L35MQ25.bam $@
+	samtools calmd $(tmp_dir)/Bichon.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
 	samtools index $@
 
 $(tmp_dir)/mota.bam:
 	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam Y -o $(tmp_dir)/Mota.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 Mota.Y.bam
-	mv $(tmp_dir)/Mota.Y.uniq.L35MQ25.bam $@
+	samtools calmd $(tmp_dir)/Mota.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
 	samtools index $@
 
 $(tmp_dir)/loschbour.bam:
@@ -230,7 +230,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 3 --minbq 20 --minmq 25 \
+	    --strategy consensus --mincov 4 --minbq 20 --minmq 25 \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
