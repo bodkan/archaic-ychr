@@ -19,6 +19,8 @@ full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
 
+test_bams := $(tmp_dir)/control_vindija.bam $(tmp_dir)/control_stuttgart.bam
+
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
 full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz denisova8.vcf.gz $(published_vcfs)))
@@ -29,6 +31,9 @@ full_vcf := $(vcf_dir)/merged_full.vcf.gz
 full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
 lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
+
+test_vcfs := $(vcf_dir)/test_cov.vcf.gz $(vcf_dir)/test_gt.vcf.gz
+
 
 # FASTA files
 fastas := chimp_nea_bteam.fa sidron_bteam.fa bteam.fa
@@ -70,9 +75,9 @@ default:
 
 init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
 
-bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams)
+bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
 
-vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf) $(vcf_dir)/test_cov.vcf.gz $(vcf_dir)/test_gt.vcf.gz
+vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf) $(test_vcfs)
 
 fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
 
