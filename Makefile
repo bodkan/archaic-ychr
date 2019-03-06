@@ -261,13 +261,13 @@ $(tmp_dir)/test_cov_%.vcf.gz: $(bam_dir)/full_denisova8.bam
 # testing A00 VCF file for comparing bam-sample and bcftools calls
 #
 $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
-	samtools mpileup -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
+	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
 	tabix $(tmp_dir)/bcftools_a00.vcf.gz
-	samtools mpileup -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_denisova8.bam \
+	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_denisova8.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_denisova8.vcf.gz
 	tabix $(tmp_dir)/bcftools_denisova8.vcf.gz
-	samtools mpileup -t DP -Q 20 -q 30 -u -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
+	samtools mpileup -B -t DP -Q 20 -q 30 -u -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_ustishim.vcf.gz
 	tabix $(tmp_dir)/bcftools_ustishim.vcf.gz
 	bcftools merge $(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz $(vcf_dir)/full_denisova8.vcf.gz $(tmp_dir)/bcftools_denisova8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
