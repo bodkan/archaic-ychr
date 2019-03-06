@@ -1,9 +1,0 @@
-samtools tview -p Y:2701708 data/bam/full_denisova8.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-samtools tview -p Y:2764244 data/bam/full_denisova8.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-samtools tview -p Y:2816357 data/bam/full_denisova8.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-
-samtools tview -p Y:5976705 data/bam/full_a00.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-samtools tview -p Y:6773542 data/bam/full_a00.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-samtools tview -p Y:10017879 data/bam/full_a00.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
-
-samtools tview -p Y:14242418 data/bam/full_ustishim.bam /mnt/solexa/Genomes/hg19_evan/whole_genome.fa
