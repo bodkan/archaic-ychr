@@ -10,7 +10,7 @@ output=$2
 
 echo "##fileformat=VCFv4.1" >> $output
 echo "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" >> $output
-echo -e "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tChimp" >> $output
+echo -e "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tchimp" >> $output
 
 for chrom in {1..22} X Y; do
     grep -w "^${chrom}" $positions \
