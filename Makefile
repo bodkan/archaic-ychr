@@ -32,7 +32,7 @@ full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
 lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
 
-test_vcfs := $(vcf_dir)/test_gt.vcf.gz
+test_vcfs := $(vcf_dir)/test_cov.vcf.gz $(vcf_dir)/test_gt.vcf.gz
 
 
 # FASTA files
@@ -235,8 +235,25 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
-	    --strategy consensus --minbq 20 --minmq 25 \
+	    --strategy consensus --mincov 4 --minbq 20 --minmq 25 \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
+	bgzip $(basename $@)
+	tabix $@
+
+#
+# testing the coverage cutoff
+#
+test_cov_vcfs := $(addsuffix .vcf.gz, $(addprefix $(tmp_dir)/, $(addprefix test_cov_,$(shell seq 1 9))))
+
+$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(test_cov_vcfs)
+	bcftools merge $^ | bcftools view -v snps -M 2 -Oz -o $@
+	tabix $@
+
+$(tmp_dir)/test_cov_%.vcf.gz: $(bam_dir)/full_denisova8.bam
+	depth=`echo $@ | sed 's/.*\([0-9]\).*/\1/'`; \
+	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
+	    --strategy consensus --mincov $$depth --minbq 20 --minmq 25 \
+	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')_dp$${depth} --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
 
