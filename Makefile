@@ -19,7 +19,7 @@ full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
 
-test_bams := $(tmp_dir)/control_vindija.bam $(tmp_dir)/control_stuttgart.bam
+test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
@@ -190,13 +190,13 @@ $(tmp_dir)/mez2.bam:
 $(tmp_dir)/comb_neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
 	samtools merge $@ $^
 
-$(tmp_dir)/control_vindija.bam:
+$(bam_dir)/control_vindija.bam:
 	samtools view -h -b /mnt/sequencedb/AncientGenomes/Unpublished/Vi33.19/final_bam/IndelRealign/Vi33.19.chrY.indel_realn.bam Y -o $(tmp_dir)/control_vindija.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 control_vindija.Y.bam
 	mv $(tmp_dir)/control_vindija.Y.uniq.L35MQ25.bam $@
 	samtools index $@
 
-$(tmp_dir)/control_stuttgart.bam:
+$(bam_dir)/control_stuttgart.bam:
 	samtools view -h -b /mnt/454/Vindija/high_cov/final_bam/LBK/chrY-reali.bam Y -o $(tmp_dir)/control_stuttgart.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 control_stuttgart.Y.bam
 	mv $(tmp_dir)/control_stuttgart.Y.uniq.L35MQ25.bam $@
