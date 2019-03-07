@@ -1,3 +1,8 @@
+library(VariantAnnotation)
+library(tidyverse)
+
+# path = "data/vcf/merged_full.vcf.gz"
+# mindp = 4
 read_gt <- function(path, mindp = 0) {
   vcf <- readVcf(path)
 
@@ -12,7 +17,10 @@ read_gt <- function(path, mindp = 0) {
 
   dp_mask <- geno(vcf)$DP %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
   if ("chimp" %in% samples(header(vcf))) dp_mask[, "chimp"] <- 1
-  gt_df <- geno(vcf)$GT %>% replace(is.na(dp_mask), NA) %>% as_tibble %>% mutate(reference = 0)
+
+  gt_mat <- geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
+  mode(gt_mat) <- "numeric"
+  gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
 
   bind_cols(info_df, gt_df)
 }
