@@ -4,10 +4,14 @@ library(tidyverse)
 # path = "data/vcf/merged_full.vcf.gz"
 # path = "data/vcf/test_gt.vcf.gz"
 # mindp = 4
-read_gt <- function(path, mindp = 0) {
+read_gt <- function(path, mindp = 0, var_only = FALSE) {
   vcf <- readVcf(path)
 
   bialellic_pos <- elementNROWS(granges(vcf)$ALT) == 1
+
+  if (var_only)
+    bialellic_pos <- bialellic_pos & unlist(granges(vcf)$ALT) != ""
+
   gr_vcf <- granges(vcf)[bialellic_pos]
 
   info_df <- tibble(
