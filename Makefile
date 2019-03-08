@@ -212,17 +212,17 @@ $(vcf_dir)/%_tv.vcf.gz: $(vcf_dir)/%.vcf.gz
 	tabix $@
 
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
+	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
 $(vcf_dir)/merged_lippold.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_vcfs)
-	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
+	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
 $(vcf_dir)/merged_exome.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_vcfs)
-	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -v snps -M 2 -Oz -o $@.all
+	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
@@ -246,7 +246,7 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 test_cov_vcfs := $(addsuffix .vcf.gz, $(addprefix $(tmp_dir)/, $(addprefix test_cov_,$(shell seq 1 9))))
 
 $(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(test_cov_vcfs)
-	bcftools merge $^ | bcftools view -v snps -M 2 -Oz -o $@
+	bcftools merge $^ | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
 $(tmp_dir)/test_cov_%.vcf.gz: $(bam_dir)/full_denisova8.bam
