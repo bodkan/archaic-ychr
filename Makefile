@@ -15,17 +15,17 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam denisova8.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam denisova8.bam comb_neand.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam denisova8.bam denisova8sub.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam denisova8.bam denisova8sub.bam comb_neand.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam denisova8.bam denisova8sub.bam comb_neand.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz denisova8.vcf.gz $(published_vcfs)))
-lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz denisova8.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
-exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz $(published_vcfs)))
+full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz $(published_vcfs)))
+lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
+exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
 
 full_vcf := $(vcf_dir)/merged_full.vcf.gz
 full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
@@ -94,6 +94,12 @@ diagnostics:
 #
 # BAM processing
 #
+$(bam_dir)/%_denisova8sub.bam: $(coord_dir)/capture_%.bed $(bam_dir)/%_denisova8.bam $(bam_dir)/%_comb_neand.bam
+	cov_neander=$(shell bedtools coverage -a $< -b $(word 3, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
+	cov_denisova=$(shell bedtools coverage -a $< -b $(word 2, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
+	samtools view -b -s `echo $$cov_neander $$cov_denisova | awk '{print $$1/$$2}'` $(word 2, $^) > $@
+	samtools index $@
+
 $(bam_dir)/full_%.bam: $(tmp_dir)/%.bam
 	bedtools intersect -a $< -b $(coord_dir)/capture_full.bed > $@
 	samtools index $@
@@ -202,7 +208,6 @@ $(bam_dir)/control_stuttgart.bam:
 	mv $(tmp_dir)/control_stuttgart.Y.uniq.L35MQ25.bam $@
 	samtools index $@
 
-
 #
 # VCF processing
 #
@@ -245,7 +250,7 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 #
 test_cov_vcfs := $(addsuffix .vcf.gz, $(addprefix $(tmp_dir)/, $(addprefix test_cov_,$(shell seq 1 9))))
 
-$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(test_cov_vcfs)
+$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8sub.vcf.gz $(test_cov_vcfs)
 	bcftools merge $^ | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
