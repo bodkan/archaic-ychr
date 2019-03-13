@@ -3,6 +3,7 @@
 import argparse
 import sys
 from collections import defaultdict
+
 import vcf
 import pandas as pd
 
@@ -19,7 +20,7 @@ parser.add_argument("--vcf", help="VCF file to parse", required=True)
 parser.add_argument("--fasta", help="FASTA output file", required=True)
 parser.add_argument("--include", help="List of samples to include from the VCF", nargs="*", default=[])
 parser.add_argument("--exclude", help="List of samples to exclude from the VCF", nargs="*", default=[])
-parser.add_argument("--chimp-unique", help="Include sites with unique chimp alleles?", action="store_true", default=False)
+parser.add_argument("--outgroups", help="Outgroups for which private mutations will be ignored in the output", nargs="*", default=[])
 args = parser.parse_args()
 # args = parser.parse_args("--vcf data/vcf/merged_full.vcf.gz --fasta asd.fa".split())
 
@@ -42,11 +43,9 @@ for record in vcf_reader.fetch("Y"):
         call = record.genotype(name)
         called_base = call.gt_bases if call.gt_bases else "N"
         samples_dict[call.sample].append(called_base)
-breakpoint()
 
 gt_df = pd.DataFrame(samples_dict)
-if args.chimp_unique: drop = gt_df.columns.str.extract("(chimp.*)", flags=re.IGNORECASE, expand=False).dropna()
-allele_counts = gt_df.drop(columns=drop).apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
+allele_counts = gt_df.drop(columns=args.outgroups).apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
 gt_df = gt_df.loc[allele_counts > 1]
 
 # write out the called bases for each sample in a FASTA format
@@ -54,4 +53,3 @@ with open(args.fasta, "w") as output:
     for name in samples:
         print(">" + name, file=output)
         print("".join(gt_df[name]), file=output)
-
