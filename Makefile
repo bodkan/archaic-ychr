@@ -36,8 +36,9 @@ test_vcfs := $(vcf_dir)/test_cov.vcf.gz $(vcf_dir)/test_gt.vcf.gz
 
 
 # FASTA files
-fastas := chimp_nea_bteam.fa sidron_bteam.fa bteam.fa
-exome_fastas := $(addprefix $(fasta_dir)/exome_,$(fastas))
+archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
+modern_fastas := $(addprefix modern_,full.fa lippold.fa exome.fa)
+fastas := $(addprefix $(fasta_dir)/,$(archaic_fastas) $(modern_fastas))
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample
@@ -75,11 +76,11 @@ default:
 
 init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
 
-bam: $(dirs) $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
+bam: $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
 
 vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_tv_vcf) $(test_vcfs)
 
-fasta: $(dirs) $(full_fastas) $(lippold_fastas) $(exome_fastas)
+fasta: $(fastas)
 
 diagnostics:
 	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *kk1* *loschbour* *bichon* *mota* *denisova* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
@@ -287,16 +288,13 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.
 #
 # FASTA alignments for BEAST analyses
 #
-sample_ids := ElSidron A00 $(bteam_names)
+archaics := spy1 mez2 comb_neand denisova8 denisova8sub kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 
-$(fasta_dir)/%_chimp_nea_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names Chimp Mez2 Spy $(sample_ids)
+$(fasta_dir)/archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude a00_1 a00_2 denisova8sub
 
-$(fasta_dir)/%_sidron_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names $(sample_ids)
-
-$(fasta_dir)/%_bteam.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf-file $< --fasta-file $@ --chrom Y --sample-names A00 $(bteam_names)
+$(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude $(archaics) a00_1 a00_2
 
 
 
