@@ -29,8 +29,6 @@ args.include, args.exclude = set(args.include), set(args.exclude)
 # check if the provided samples are indeed present in the VCF
 if not valid_sample_names(args.include, vcf_reader.samples):
     sys.exit("Not all samples to include are present in the VCF file!")
-if not valid_sample_names(args.exclude, vcf_reader.samples):
-    sys.exit("Not all samples to exclude are present in the VCF file!")
 if len(args.include & args.exclude):
     sys.exit("Overlap between samples to include and exclude not allowed")
 
