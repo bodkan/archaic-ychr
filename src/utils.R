@@ -28,5 +28,8 @@ read_gt <- function(path, mindp = 0, var_only = FALSE) {
   mode(gt_mat) <- "numeric"
   gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
 
+  # sanitize the sample names
+  colnames(gt_df) <- str_replace_all(colnames(gt_df), "-", "_")
+
   bind_cols(info_df, gt_df)
 }
