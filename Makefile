@@ -251,7 +251,7 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 #
 test_cov_vcfs := $(addsuffix .vcf.gz, $(addprefix $(tmp_dir)/, $(addprefix test_cov_,$(shell seq 1 9))))
 
-$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8sub.vcf.gz $(test_cov_vcfs)
+$(vcf_dir)/test_cov.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_denisova8sub.vcf.gz $(test_cov_vcfs)
 	bcftools merge $^ | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
