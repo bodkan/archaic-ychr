@@ -7,12 +7,12 @@ library(tidyverse)
 read_gt <- function(path, mindp = 0, var_only = FALSE) {
   vcf <- readVcf(path)
 
-  bialellic_pos <- elementNROWS(granges(vcf)$ALT) == 1
+  biallelic_pos <- elementNROWS(granges(vcf)$ALT) == 1
 
   if (var_only)
-    bialellic_pos <- bialellic_pos & unlist(granges(vcf)$ALT) != ""
+    biallelic_pos <- biallelic_pos & unlist(granges(vcf)$ALT) != ""
 
-  gr_vcf <- granges(vcf)[bialellic_pos]
+  gr_vcf <- granges(vcf)[biallelic_pos]
 
   info_df <- tibble(
       chrom = as.character(seqnames(gr_vcf)),
@@ -21,10 +21,10 @@ read_gt <- function(path, mindp = 0, var_only = FALSE) {
       ALT = as.character(unlist(gr_vcf$ALT))
   )
 
-  dp_mask <- geno(vcf)$DP %>% .[bialellic_pos, ] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
+  dp_mask <- geno(vcf)$DP[biallelic_pos, , drop = FALSE] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
   if ("chimp" %in% samples(header(vcf))) dp_mask[, "chimp"] <- 1
 
-  gt_mat <- geno(vcf)$GT %>% .[bialellic_pos, ] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
+  gt_mat <- geno(vcf)$GT %>% .[biallelic_pos, ] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
   mode(gt_mat) <- "numeric"
   gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
 
