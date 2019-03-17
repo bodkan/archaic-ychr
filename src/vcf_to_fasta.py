@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import argparse
 import sys
 from collections import defaultdict
@@ -51,5 +52,5 @@ gt_df = gt_df.loc[allele_counts > 1]
 # write out the called bases for each sample in a FASTA format
 with open(args.fasta, "w") as output:
     for name in samples:
-        print(">" + name, file=output)
+        print(">" + re.sub("-", "_", name), file=output)
         print("".join(gt_df[name]), file=output)
