@@ -288,7 +288,7 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.
 #
 # FASTA alignments for BEAST analyses
 #
-archaics := spy1 mez2 comb_neand denisova8 denisova8sub kk1 mota bichon loschbour ustishim elsidron1 elsidron2
+archaics := spy1 mez2 comb_neand denisova8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 
 $(fasta_dir)/archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude a00_1 a00_2 denisova8sub
