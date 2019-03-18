@@ -24,7 +24,7 @@ read_gt <- function(path, mindp = 0, var_only = FALSE) {
   dp_mask <- geno(vcf)$DP[biallelic_pos, , drop = FALSE] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
   if ("chimp" %in% samples(header(vcf))) dp_mask[, "chimp"] <- 1
 
-  gt_mat <- geno(vcf)$GT %>% .[biallelic_pos, ] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
+  gt_mat <- geno(vcf)$GT[biallelic_pos, , drop = FALSE] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
   mode(gt_mat) <- "numeric"
   gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
 
