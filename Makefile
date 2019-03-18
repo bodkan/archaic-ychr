@@ -241,14 +241,24 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
+	    --strategy consensus --mincov 3 --minbq 20 --minmq 25 \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
 
-#
+# testing coverage cut-offs for Denisova 8 and late Neanderthals
+$(vcf_dir)/test_cov.vcf.gz: $(bam_dir)/full_den8.bam $(bam_dir)/full_comb_neand.bam $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz
+	$(bam_sample) --bam $(bam_dir)/full_den8.bam --ref $(ref_genome) --format vcf \
+	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
+	    --sample-name den8 --output $(tmp_dir)/test_den8; bgzip $(tmp_dir)/test_den8.vcf; tabix $(tmp_dir)/test_den8.vcf.gz
+	$(bam_sample) --bam $(bam_dir)/full_comb_neand.bam --ref $(ref_genome) --format vcf \
+	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
+	    --sample-name comb_neand --output $(tmp_dir)/test_comb_neand; bgzip $(tmp_dir)/test_comb_neand.vcf; tabix $(tmp_dir)/test_comb_neand.vcf.gz
+	bcftools merge $(tmp_dir)/test_den8.vcf.gz $(tmp_dir)/test_comb_neand.vcf.gz $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz \
+	    | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@
+	tabix $@
+
 # testing A00 VCF file for comparing bam-sample and bcftools calls
-#
 $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
 	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
