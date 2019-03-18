@@ -15,17 +15,17 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam denisova8.bam denisova8sub.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam denisova8.bam denisova8sub.bam comb_neand.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam denisova8.bam denisova8sub.bam comb_neand.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam den8.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam comb_neand.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam comb_neand.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz $(published_vcfs)))
-lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
-exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz denisova8.vcf.gz denisova8sub.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
+full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz den8.vcf.gz $(published_vcfs)))
+lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
+exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
 
 full_vcf := $(vcf_dir)/merged_full.vcf.gz
 full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
@@ -95,11 +95,11 @@ diagnostics:
 #
 # BAM processing
 #
-$(bam_dir)/%_denisova8sub.bam: $(coord_dir)/capture_%.bed $(bam_dir)/%_denisova8.bam $(bam_dir)/%_comb_neand.bam
-	cov_neander=$(shell bedtools coverage -a $< -b $(word 3, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
-	cov_denisova=$(shell bedtools coverage -a $< -b $(word 2, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
-	samtools view -b -s `echo $$cov_neander $$cov_denisova | awk '{print $$1/$$2}'` $(word 2, $^) > $@
-	samtools index $@
+# $(bam_dir)/%_denisova8sub.bam: $(coord_dir)/capture_%.bed $(bam_dir)/%_denisova8.bam $(bam_dir)/%_comb_neand.bam
+# 	cov_neander=$(shell bedtools coverage -a $< -b $(word 3, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
+# 	cov_denisova=$(shell bedtools coverage -a $< -b $(word 2, $^) -d | awk '{sum+=$$5} END { print sum/NR}'); \
+# 	samtools view -b -s `echo $$cov_neander $$cov_denisova | awk '{print $$1/$$2}'` $(word 2, $^) > $@
+# 	samtools index $@
 
 $(bam_dir)/full_%.bam: $(tmp_dir)/%.bam
 	bedtools intersect -a $< -b $(coord_dir)/capture_full.bed > $@
@@ -176,10 +176,10 @@ $(tmp_dir)/loschbour.bam:
 	mv $(tmp_dir)/Loschbour.Y.uniq.L35MQ25.bam $@
 	samtools index $@
 
-$(tmp_dir)/denisova8.bam:
-	$(split_and_merge) denisova8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 denisova8/denisova8.bam
-	mv $(tmp_dir)/denisova8.uniq.L35MQ25.bam $@
+$(tmp_dir)/den8.bam:
+	$(split_and_merge) den8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 den8/den8.bam
+	mv $(tmp_dir)/den8.uniq.L35MQ25.bam $@
 	samtools index $@
 
 $(tmp_dir)/spy1.bam:
@@ -249,20 +249,20 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 #
 # testing A00 VCF file for comparing bam-sample and bcftools calls
 #
-$(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
+$(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
 	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
 	tabix $(tmp_dir)/bcftools_a00.vcf.gz
-	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_denisova8.bam \
-		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_denisova8.vcf.gz
-	tabix $(tmp_dir)/bcftools_denisova8.vcf.gz
+	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_den8.bam \
+		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_den8.vcf.gz
+	tabix $(tmp_dir)/bcftools_den8.vcf.gz
 	samtools mpileup -B -t DP -Q 20 -q 30 -u -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_ustishim.vcf.gz
 	tabix $(tmp_dir)/bcftools_ustishim.vcf.gz
-	bcftools merge $(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz $(vcf_dir)/full_denisova8.vcf.gz $(tmp_dir)/bcftools_denisova8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
+	bcftools merge $(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(tmp_dir)/bcftools_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
 	    | bcftools view -v snps \
 	    | bcftools annotate -x INFO,FORMAT/PL \
-	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_denisova8\nbcftools_denisova8\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
+	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_den8\nbcftools_den8\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
 	    | bgzip -c > $@
 	tabix $@
 
@@ -271,10 +271,10 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_denisova8.
 #
 # FASTA alignments for BEAST analyses
 #
-archaics := spy1 mez2 comb_neand denisova8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
+archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 
 $(fasta_dir)/archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude a00_1 a00_2 denisova8sub
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude a00_1 a00_2
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --outgroups chimp --exclude $(archaics) a00_1 a00_2
