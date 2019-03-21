@@ -283,13 +283,13 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 #
 # archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
-emh := kk1 mota bichon loschbour ustishim
+exclude := chimp kk1 mota bichon loschbour a00_1 a00_2 chimp
 
 $(fasta_dir)/all_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(emh) a00_1 a00_2 chimp
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude)
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(emh) $(archaics) a00_1 a00_2 chimp
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics)
 
 
 
