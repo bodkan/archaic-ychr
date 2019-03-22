@@ -14,7 +14,7 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
-published_bams := $(sgdp_bams) ustishim.bam a00.bam a00_1.bam a00_2.bam kk1.bam mota.bam bichon.bam loschbour.bam
+published_bams := $(sgdp_bams) ustishim.bam a00.bam kk1.bam mota.bam bichon.bam loschbour.bam
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam den8.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam comb_neand.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam comb_neand.bam $(published_bams)))
@@ -283,7 +283,7 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 #
 # archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
-exclude := chimp kk1 mota bichon loschbour a00_1 a00_2 chimp
+exclude := chimp kk1 mota bichon loschbour chimp
 
 $(fasta_dir)/all_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude)

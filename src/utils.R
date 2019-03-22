@@ -4,7 +4,7 @@ library(tidyverse)
 # path = "data/vcf/merged_exome.vcf.gz"
 # path = "data/vcf/test_gt.vcf.gz"
 # mindp = 4
-read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE) {
+read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude = NA) {
   vcf <- readVcf(path)
 
   keep_pos <- elementNROWS(granges(vcf)$ALT) == 1
@@ -37,6 +37,8 @@ read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE) {
     res_df <- filter(res_df,  !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
   }
 
+  if (!is.na(exclude)) return(select(-one_of(exclude)))
+
   res_df
 }
 
@@ -53,7 +55,7 @@ sample_info <- function(gt) {
     )
 
     modern <- tibble(
-        name = c(str_subset(colnames(gt), "^S_"), "reference", "a00", "a00_1", "a00_2"),
+        name = c(str_subset(colnames(gt), "^S_"), "reference", "a00"), #, "a00_1", "a00_2"),
         pop = case_when(
             name == "reference" ~ "reference",
             name %in% c("S_Burmese_1", "S_Thai_1", "S_Han_2", "S_Dai_2", "S_Punjabi_1", "S_Papuan_2", "S_Karitiana_1") ~ "EastEur",
