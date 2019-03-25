@@ -38,7 +38,8 @@ test_vcfs := $(vcf_dir)/test_gt.vcf.gz
 # FASTA files
 all_fastas := $(addprefix all_,full.fa lippold.fa exome.fa)
 modern_fastas := $(addprefix modern_,full.fa lippold.fa exome.fa)
-fastas := $(addprefix $(fasta_dir)/,$(all_fastas) $(modern_fastas))
+present_fastas := $(addprefix present_,full.fa lippold.fa exome.fa)
+fastas := $(addprefix $(fasta_dir)/,$(all_fastas) $(modern_fastas) $(present_fastas))
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample
@@ -291,6 +292,9 @@ $(fasta_dir)/all_%.fa: $(vcf_dir)/merged_%.vcf.gz
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics)
 
+$(fasta_dir)/present_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics)
+
 
 
 #
@@ -303,7 +307,6 @@ $(lippold_bed):
 	# cp input/basti_design.bed > $@
 	bedtools intersect -a input/basti_design.bed -b $(map_filter) > $@.tmp
 	bedtools sort -i $@.tmp > $@; rm $@.tmp
-
 
 # Y chromosome capture regions designed by Qiaomei (~6Mb)
 $(full_bed):
