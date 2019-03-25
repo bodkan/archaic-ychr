@@ -36,10 +36,10 @@ test_vcfs := $(vcf_dir)/test_gt.vcf.gz
 
 
 # FASTA files
-all_fastas := $(addprefix all_,full.fa lippold.fa exome.fa)
+archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
 modern_fastas := $(addprefix modern_,full.fa lippold.fa exome.fa)
 present_fastas := $(addprefix present_,full.fa lippold.fa exome.fa)
-fastas := $(addprefix $(fasta_dir)/,$(all_fastas) $(modern_fastas) $(present_fastas))
+fastas := $(addprefix $(fasta_dir)/,$(archaic_fastas) $(modern_fastas) $(present_fastas))
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample
@@ -284,16 +284,16 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 #
 # archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
-exclude := chimp kk1 mota bichon loschbour chimp
+exclude := chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
 
-$(fasta_dir)/all_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude)
+$(fasta_dir)/archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics)
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics) --variable
 
 $(fasta_dir)/present_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics)
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable
 
 
 

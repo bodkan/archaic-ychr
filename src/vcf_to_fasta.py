@@ -21,9 +21,10 @@ parser.add_argument("--vcf", help="VCF file to parse", required=True)
 parser.add_argument("--fasta", help="FASTA output file", required=True)
 parser.add_argument("--include", help="List of samples to include from the VCF", nargs="*", default=[])
 parser.add_argument("--exclude", help="List of samples to exclude from the VCF", nargs="*", default=[])
-parser.add_argument("--outgroups", help="Outgroups for which private mutations will be ignored in the output", nargs="*", default=[])
+parser.add_argument("--variable", help="Output only variable sites?", action="store_true", default=False)
+
 args = parser.parse_args()
-# args = parser.parse_args("--vcf data/vcf/merged_full.vcf.gz --fasta asd.fa".split())
+# args = parser.parse_args("--vcf data/vcf/merged_exome.vcf.gz --fasta asd.fa --variable".split())
 
 vcf_reader = vcf.Reader(open(args.vcf, "rb"))
 
@@ -39,18 +40,31 @@ samples = args.include if args.include else set(vcf_reader.samples) - args.exclu
 
 # iterate through the VCF and accumulate called bases for all samples
 samples_dict = defaultdict(list)
+ref_bases = []
 for record in vcf_reader.fetch("Y"):
+    ref_bases.append(record.REF)
     for name in samples:
         call = record.genotype(name)
         called_base = call.gt_bases if call.gt_bases else "N"
         samples_dict[call.sample].append(called_base)
 
 gt_df = pd.DataFrame(samples_dict)
-allele_counts = gt_df.apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
-gt_df = gt_df.loc[allele_counts > 1]
+ref_bases = pd.Series(ref_bases)
+
+if args.variable:
+    # count the number of alleles observed at each site and subset the GT
+    # dataframe only to biallelic sites
+    allele_counts = gt_df.apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
+    gt_df = gt_df.loc[allele_counts > 1]
 
 # write out the called bases for each sample in a FASTA format
 with open(args.fasta, "w") as output:
     for name in samples:
         print(">" + re.sub("-", "_", name), file=output)
         print("".join(gt_df[name]), file=output)
+
+# save the counts of constant sites
+if args.variable:
+    const_sites = dict(ref_bases[allele_counts == 1].value_counts())
+    with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
+        print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
