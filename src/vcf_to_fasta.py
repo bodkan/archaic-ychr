@@ -46,8 +46,8 @@ for record in vcf_reader.fetch("Y"):
         samples_dict[call.sample].append(called_base)
 
 gt_df = pd.DataFrame(samples_dict)
-# allele_counts = gt_df.drop(columns=args.outgroups).apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
-# gt_df = gt_df.loc[allele_counts > 1]
+allele_counts = gt_df.apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
+gt_df = gt_df.loc[allele_counts > 1]
 
 # write out the called bases for each sample in a FASTA format
 with open(args.fasta, "w") as output:
