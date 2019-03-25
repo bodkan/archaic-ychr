@@ -22,6 +22,7 @@ parser.add_argument("--fasta", help="FASTA output file", required=True)
 parser.add_argument("--include", help="List of samples to include from the VCF", nargs="*", default=[])
 parser.add_argument("--exclude", help="List of samples to exclude from the VCF", nargs="*", default=[])
 parser.add_argument("--variable", help="Output only variable sites?", action="store_true", default=False)
+parser.add_argument("--tvonly", help="Write only transversion SNPs?", action="store_true", default=False)
 
 args = parser.parse_args()
 # args = parser.parse_args("--vcf data/vcf/merged_exome.vcf.gz --fasta asd.fa --variable".split())
@@ -42,6 +43,8 @@ samples = args.include if args.include else set(vcf_reader.samples) - args.exclu
 samples_dict = defaultdict(list)
 ref_bases = []
 for record in vcf_reader.fetch("Y"):
+    if args.tvonly and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
+        continue
     ref_bases.append(record.REF)
     for name in samples:
         call = record.genotype(name)

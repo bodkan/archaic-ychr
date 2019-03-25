@@ -34,12 +34,13 @@ exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
 
 test_vcfs := $(vcf_dir)/test_gt.vcf.gz
 
-
 # FASTA files
 archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
 modern_fastas := $(addprefix modern_,full.fa lippold.fa exome.fa)
 present_fastas := $(addprefix present_,full.fa lippold.fa exome.fa)
-fastas := $(addprefix $(fasta_dir)/,$(archaic_fastas) $(modern_fastas) $(present_fastas))
+all_fastas := $(addprefix $(fasta_dir)/all_,$(archaic_fastas) $(modern_fastas) $(present_fastas))
+tv_fastas := $(addprefix $(fasta_dir)/tv_,$(archaic_fastas) $(modern_fastas) $(present_fastas))
+fastas := $(all_fastas) $(tv_fastas)
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample
@@ -286,15 +287,23 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
 exclude := chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
 
-$(fasta_dir)/archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
+$(fasta_dir)/all_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable
 
-$(fasta_dir)/modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
+$(fasta_dir)/all_modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics) --variable
 
-$(fasta_dir)/present_%.fa: $(vcf_dir)/merged_%.vcf.gz
+$(fasta_dir)/all_present_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable
 
+$(fasta_dir)/tv_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable --tvonly
+
+$(fasta_dir)/tv_modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics) --variable --tvonly
+
+$(fasta_dir)/tv_present_%.fa: $(vcf_dir)/merged_%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable --tvonly
 
 
 #
