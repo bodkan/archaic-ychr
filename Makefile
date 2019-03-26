@@ -15,24 +15,24 @@ dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := $(sgdp_bams) ustishim.bam a00.bam kk1.bam mota.bam bichon.bam loschbour.bam
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam comb_neand.bam den8.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam comb_neand.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam comb_neand.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam neand.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam neand.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz comb_neand.vcf.gz den8.vcf.gz $(published_vcfs)))
-lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
-exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz comb_neand.vcf.gz $(published_vcfs)))
+full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz $(published_vcfs)))
+lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz neand.vcf.gz $(published_vcfs)))
+exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz neand.vcf.gz $(published_vcfs)))
 
 full_vcf := $(vcf_dir)/merged_full.vcf.gz
 full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
 lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
 
-test_vcfs := $(vcf_dir)/test_gt.vcf.gz
+test_vcfs := $(vcf_dir)/test_gt.vcf.gz $(vcf_dir)/test_cov.vcf.gz
 
 # FASTA files
 archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
@@ -196,7 +196,7 @@ $(tmp_dir)/mez2.bam:
 	mv $(tmp_dir)/mez2.uniq.L35MQ25.bam $@
 	samtools index $@
 
-$(tmp_dir)/comb_neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
+$(tmp_dir)/neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
 	samtools merge $@ $^
 
 $(bam_dir)/control_vindija.bam:
@@ -249,14 +249,14 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	tabix $@
 
 # testing coverage cut-offs for Denisova 8 and late Neanderthals
-$(vcf_dir)/test_cov.vcf.gz: $(bam_dir)/full_den8.bam $(bam_dir)/full_comb_neand.bam $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz
+$(vcf_dir)/test_cov.vcf.gz: $(bam_dir)/full_den8.bam $(bam_dir)/full_neand.bam $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz
 	$(bam_sample) --bam $(bam_dir)/full_den8.bam --ref $(ref_genome) --format vcf \
 	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name den8 --output $(tmp_dir)/test_den8; bgzip $(tmp_dir)/test_den8.vcf; tabix $(tmp_dir)/test_den8.vcf.gz
-	$(bam_sample) --bam $(bam_dir)/full_comb_neand.bam --ref $(ref_genome) --format vcf \
+	$(bam_sample) --bam $(bam_dir)/full_neand.bam --ref $(ref_genome) --format vcf \
 	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
-	    --sample-name comb_neand --output $(tmp_dir)/test_comb_neand; bgzip $(tmp_dir)/test_comb_neand.vcf; tabix $(tmp_dir)/test_comb_neand.vcf.gz
-	bcftools merge $(tmp_dir)/test_den8.vcf.gz $(tmp_dir)/test_comb_neand.vcf.gz $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz \
+	    --sample-name neand --output $(tmp_dir)/test_neand; bgzip $(tmp_dir)/test_neand.vcf; tabix $(tmp_dir)/test_neand.vcf.gz
+	bcftools merge $(tmp_dir)/test_den8.vcf.gz $(tmp_dir)/test_neand.vcf.gz $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz \
 	    | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
@@ -283,8 +283,8 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 #
 # FASTA alignments for BEAST analyses
 #
-# archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
-archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
+# archaics := spy1 mez2 neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
+archaics := spy1 mez2 neand den8 elsidron1 elsidron2
 exclude := spy1 mez2 chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
 
 $(fasta_dir)/all_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
