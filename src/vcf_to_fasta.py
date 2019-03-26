@@ -25,7 +25,7 @@ parser.add_argument("--variable", help="Output only variable sites?", action="st
 parser.add_argument("--tvonly", help="Write only transversion SNPs?", action="store_true", default=False)
 
 args = parser.parse_args()
-# args = parser.parse_args("--vcf data/vcf/merged_exome.vcf.gz --fasta asd.fa --variable".split())
+# args = parser.parse_args("--vcf data/vcf/merged_full.vcf.gz --fasta asd.fa --variable".split())
 
 vcf_reader = vcf.Reader(open(args.vcf, "rb"))
 
