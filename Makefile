@@ -285,7 +285,7 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 #
 # archaics := spy1 mez2 comb_neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
 archaics := spy1 mez2 comb_neand den8 elsidron1 elsidron2
-exclude := chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
+exclude := spy1 mez2 chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
 
 $(fasta_dir)/all_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable
