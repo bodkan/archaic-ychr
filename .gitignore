@@ -13,3 +13,4 @@ test/
 doc/.ipynb_checkpoints
 ~*
 /fig
+.Rhistory
