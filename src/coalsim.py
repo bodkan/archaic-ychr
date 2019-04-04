@@ -44,24 +44,24 @@ parser.add_argument("--nasn", type=int, default=0, help="Number of Asian chromos
 parser.add_argument("--nafr", type=int, default=1, help="Number of African chromosomes to simulate")
 
 parser.add_argument("--split-chimp", type=int, default=6_000_000)
-parser.add_argument("--split-arch", type=int, default=650_000)
-parser.add_argument("--split-eur", type=int, default=250_000)
+parser.add_argument("--split-arch", type=int, required=True)
+parser.add_argument("--split-afr", type=int, required=True)
 parser.add_argument("--split-asn", type=int, default=45_000)
 
 parser.add_argument("--scale", type=float, default=1.0)
 
 parser.add_argument("--output", metavar="FILE", help="Output filename")
 
-parser.add_argument("--debug", action="store_true", help="Print debugging info")
+parser.add_argument("--debug", action="store_true", help="Print debugging info", default=False)
 
 args = parser.parse_args()
-#args = parser.parse_args("--debug --arch-ages 130001 50000 --ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.tsv".split())
+# args = parser.parse_args("--arch-ages 130001 50000 --split-arch 650_000 --split-afr 250_000 --ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.tsv".split())
 
 pop_params = {
     "chimp": {"id": 0, "Ne": 10000, "t_sample": 1 * [0], "t_split" : args.split_chimp},
     "arch": {"id": 1, "Ne": args.Ne_arch,  "t_sample": args.arch_ages, "t_split": args.split_arch},
     "afr": {"id": 2, "Ne": args.Ne_afr, "t_sample": args.nafr * [0]},
-    "eur": {"id": 3, "Ne": args.Ne_nonafr, "t_sample": args.ui_age + args.neur * [0], "t_split": args.split_eur},
+    "eur": {"id": 3, "Ne": args.Ne_nonafr, "t_sample": args.ui_age + args.neur * [0], "t_split": args.split_afr},
     "asn": {"id": 4, "Ne": args.Ne_nonafr, "t_sample": args.nasn * [0], "t_split": args.split_asn}
 }
 
