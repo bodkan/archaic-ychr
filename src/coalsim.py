@@ -54,8 +54,8 @@ parser.add_argument("--output", metavar="FILE", help="Output filename")
 
 parser.add_argument("--debug", action="store_true", help="Print debugging info")
 
-# args = parser.parse_args()
-args = parser.parse_args("--debug --arch-ages 130000 50000 --ui-age 45000 --neur 5 --nafr 5 --output out.tsv".split())
+args = parser.parse_args()
+#args = parser.parse_args("--debug --arch-ages 130001 50000 --ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.tsv".split())
 
 pop_params = {
     "chimp": {"id": 0, "Ne": 10000, "t_sample": 1 * [0], "t_split" : args.split_chimp},
