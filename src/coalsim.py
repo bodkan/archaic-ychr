@@ -35,7 +35,7 @@ parser.add_argument("--Ne-afr", type=int, default=100)
 parser.add_argument("--Ne-arch", type=int, default=10)
 
 parser.add_argument("--seq-len", help="Sequence length", type=int, default=7_000_000)
-parser.add_argument("--mut-rate", help="Mutation rate", type=float, default=7.6e-9)
+parser.add_argument("--mut-rate", help="Mutation rate", type=float, default=7.6e-10)
 
 parser.add_argument("--ui-age", nargs="+", type=int, help="Age of the Ust-Ishim individual [years BP]")
 parser.add_argument("--arch-ages", nargs="+", type=int, help="Ages of archaic samples [years BP]", required=True)
