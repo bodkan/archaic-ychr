@@ -1,6 +1,6 @@
-# path = "data/vcf/merged_exome.vcf.gz"
-# path = "data/vcf/test_gt.vcf.gz"
-# mindp = 4
+#
+# Read genotypes from a VCF file, returning a data frame object.
+#
 read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude = NA) {
   vcf <- readVcf(path)
 
@@ -41,6 +41,9 @@ read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude 
 
 
 
+#
+# Read table of genotypes simulated by msprime.
+#
 read_simgt <- function(path) {
   suppressMessages(read_tsv(path)) %>%
     mutate(chrom = "simY", pos = round(pos), REF = "A", ALT = "T") %>%
@@ -49,12 +52,31 @@ read_simgt <- function(path) {
 
 
 
+#
+# Generate table of sample names and their population assignments and ages
+# from the simulated data.
+#
 read_siminfo <- function(gt) {
   emh <- tibble(name = str_subset(colnames(gt), "ustishim"), age = 45000, pop = "EMH")
   afr <- tibble(name = str_subset(colnames(gt), "afr"), age = 0, pop = "Africa")
   westeur <- tibble(name = str_subset(colnames(gt), "eur"), age = 0, pop = "WestEur")
   easteur <- tibble(name = str_subset(colnames(gt), "asn"), age = 0, pop = "EastEur")
   bind_rows(emh, afr, westeur, easteur)
+}
+
+
+
+#
+# Add a given proportion of sequencing/damage errors to a set of samples.
+# samples <- c("arch0", "arch1")
+#
+add_errors <- function(gt, rate, samples) {
+  gt[, samples] <- map_dfr(gt[, samples], function(alleles) {
+    mut_pos <- sort(sample(seq_along(alleles), size = length(alleles) * rate))
+    alleles[mut_pos] <- as.integer(!as.logical(alleles[mut_pos]))
+    alleles
+  })
+  gt
 }
 
 

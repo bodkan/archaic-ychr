@@ -1,0 +1,12 @@
+Package: ychr
+Title: Analysis of Archaic Y Chromosomes
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Martin",
+           family = "Petr",
+           role = c("aut", "cre"),
+           email = "mp@bodkan.net")
+Description: A set of functions for Y chromosome analysis.
+License: MIT
+Encoding: UTF-8
+LazyData: true
