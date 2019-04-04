@@ -51,7 +51,7 @@ parser.add_argument("--split-asn", type=int, default=45_000)
 parser.add_argument("--scale", type=float, default=1.0)
 
 parser.add_argument("--output", metavar="FILE", help="Output filename")
-parser.add_argument("--format", nargs="+", choices=["snp", "fa"], required=True)
+parser.add_argument("--format", choices=["snp", "fa"], required=True)
 
 parser.add_argument("--debug", action="store_true", help="Print debugging info", default=False)
 
@@ -125,10 +125,10 @@ snps = pd.DataFrame(
     index=(v.position for v in ts.variants())
 ).rename(columns={"eur0": f"ustishim"})
 
-if args.format == "snps":
+if args.format == "snp":
   snps.to_csv(args.output, sep="\t", index_label="pos")
 else:
-  with open(args.output + ".fa", "w") as fa:
+  with open(args.output, "w") as fa:
       for s in snps.columns:
           print(f">{s}", file=fa)
           print("".join("A" if i == 0 else "T" for i in snps[s]), file=fa)
