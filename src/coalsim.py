@@ -75,11 +75,11 @@ t_chimp, t_arch, t_eur, t_asn = [
 
 demography = [
     # population size during the bottleneck
-    # msp.PopulationParametersChange(
-    #     time=t_eur - years_to_gen(10000),
-    #     initial_size=2000,
-    #     population_id=id_eur
-    # ),
+    msp.PopulationParametersChange(
+        time=t_eur - years_to_gen(10000),
+        initial_size=2000,
+        population_id=id_eur
+    ),
 
     # EUR-ASN split
     msp.MassMigration(t_asn, id_asn, id_eur, 1.0),
