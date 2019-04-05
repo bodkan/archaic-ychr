@@ -61,7 +61,7 @@ parser.add_argument("--debug", action="store_true", help="Print debugging info",
 
 args = parser.parse_args()
 # args = parser.parse_args("--debug --arch-ages 13000 --split-arch 650_000 --split-afr 250_000 "
-# "--ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.snp --format snp".split())
+# "--ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out --format snp".split())
 
 pop_params = {
     "chimp": {"id": 0, "Ne": Y_Ne * 10000, "t_sample": 1 * [0], "t_split" : args.split_chimp},
@@ -137,9 +137,9 @@ snps = pd.DataFrame(
 ).rename(columns={"eur0": f"ustishim"})
 
 if args.format == "snp":
-  snps.to_csv(args.output, sep="\t", index_label="pos")
+  snps.to_csv(args.output + ".snp.gz", sep="\t", index_label="pos")
 else:
-  with open(args.output, "w") as fa:
+  with open(args.output + ".fa", "w") as fa:
       for s in snps.columns:
           print(f">{s}", file=fa)
           print("".join("A" if i == 0 else "T" for i in snps[s]), file=fa)

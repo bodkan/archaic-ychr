@@ -8,6 +8,6 @@ for rep in {1..10}; do
   qsub -V -cwd -j y -l virtual_free=1G,h_vmem=1G -o tmp/sge/${N}.out -N $N \
     ./src/coalsim.py --split-arch ${split} --split-afr 250000 \
       --arch-ages 130000 --ui-age 45000 --neur 5 --nafr 5 --nasn 5 \
-      --format snp --output data/coalsims/${N}.tsv
+      --format snp --output data/coalsims/${N}
 done
 done
