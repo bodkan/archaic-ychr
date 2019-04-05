@@ -2,10 +2,10 @@
 % Please edit documentation in R/utils.R
 \name{read_info}
 \alias{read_info}
-\title{Generate table of sample names and their population assignments and ages}
+\title{Generate table of sample names and their population assignments and ages.}
 \usage{
 read_info(gt)
 }
 \description{
-Generate table of sample names and their population assignments and ages
+Generate table of sample names and their population assignments and ages.
 }
