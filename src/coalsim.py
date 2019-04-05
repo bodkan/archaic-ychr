@@ -6,8 +6,12 @@ import pandas as pd
 import msprime as msp
 
 
+GEN_TIME = 25
+Y_Ne = 0.5 * 0.25
+
+
 def years_to_gen(y):
-    return int(y  / 25)
+    return int(y  / GEN_TIME)
 
 
 def define_samples(pop_params):
@@ -30,12 +34,12 @@ def all_inds(pop_params):
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--Ne-nonafr", type=int, default=100)
-parser.add_argument("--Ne-afr", type=int, default=100)
-parser.add_argument("--Ne-arch", type=int, default=10)
+parser.add_argument("--Ne-nonafr", type=int, default=5000)
+parser.add_argument("--Ne-afr", type=int, default=10000)
+parser.add_argument("--Ne-arch", type=int, default=1000)
 
 parser.add_argument("--seq-len", help="Sequence length", type=int, default=7_000_000)
-parser.add_argument("--mut-rate", help="Mutation rate", type=float, default=7.6e-10)
+parser.add_argument("--mut-rate", help="Mutation rate [per bp per year]", type=float, default=7.6e-10)
 
 parser.add_argument("--ui-age", nargs="+", type=int, help="Age of the Ust-Ishim individual [years BP]")
 parser.add_argument("--arch-ages", nargs="+", type=int, help="Ages of archaic samples [years BP]", required=True)
@@ -56,14 +60,15 @@ parser.add_argument("--format", choices=["snp", "fa"], required=True)
 parser.add_argument("--debug", action="store_true", help="Print debugging info", default=False)
 
 args = parser.parse_args()
-# args = parser.parse_args("--arch-ages 130001 50000 --split-arch 650_000 --split-afr 250_000 --ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.tsv".split())
+# args = parser.parse_args("--debug --arch-ages 13000 --split-arch 650_000 --split-afr 250_000 "
+# "--ui-age 45000 --neur 5 --nafr 5 --nasn 5 --output out.snp --format snp".split())
 
 pop_params = {
-    "chimp": {"id": 0, "Ne": 10000, "t_sample": 1 * [0], "t_split" : args.split_chimp},
-    "arch": {"id": 1, "Ne": args.Ne_arch,  "t_sample": args.arch_ages, "t_split": args.split_arch},
-    "afr": {"id": 2, "Ne": args.Ne_afr, "t_sample": args.nafr * [0]},
-    "eur": {"id": 3, "Ne": args.Ne_nonafr, "t_sample": args.ui_age + args.neur * [0], "t_split": args.split_afr},
-    "asn": {"id": 4, "Ne": args.Ne_nonafr, "t_sample": args.nasn * [0], "t_split": args.split_asn}
+    "chimp": {"id": 0, "Ne": Y_Ne * 10000, "t_sample": 1 * [0], "t_split" : args.split_chimp},
+    "arch": {"id": 1, "Ne": Y_Ne * args.Ne_arch,  "t_sample": args.arch_ages, "t_split": args.split_arch},
+    "afr": {"id": 2, "Ne": Y_Ne * args.Ne_afr, "t_sample": args.nafr * [0]},
+    "eur": {"id": 3, "Ne": Y_Ne * args.Ne_nonafr, "t_sample": args.ui_age + args.neur * [0], "t_split": args.split_afr},
+    "asn": {"id": 4, "Ne": Y_Ne * args.Ne_nonafr, "t_sample": args.nasn * [0], "t_split": args.split_asn}
 }
 
 id_chimp, id_arch, id_afr, id_eur, id_asn = [pop_params[p]["id"] for p in pop_params]
@@ -74,15 +79,22 @@ t_chimp, t_arch, t_eur, t_asn = [
 ]
 
 demography = [
+    # EUR-ASN split
+    msp.MassMigration(t_asn, id_asn, id_eur, 1.0),
+
     # population size during the bottleneck
     msp.PopulationParametersChange(
-        time=t_eur - years_to_gen(10000),
-        initial_size=2000,
+        time=years_to_gen(60000),
+        initial_size=Y_Ne * 2000,
         population_id=id_eur
     ),
 
-    # EUR-ASN split
-    msp.MassMigration(t_asn, id_asn, id_eur, 1.0),
+    # population size during the bottleneck
+    msp.PopulationParametersChange(
+        time=years_to_gen(80000),
+        initial_size=Y_Ne * args.Ne_afr,
+        population_id=id_eur
+    ),
 
     # out of Africa migration
     msp.MassMigration(t_eur, id_eur, id_afr, 1.0),
@@ -104,14 +116,13 @@ if args.debug:
     for p, i in pop_params.items():
         print(f"    {p}: {i['id']}")
     msp.DemographyDebugger(
-        Ne=10000,
         population_configurations=pop_config,
         demographic_events=demography
     ).print_history()
 
 ts = msp.simulate(
     length=args.seq_len,
-    mutation_rate=args.mut_rate,
+    mutation_rate=args.mut_rate * GEN_TIME,
     recombination_rate=0,
     samples=samples,
     population_configurations=pop_config,
