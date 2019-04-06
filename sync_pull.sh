@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rsync -avzhP bionc04.eva.mpg.de:/mnt/expressions/mp/y-chr/${1} .
+rsync -avzhP bionc11.eva.mpg.de:/mnt/expressions/mp/ychr/${1} .
