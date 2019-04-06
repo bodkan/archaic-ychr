@@ -3,6 +3,7 @@ SHELL := /bin/bash
 # directories
 data_dir := data
 bam_dir := $(data_dir)/bam
+pileup_dir := $(data_dir)/pileup
 fasta_dir := $(data_dir)/fasta
 vcf_dir := $(data_dir)/vcf
 coord_dir := $(data_dir)/coord
@@ -10,7 +11,7 @@ sim_dir := $(data_dir)/sim
 tmp_dir := tmp
 fig_dir := fig
 src_dir := src
-dirs := $(data_dir) $(bam_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
+dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
@@ -20,6 +21,9 @@ lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam neand.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
+
+# pileup files
+full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz neand.txt.gz den8.txt.gz ustishim.txt.gz))
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
@@ -73,6 +77,7 @@ default:
 	@echo -e "Usage:"
 	@echo -e "\tmake init         -- create all necessary directories"
 	@echo -e "\tmake bam          -- process and filter BAM files"
+	@echo -e "\tmake pileup       -- generate pileup data from BAM files"
 	@echo -e "\tmake vcf          -- run consensus-based genotyping"
 	@echo -e "\tmake fasta        -- generate FASTA alignments from VCF files"
 	@echo -e "\tmake diagnostics  -- generate diagnostic plots on BAMs"
@@ -81,6 +86,8 @@ default:
 init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
 
 bam: $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
+
+pileup: $(full_pileups)
 
 vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(test_vcfs)
 
@@ -320,6 +327,17 @@ $(fasta_dir)/tv_modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
 
 $(fasta_dir)/tv_present_%.fa: $(vcf_dir)/merged_%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable --tvonly
+
+
+#
+# generate pileup files for read-based contamination estimates
+#
+$(pileup_dir)/%.txt.gz: $(bam_dir)/%.bam
+	$(bam_sample) --bam $< --ref $(ref_genome) --format pileup \
+	    --minbq 20 --minmq 25 \
+	    --output $(basename $(basename $@))
+	bgzip $(basename $@)
+
 
 
 #
