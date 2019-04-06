@@ -63,9 +63,27 @@ calculate_tarch <- function(gt, samples, tafr) {
                     mutate(arch = arch, afr = afr, ref = ref)
             })
         })
-    }) %>% inner_join(tafr_ui, by = c("afr", "ref")) %>%
-    mutate(p = a / (a + d + e),
-           alpha = (1 + p) / (1 - p),
-           tmrca_arch = tmrca_afr * alpha) %>%
+    }) %>%
+    inner_join(tafr_ui, by = c("afr", "ref")) %>%
+    mutate(
+      p = a / (a + d + e),
+      alpha = (1 + p) / (1 - p),
+      tmrca_arch = tmrca_afr * alpha
+    ) %>%
     select(arch, afr, ref, tmrca_arch, alpha, mut_rate, tmrca_afr, tmrca_ad, tmrca_f, everything())
 }
+
+
+#' Calculate African and archaic TMRCAs.
+calculate_tmrca <- function(gt) {
+    if ("simY" %in% gt$chrom)
+      samples <- read_siminfo(gt)
+    else
+      samples <- read_info(gt)
+
+    tafr <- calculate_tafr(gt, samples)
+    tarch <- calculate_tarch(gt, samples, tafr)
+
+    tarch
+}
+

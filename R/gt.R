@@ -1,25 +1,26 @@
 #' Read genotypes from a VCF file, returning a data frame object.
+#' @import stringr dplyr purrr
 read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude = NA) {
-  vcf <- readVcf(path)
+  vcf <- VariantAnnotation::readVcf(path)
 
-  keep_pos <- elementNROWS(granges(vcf)$ALT) == 1
+  keep_pos <- IRanges::elementNROWS(GenomicRanges::granges(vcf)$ALT) == 1
 
   if (var_only)
-    keep_pos <- keep_pos & unlist(granges(vcf)$ALT) != ""
+    keep_pos <- keep_pos & unlist(GenomicRanges::granges(vcf)$ALT) != ""
 
-  gr_vcf <- granges(vcf)[keep_pos]
+  gr_vcf <- GenomicRanges::granges(vcf)[keep_pos]
 
   info_df <- tibble(
-    chrom = as.character(seqnames(gr_vcf)),
-    pos = start(gr_vcf),
+    chrom = as.character(GenomicRanges::seqnames(gr_vcf)),
+    pos = GenomicRanges::start(gr_vcf),
     REF = as.character(gr_vcf$REF),
     ALT = as.character(unlist(gr_vcf$ALT))
   )
 
-  dp_mask <- geno(vcf)$DP[keep_pos, , drop = FALSE] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
-  if ("chimp" %in% samples(header(vcf))) dp_mask[, "chimp"] <- 1
+  dp_mask <- VariantAnnotation::geno(vcf)$DP[keep_pos, , drop = FALSE] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
+  if ("chimp" %in% VariantAnnotation::samples(VariantAnnotation::header(vcf))) dp_mask[, "chimp"] <- 1
 
-  gt_mat <- geno(vcf)$GT[keep_pos, , drop = FALSE] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
+  gt_mat <- VariantAnnotation::geno(vcf)$GT[keep_pos, , drop = FALSE] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
   mode(gt_mat) <- "numeric"
   gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
 
@@ -39,6 +40,7 @@ read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude 
 
 
 #' Read table of genotypes simulated by msprime.
+#' @import dplyr readr
 read_simgt <- function(path) {
   suppressMessages(read_tsv(path)) %>%
     mutate(chrom = "simY", pos = round(pos), REF = "A", ALT = "T") %>%
@@ -48,6 +50,7 @@ read_simgt <- function(path) {
 
 #' Add a given proportion of sequencing/damage errors to a set of samples.
 #' samples <- c("arch0", "arch1")
+#' @import purrr
 add_errors <- function(gt, rate, samples) {
   gt[, samples] <- map_dfr(gt[, samples], function(alleles) {
     mut_pos <- sort(sample(seq_along(alleles), size = length(alleles) * rate))

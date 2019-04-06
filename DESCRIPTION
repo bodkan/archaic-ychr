@@ -11,3 +11,12 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Imports: 
+    VariantAnnotation,
+    GenomicRanges,
+    IRanges,
+    dplyr,
+    purrr,
+    furrr,
+    stringr,
+    here
