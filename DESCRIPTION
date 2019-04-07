@@ -19,4 +19,5 @@ Imports:
     purrr,
     furrr,
     stringr,
-    here
+    here,
+    tidyr
