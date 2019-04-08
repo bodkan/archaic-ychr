@@ -69,7 +69,7 @@ calculate_tarch <- function(gt, samples, tafr) {
             })
         })
     })%>%
-      inner_join(samples, by = c("afr" = "ref"))
+      inner_join(tafr_ui, by = c("afr" = "ref"))
 
     site_counts %>%
       mutate(
