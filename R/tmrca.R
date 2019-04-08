@@ -27,7 +27,7 @@ calculate_tafr <- function(gt, samples) {
     afrs <- filter(samples, pop == "Africa")$name
     emhs <- filter(samples, pop == "EMH")$name
 
-    site_couns <- map_dfr(refs, function(ref) {
+    site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
             map_dfr(emhs, function(emh) {
                 sum_patterns(gt, w = "chimp", x = afr, y = ref, z = emh) %>%
