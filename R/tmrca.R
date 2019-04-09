@@ -45,8 +45,8 @@ calculate_tafr <- function(gt, samples) {
           tmrca_f = f / (mut_rate * total),
           tmrca_afr = (tmrca_ad + tmrca_f) / 2
       ) %>%
-      nest(a:f, .key = "counts_afr") %>%
-      select(afr, ref, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_afr, total, emh, age, pop)
+      nest(a:f, total, .key = "counts_afr") %>%
+      select(afr, ref, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_afr, emh, age, pop)
 }
 
 
@@ -59,7 +59,7 @@ calculate_tarch <- function(gt, samples, tafr) {
     archaics <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
 
     tafr_ui <- filter(tafr, emh == "ustishim") %>%
-        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr, counts_afr, -total)
+        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr, counts_afr)
 
     site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
@@ -83,7 +83,7 @@ calculate_tarch <- function(gt, samples, tafr) {
         alpha = (1 + p) / (1 - p),
         tmrca_arch = tmrca_afr * alpha
       ) %>%
-      nest(a:f, .key = "counts_arch") %>%
+      nest(a:f, total, .key = "counts_arch") %>%
       mutate(counts_afr = counts_afr) %>%
       select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_arch, counts_afr)
 }
