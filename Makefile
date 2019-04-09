@@ -23,7 +23,7 @@ exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.ba
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # pileup files
-full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz neand.txt.gz den8.txt.gz ustishim.txt.gz))
+full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz neand.txt.gz den8.txt.gz ustishim.txt.gz S_French-1.txt.gz S_Ju_hoan_North-1.txt.gz))
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
@@ -49,7 +49,7 @@ tv_fastas := $(addprefix $(fasta_dir)/tv_,$(archaic_fastas) $(neand_fastas) $(de
 fastas := $(all_fastas) $(tv_fastas)
 
 # scripts
-bam_sample := /mnt/expressions/mp/bam-sample/bam-sample
+bam_sample := /mnt/expressions/mp/bam-sample/bam-sample.py
 run_nb := $(src_dir)/run_nb.sh
 split_and_merge := $(src_dir)/split_and_merge.sh
 split_bam := /r1/people/mmeyer/perlscripts/solexa/filework/splitBAM.pl
