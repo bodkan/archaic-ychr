@@ -59,7 +59,7 @@ calculate_tarch <- function(gt, samples, tafr) {
     archaics <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
 
     tafr_ui <- filter(tafr, emh == "ustishim") %>%
-        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr)
+        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr, counts_afr, total)
 
     site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
