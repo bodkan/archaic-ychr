@@ -59,7 +59,7 @@ calculate_tarch <- function(gt, samples, tafr) {
     archaics <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
 
     tafr_ui <- filter(tafr, emh == "ustishim") %>%
-        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr, counts_afr, total)
+        select(afr, ref, mut_rate, tmrca_ad, tmrca_f, tmrca_afr, counts_afr, -total)
 
     site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
@@ -69,16 +69,23 @@ calculate_tarch <- function(gt, samples, tafr) {
             })
         })
     })%>%
-      inner_join(tafr_ui, by = c("afr" = "ref"))
+      inner_join(tafr_ui, by = c("afr", "ref"))
+
+    # extract the AFR branch counts list column first to add it later
+    # (otherwise `nest` call below complains about a list column being present,
+    # which sounds like a bug to me)
+    counts_afr <- site_counts$counts_afr
 
     site_counts %>%
+      select(-counts_afr) %>%
       mutate(
         p = a / (a + d + e),
         alpha = (1 + p) / (1 - p),
         tmrca_arch = tmrca_afr * alpha
       ) %>%
       nest(a:f, .key = "counts_arch") %>%
-      select(arch, afr, ref, tmrca_arch, alpha, mut_rate, tmrca_afr, tmrca_ad, tmrca_f, counts_arch, counts_afr)
+      mutate(counts_afr = counts_afr) %>%
+      select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_arch, counts_afr)
 }
 
 
