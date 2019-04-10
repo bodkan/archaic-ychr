@@ -35,7 +35,7 @@ read_info <- function(gt) {
 
 #' Calculate proportion of different classes of SNPs observed in each sample.
 #' @param normalize Normalize counts by some SNP class? Either FALSE or "T-C", etc.
-snp_props <- function(gt, normalize = FALSE, remove = NA) {
+snp_props <- function(gt, normalize = NA, remove = NA) {
   snp_counts <- gt %>%
     mutate(snp = REF %+% "-" %+% ALT) %>%
     filter(!snp %in% remove) %>%
@@ -54,7 +54,7 @@ snp_props <- function(gt, normalize = FALSE, remove = NA) {
     map(~ snp_counts[[.x]] / total_sites[[.x]]) %>%
     setNames(colnames(snp_counts[, -1])) %>%
     as_tibble %>%
-    mutate_all(~ .x / ifelse(normalize, .[str_which(snp_counts$snp, normalize)], 1)) %>% # added to normalize by C-T proportions
+    mutate_all(~ .x / ifelse(!is.na(normalize), .[str_which(snp_counts$snp, normalize)], 1)) %>% # added to normalize by C-T proportions
     add_column(snp = snp_counts$snp, .before = 1)
 
   snp_props
