@@ -68,7 +68,7 @@ calculate_tarch <- function(gt, samples, tafr) {
                     mutate(arch = arch, afr = afr, ref = ref)
             })
         })
-    })%>%
+    }) %>%
       inner_join(tafr_ui, by = c("afr", "ref"))
 
     # extract the AFR branch counts list column first to add it later

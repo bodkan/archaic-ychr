@@ -1,6 +1,9 @@
 #' Read genotypes from a VCF file, returning a data frame object.
-#' @import stringr dplyr purrr
-read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude = NA) {
+#' @param mindp Minimum coverage at each site.
+#' @param maxdp Maximum coverage at each site (specified as a proportion of an
+#'   upper tail of the entire coverage distribution).
+#' @import stringr dplyr purrr tibble
+read_gt <- function(path, mindp = 0,  maxdp = 0.975, var_only = FALSE, tv_only = FALSE, exclude = NA) {
   vcf <- VariantAnnotation::readVcf(path)
 
   keep_pos <- IRanges::elementNROWS(GenomicRanges::granges(vcf)$ALT) == 1
@@ -17,8 +20,12 @@ read_gt <- function(path, mindp = 0, var_only = FALSE, tv_only = FALSE, exclude 
     ALT = as.character(unlist(gr_vcf$ALT))
   )
 
-  dp_mask <- VariantAnnotation::geno(vcf)$DP[keep_pos, , drop = FALSE] %>% apply(2, function(i) ifelse(i >= mindp, i, NA))
+  # extract information about coverage at each site (setting chimp to 1X)
+  dp_mask <- VariantAnnotation::geno(vcf)$DP[keep_pos, , drop = FALSE]
   if ("chimp" %in% VariantAnnotation::samples(VariantAnnotation::header(vcf))) dp_mask[, "chimp"] <- 1
+
+  # apply min and max coverage filters
+  dp_mask <- apply(dp_mask, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), i, NA))
 
   gt_mat <- VariantAnnotation::geno(vcf)$GT[keep_pos, , drop = FALSE] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
   mode(gt_mat) <- "numeric"
