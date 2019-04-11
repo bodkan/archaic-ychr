@@ -84,8 +84,7 @@ calculate_tarch <- function(gt, samples, tafr) {
         tmrca_arch = tmrca_afr * alpha
       ) %>%
       nest(a:f, total, .key = "counts_arch") %>%
-      mutate(counts_afr = counts_afr,
-             tmrca_mendez = ifelse(afr == "a00", alpha * 275000, NA)) %>%
+      mutate(counts_afr = counts_afr) %>%
       select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, tmrca_mendez, counts_arch, counts_afr)
 }
 
