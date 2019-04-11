@@ -59,3 +59,14 @@ snp_props <- function(gt, normalize = NA, remove = NA) {
 
   snp_props
 }
+
+
+#' Set dimensions of a plot in a Jupyter notebook.
+set_dim <- function(width, height, res = 300)
+{
+  options(
+    repr.plot.width = width,
+    repr.plot.height = height,
+    repr.plot.res = res
+  )
+}
