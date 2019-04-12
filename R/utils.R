@@ -15,8 +15,7 @@ read_info <- function(gt) {
     name = c("ustishim", "bichon", "kk1", "loschbour", "mota"),
     age = c(45000, 13665, 9720, 8050, 4500),
     pop = "EMH"
-  ) %>%
-    filter(name == "ustishim") # use Ust-Ishim - all other EMH are too low coverage
+  )
 
   modern <- tibble(
     name = c(str_subset(colnames(gt), "^S_"), "reference", "a00"), #, "a00_1", "a00_2"),

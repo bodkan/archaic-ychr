@@ -25,7 +25,7 @@ sum_patterns <- function(gt, w, x, y, z) {
 calculate_tafr <- function(gt, samples) {
     refs <- filter(samples, pop != "Africa", pop != "EMH")$name
     afrs <- filter(samples, pop == "Africa")$name
-    emhs <- filter(samples, pop == "EMH")$name
+    emhs <- "ustishim" #filter(samples, pop == "EMH")$name
 
     site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
@@ -85,7 +85,7 @@ calculate_tarch <- function(gt, samples, tafr) {
       ) %>%
       nest(a:f, total, .key = "counts_arch") %>%
       mutate(counts_afr = counts_afr) %>%
-      select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, tmrca_mendez, counts_arch, counts_afr)
+      select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_arch, counts_afr)
 }
 
 
