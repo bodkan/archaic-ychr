@@ -81,7 +81,7 @@ calculate_tarch <- function(gt, samples, tafr) {
       mutate(
         p = a / (a + d + e),
         alpha = (1 + p) / (1 - p),
-        tmrca_arch = tmrca_afr * alpha
+        tmrca_arch = tmrca_f * alpha
       ) %>%
       nest(a:f, total, .key = "counts_arch") %>%
       mutate(counts_afr = counts_afr) %>%
