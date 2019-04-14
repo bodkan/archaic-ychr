@@ -70,3 +70,32 @@ set_dim <- function(width, height, res = 300)
     repr.plot.res = res
   )
 }
+
+
+# df <- tibble(REF = c("A", "G", "T"), pileup = c("cccgt", ",.,,,a", "..,$gc"))
+# df %>% mutate(p = count_bases(pileup, REF)) %>% unnest
+
+#' Count bases in a vector of pileup strings.
+#' @import purrr
+count_bases <- function(pileup, ref) {
+  pileup <- tolower(pileup) %>% strsplit("")
+  map2(pileup, ref, function(x, y) {
+    counts <- factor(x, levels = c("a", "c", "g", "t", ".", ",")) %>%
+      table %>%
+      as.data.frame %>%
+      setNames(c("base", "count")) %>%
+      spread(base, count)
+    counts$ref_counts <- 0
+    if ("." %in% colnames(counts)) {
+      counts$ref_counts <- counts[["."]]
+      counts[["."]] <- NULL
+    }
+    if ("," %in% colnames(counts)) {
+      counts$ref_counts <- counts$ref_counts + counts[[","]]
+      counts[[","]] <- NULL
+    }
+    counts[[tolower(y)]] <- counts$ref_counts
+    counts %>%
+      select(-ref_counts)
+  })
+}
