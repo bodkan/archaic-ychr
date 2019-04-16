@@ -14,8 +14,7 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
-sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
-published_bams := $(sgdp_bams) ustishim.bam a00.bam kk1.bam mota.bam bichon.bam loschbour.bam
+published_bams := ustishim.bam a00.bam S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam neand.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam neand.bam $(published_bams)))
@@ -27,12 +26,14 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_vcfs := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz $(published_vcfs)))
-lippold_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz neand.vcf.gz $(published_vcfs)))
-exome_vcfs := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz neand.vcf.gz $(published_vcfs)))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz neand.vcf.gz))
+exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz neand.vcf.gz))
+full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
+lippold_modern_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
+exome_modern_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
 
 full_vcf := $(vcf_dir)/merged_full.vcf.gz
-full_tv_vcf := $(vcf_dir)/merged_full_tv.vcf.gz
 lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
 exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
 
@@ -89,7 +90,7 @@ bam: $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
 
 pileup: $(full_pileups)
 
-vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(test_vcfs)
+vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_arch_vcfs) $(lippold_arch_vcfs) $(exome_arch_vcfs) $(test_vcfs)
 
 fasta: $(fastas)
 
@@ -224,10 +225,6 @@ $(bam_dir)/control_stuttgart.bam:
 # VCF processing
 #
 
-$(vcf_dir)/%_tv.vcf.gz: $(vcf_dir)/%.vcf.gz
-	zless $< | awk -F '\t' '!(($$4 == "A" && $$5 == "G") || ($$4 == "G" && $$5 == "A") || ($$4 == "C" && $$5 == "T") || ($$4 == "T" && $$5 == "C")) || $$0 ~ /^#/' | bgzip > $@
-	tabix $@
-
 $(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
@@ -252,7 +249,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 3 --minbq 20 --minmq 25 \
+	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
