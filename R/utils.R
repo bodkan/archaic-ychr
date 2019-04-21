@@ -99,3 +99,18 @@ count_bases <- function(pileup, ref) {
       select(-ref_counts)
   })
 }
+
+
+#' Pipe operator
+#'
+#' Added via usethis::use_pipe().
+#'
+#' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+NULL
