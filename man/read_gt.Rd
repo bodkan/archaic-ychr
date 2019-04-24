@@ -4,8 +4,8 @@
 \alias{read_gt}
 \title{Read genotypes from a VCF file, returning a data frame object.}
 \usage{
-read_gt(path, mindp = 0, maxdp = 0.975, var_only = FALSE,
-  tv_only = FALSE, exclude = NA)
+read_gt(arch_path, modern_path, mindp, maxdp = 0.975, var_only = FALSE,
+  tv_only = FALSE)
 }
 \arguments{
 \item{mindp}{Minimum coverage at each site.}

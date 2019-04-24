@@ -1,48 +1,74 @@
+# Extract VCF info columns from a GRanges object.
+vcf_info <- function(gr) {
+  tibble::tibble(
+    chrom = as.character(GenomicRanges::seqnames(gr)),
+    pos = GenomicRanges::start(gr),
+    REF = as.character(gr$REF),
+    ALT = as.character(unlist(gr$ALT))
+  )
+}
+
+
+# arch_path = "data/vcf/lippold_den8.vcf.gz"
+# modern_path = "data/vcf/merged_lippold.vcf.gz"
+# mindp = 1
+# maxdp = 0.975
+# var_only = F
+
 #' Read genotypes from a VCF file, returning a data frame object.
 #' @param mindp Minimum coverage at each site.
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_gt <- function(path, mindp = 0,  maxdp = 0.975, var_only = FALSE, tv_only = FALSE, exclude = NA) {
-  vcf <- VariantAnnotation::readVcf(path)
+read_gt <- function(arch_path, modern_path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+  vcf_arch <- VariantAnnotation::readVcf(arch_path)
+  vcf_modern <- VariantAnnotation::readVcf(modern_path)
 
-  keep_pos <- IRanges::elementNROWS(GenomicRanges::granges(vcf)$ALT) == 1
+  gr_arch <- GenomicRanges::granges(vcf_arch)
+  gr_modern <- GenomicRanges::granges(vcf_modern)
 
-  if (var_only)
-    keep_pos <- keep_pos & unlist(GenomicRanges::granges(vcf)$ALT) != ""
-
-  gr_vcf <- GenomicRanges::granges(vcf)[keep_pos]
-
-  info_df <- tibble(
-    chrom = as.character(GenomicRanges::seqnames(gr_vcf)),
-    pos = GenomicRanges::start(gr_vcf),
-    REF = as.character(gr_vcf$REF),
-    ALT = as.character(unlist(gr_vcf$ALT))
-  )
-
-  # extract information about coverage at each site (setting chimp to 1X)
-  dp_mask <- VariantAnnotation::geno(vcf)$DP[keep_pos, , drop = FALSE]
-  if ("chimp" %in% VariantAnnotation::samples(VariantAnnotation::header(vcf))) dp_mask[, "chimp"] <- 1
+  # read DP information for all samples in both VCFs
+  dp_arch <- VariantAnnotation::geno(vcf_arch)$DP
+  dp_modern <- VariantAnnotation::geno(vcf_modern)$DP
 
   # apply min and max coverage filters
-  dp_mask <- apply(dp_mask, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), i, NA))
+  mask_arch <- apply(dp_arch, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
+  mask_modern <- apply(dp_modern, 2, function(i) ifelse(i >= 4 & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
+  if ("chimp" %in% colnames(mask_modern)) mask_modern[, "chimp"] <- TRUE
 
-  gt_mat <- VariantAnnotation::geno(vcf)$GT[keep_pos, , drop = FALSE] %>% replace(. == ".", NA) %>% replace(is.na(dp_mask), NA)
-  mode(gt_mat) <- "numeric"
-  gt_df <- gt_mat %>% as_tibble %>% mutate(reference = 0)
+  # keep genotypes only for sites that are present, or pass the filtering
+  gt_modern <- VariantAnnotation::geno(vcf_modern)$GT %>% replace(. == ".", NA) %>% replace(!mask_modern, NA)
+  gt_arch <- VariantAnnotation::geno(vcf_arch)$GT %>% replace(. == ".", NA) %>% replace(!mask_arch, NA)
 
+  mode(gt_modern) <- "numeric"
+  mode(gt_arch) <- "numeric"
+
+  gt_modern <- tibble::as_tibble(gt_modern) %>% dplyr::mutate(reference = 0)
+  gt_arch <- tibble::as_tibble(gt_arch)
+
+  # REMOVE SELECT
+  df_modern <- vcf_info(gr_modern) %>% dplyr::bind_cols(gt_modern)
+  df_arch <- vcf_info(gr_arch) %>% dplyr::bind_cols(gt_arch)
+
+  df <- dplyr::right_join(df_arch, df_modern, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
   # sanitize the sample names
-  colnames(gt_df) <- str_replace_all(colnames(gt_df), "-", "_")
+  colnames(df) <- str_replace_all(colnames(df), "-", "_")
 
-  res_df <- bind_cols(info_df, gt_df)
+  # remove tri-allelic sites
+  df <- filter(df, !(ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch))
+
+  # collapse ALT columns discovered in modern and archaic samples
+  df <- mutate(df, ALT = ifelse(ALT_modern != "", ALT_modern, ALT_arch)) %>%
+    select(chrom, pos, REF, ALT, everything()) %>%
+    select(-ALT_modern, -ALT_arch)
+
+  if (var_only) df <- filter(df, ALT != "")
 
   if (tv_only) {
-    res_df <- filter(res_df,  !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
+    df <- filter(res_df,  !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
   }
 
-  if (!is.na(exclude)) return(select(-one_of(exclude)))
-
-  res_df
+  df
 }
 
 
