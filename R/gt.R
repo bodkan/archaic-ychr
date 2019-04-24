@@ -1,58 +1,54 @@
-# Extract VCF info columns from a GRanges object.
-vcf_info <- function(gr) {
-  tibble::tibble(
+# Read and filter a single VCF file.
+read_vcf <- function(path, mindp, maxdp) {
+  vcf <- VariantAnnotation::readVcf(path)
+  gr <- GenomicRanges::granges(vcf)
+
+  # read DP information
+  dp <- VariantAnnotation::geno(vcf)$DP
+
+  # apply min and max coverage filters
+  mask <- apply(dp, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
+  if ("chimp" %in% colnames(mask)) mask[, "chimp"] <- TRUE
+
+  # keep genotypes only for sites that are present, or pass the filtering
+  gt <- VariantAnnotation::geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(!mask, NA)
+  mode(gt) <- "numeric"
+
+  gt_df <- tibble::as_tibble(gt)
+  info_df <- tibble::tibble(
     chrom = as.character(GenomicRanges::seqnames(gr)),
     pos = GenomicRanges::start(gr),
     REF = as.character(gr$REF),
     ALT = as.character(unlist(gr$ALT))
   )
+
+  df <- dplyr::bind_cols(info_df, gt_df)
+
+  # sanitize the sample names
+  colnames(df) <- str_replace_all(colnames(df), "-", "_")
+
+  df
 }
 
 
-# arch_path = "data/vcf/lippold_den8.vcf.gz"
-# modern_path = "data/vcf/merged_lippold.vcf.gz"
+# archaic = "data/vcf/exome_den8.vcf.gz"
+# highcov = "data/vcf/exome_highcov.vcf.gz"
 # mindp = 1
 # maxdp = 0.975
 # var_only = F
 
 #' Read genotypes from a VCF file, returning a data frame object.
+#' @param archaic Path to a low-coverage archaic Y chromosome VCF.
+#' @param highcov Path to a merged high-coverage Y chromosome VCF.
 #' @param mindp Minimum coverage at each site.
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_gt <- function(arch_path, modern_path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
-  vcf_arch <- VariantAnnotation::readVcf(arch_path)
-  vcf_modern <- VariantAnnotation::readVcf(modern_path)
+read_genotypes <- function(archaic, highcov, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+  archaic_df <- read_vcf(archaic, mindp, maxdp)
+  highcov_df <- read_vcf(highcov, mindp = 4, maxdp) %>% dplyr::mutate(reference = 0)
 
-  gr_arch <- GenomicRanges::granges(vcf_arch)
-  gr_modern <- GenomicRanges::granges(vcf_modern)
-
-  # read DP information for all samples in both VCFs
-  dp_arch <- VariantAnnotation::geno(vcf_arch)$DP
-  dp_modern <- VariantAnnotation::geno(vcf_modern)$DP
-
-  # apply min and max coverage filters
-  mask_arch <- apply(dp_arch, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
-  mask_modern <- apply(dp_modern, 2, function(i) ifelse(i >= 4 & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
-  if ("chimp" %in% colnames(mask_modern)) mask_modern[, "chimp"] <- TRUE
-
-  # keep genotypes only for sites that are present, or pass the filtering
-  gt_modern <- VariantAnnotation::geno(vcf_modern)$GT %>% replace(. == ".", NA) %>% replace(!mask_modern, NA)
-  gt_arch <- VariantAnnotation::geno(vcf_arch)$GT %>% replace(. == ".", NA) %>% replace(!mask_arch, NA)
-
-  mode(gt_modern) <- "numeric"
-  mode(gt_arch) <- "numeric"
-
-  gt_modern <- tibble::as_tibble(gt_modern) %>% dplyr::mutate(reference = 0)
-  gt_arch <- tibble::as_tibble(gt_arch)
-
-  # REMOVE SELECT
-  df_modern <- vcf_info(gr_modern) %>% dplyr::bind_cols(gt_modern)
-  df_arch <- vcf_info(gr_arch) %>% dplyr::bind_cols(gt_arch)
-
-  df <- dplyr::right_join(df_arch, df_modern, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
-  # sanitize the sample names
-  colnames(df) <- str_replace_all(colnames(df), "-", "_")
+  df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
 
   # remove tri-allelic sites
   df <- filter(df, !(ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch))
