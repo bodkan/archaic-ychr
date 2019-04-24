@@ -37,7 +37,7 @@ read_info <- function(gt) {
 #' @param normalize Normalize counts by some SNP class? Either FALSE or "T-C", etc.
 snp_props <- function(gt, normalize = NA, remove = NA) {
   snp_counts <- gt %>%
-    mutate(snp = REF %+% "-" %+% ALT) %>%
+    mutate(snp = paste0(REF, "-", ALT)) %>%
     filter(!snp %in% remove) %>%
     select(-(chrom:ALT)) %>%
     group_by(snp) %>%
