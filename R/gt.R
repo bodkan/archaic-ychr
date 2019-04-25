@@ -10,16 +10,18 @@ read_vcf <- function(path, mindp, maxdp) {
   mask <- apply(dp, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
   if ("chimp" %in% colnames(mask)) mask[, "chimp"] <- TRUE
 
+  biallelic_pos <- IRanges::elementNROWS(gr$ALT) == 1
+
   # keep genotypes only for sites that are present, or pass the filtering
   gt <- VariantAnnotation::geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(!mask, NA)
   mode(gt) <- "numeric"
 
-  gt_df <- tibble::as_tibble(gt)
+  gt_df <- tibble::as_tibble(gt) %>% filter(biallelic_pos)
   info_df <- tibble::tibble(
-    chrom = as.character(GenomicRanges::seqnames(gr)),
-    pos = GenomicRanges::start(gr),
-    REF = as.character(gr$REF),
-    ALT = as.character(unlist(gr$ALT))
+    chrom = as.character(GenomicRanges::seqnames(gr))[biallelic_pos],
+    pos = GenomicRanges::start(gr)[biallelic_pos],
+    REF = as.character(gr$REF)[biallelic_pos],
+    ALT = as.character(unlist(gr$ALT[biallelic_pos, ]))
   )
 
   df <- dplyr::bind_cols(info_df, gt_df)
@@ -38,15 +40,18 @@ read_vcf <- function(path, mindp, maxdp) {
 # var_only = F
 
 #' Read genotypes from a VCF file, returning a data frame object.
+#' @param capture Capture set (full, lippold, exome).
 #' @param archaic Path to a low-coverage archaic Y chromosome VCF.
-#' @param highcov Path to a merged high-coverage Y chromosome VCF.
 #' @param mindp Minimum coverage at each site.
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_genotypes <- function(archaic, highcov, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
-  archaic_df <- read_vcf(archaic, mindp, maxdp)
-  highcov_df <- read_vcf(highcov, mindp = 4, maxdp) %>% dplyr::mutate(reference = 0)
+read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+  archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
+  highcov_vcf <- here::here(paste0("data/vcf/", capture, "_highcov.vcf.gz"))
+
+  archaic_df <- read_vcf(archaic_vcf, mindp, maxdp)
+  highcov_df <- read_vcf(highcov_vcf, mindp = 4, maxdp) %>% dplyr::mutate(reference = 0)
 
   df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
 
