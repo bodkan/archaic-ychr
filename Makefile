@@ -38,7 +38,7 @@ full_vcf := $(vcf_dir)/full_highcov.vcf.gz
 lippold_vcf := $(vcf_dir)/lippold_highcov.vcf.gz
 exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
 
-test_vcfs := $(vcf_dir)/test_gt.vcf.gz $(vcf_dir)/test_cov.vcf.gz
+test_vcfs := $(vcf_dir)/test_gt.vcf.gz
 
 # FASTA files
 archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
@@ -255,18 +255,6 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	    --strategy consensus --mincov $$mincov --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
-	tabix $@
-
-# testing coverage cut-offs for Denisova 8 and late Neanderthals
-$(vcf_dir)/test_cov.vcf.gz: $(bam_dir)/full_den8.bam $(bam_dir)/full_neand.bam $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz
-	$(bam_sample) --bam $(bam_dir)/full_den8.bam --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
-	    --sample-name den8 --output $(tmp_dir)/test_den8; bgzip $(tmp_dir)/test_den8.vcf; tabix $(tmp_dir)/test_den8.vcf.gz
-	$(bam_sample) --bam $(bam_dir)/full_neand.bam --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
-	    --sample-name neand --output $(tmp_dir)/test_neand; bgzip $(tmp_dir)/test_neand.vcf; tabix $(tmp_dir)/test_neand.vcf.gz
-	bcftools merge $(tmp_dir)/test_den8.vcf.gz $(tmp_dir)/test_neand.vcf.gz $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_S_French-1.vcf.gz $(vcf_dir)/full_S_Dinka-1.vcf.gz \
-	    | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
 # testing A00 VCF file for comparing bam-sample and bcftools calls
