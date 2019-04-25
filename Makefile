@@ -14,7 +14,8 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
-published_bams := ustishim.bam a00.bam S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
+sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
+published_bams := ustishim.bam a00.bam $(sgdp_bams)
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam neand.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam neand.bam $(published_bams)))
@@ -29,13 +30,13 @@ published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
 full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz neand.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz neand.vcf.gz))
-full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
-lippold_modern_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
-exome_modern_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
+full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
+lippold_highcov_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
+exome_highcov_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
 
-full_vcf := $(vcf_dir)/merged_full.vcf.gz
-lippold_vcf := $(vcf_dir)/merged_lippold.vcf.gz
-exome_vcf := $(vcf_dir)/merged_exome.vcf.gz
+full_vcf := $(vcf_dir)/full_highcov.vcf.gz
+lippold_vcf := $(vcf_dir)/lippold_highcov.vcf.gz
+exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
 
 test_vcfs := $(vcf_dir)/test_gt.vcf.gz $(vcf_dir)/test_cov.vcf.gz
 
@@ -225,17 +226,17 @@ $(bam_dir)/control_stuttgart.bam:
 # VCF processing
 #
 
-$(vcf_dir)/merged_full.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_vcfs)
+$(vcf_dir)/full_highcov.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_highcov_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/merged_lippold.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_vcfs)
+$(vcf_dir)/lippold_highcov.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_highcov_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/merged_exome.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_vcfs)
+$(vcf_dir)/exome_highcov.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_highcov_vcfs)
 	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
@@ -248,9 +249,11 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
+	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
+	if [[ "$$name" =~ (den|spy|mez|neand) ]]; then mincov=1; else mincov=4; fi; \
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
-	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
-	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
+	    --strategy consensus --mincov $$mincov --minbq 20 --minmq 25 \
+	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
 
