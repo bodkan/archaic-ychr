@@ -13,7 +13,8 @@ read_vcf <- function(path, mindp, maxdp) {
   biallelic_pos <- IRanges::elementNROWS(gr$ALT) == 1
 
   # keep genotypes only for sites that are present, or pass the filtering
-  gt <- VariantAnnotation::geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(!mask, NA)
+  gt <- VariantAnnotation::geno(vcf)$GT[biallelic_pos, , drop = FALSE] %>%
+    replace(. == ".", NA) %>% replace(!mask, NA)
   mode(gt) <- "numeric"
 
   gt_df <- tibble::as_tibble(gt) %>% filter(biallelic_pos)
@@ -33,12 +34,6 @@ read_vcf <- function(path, mindp, maxdp) {
 }
 
 
-# archaic = "data/vcf/exome_den8.vcf.gz"
-# highcov = "data/vcf/exome_highcov.vcf.gz"
-# mindp = 1
-# maxdp = 0.975
-# var_only = F
-
 #' Read genotypes from a VCF file, returning a data frame object.
 #' @param capture Capture set (full, lippold, exome).
 #' @param archaic Path to a low-coverage archaic Y chromosome VCF.
@@ -55,8 +50,9 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
 
   df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
 
-  # remove tri-allelic sites
-  df <- filter(df, !(ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch))
+  # remove third alleles from the archaic human sample
+  archaic_name <- archaic_df %>% colnames %>% .[length(.)]
+  df <- mutate(df, !!archaic_name := ifelse((ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch), NA, den8))
 
   # collapse ALT columns discovered in modern and archaic samples
   df <- mutate(df, ALT = ifelse(ALT_modern != "", ALT_modern, ALT_arch)) %>%
