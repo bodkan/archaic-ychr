@@ -12,8 +12,8 @@ read_siminfo <- function(gt) {
 #' Generate table of sample names and their population assignments and ages.
 read_info <- function(gt) {
   emh <- tibble(
-    name = c("ustishim", "bichon", "kk1", "loschbour", "mota"),
-    age = c(45000, 13665, 9720, 8050, 4500),
+    name = c("ustishim"), #"bichon", "kk1", "loschbour", "mota"),
+    age = c(45000), #, 13665, 9720, 8050, 4500),
     pop = "EMH"
   )
 
