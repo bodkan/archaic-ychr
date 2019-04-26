@@ -62,7 +62,7 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
   if (var_only) df <- filter(df, ALT != "")
 
   if (tv_only) {
-    df <- filter(res_df,  !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
+    df <- filter(df, !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
   }
 
   df
