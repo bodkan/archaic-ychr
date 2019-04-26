@@ -96,7 +96,7 @@ vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_arch_vcfs) $(lippold_arch_vc
 fasta: $(fastas)
 
 diagnostics:
-	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *kk1* *loschbour* *bichon* *mota* *denisova* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
+	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *den* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
 	mkdir -p $(fig_dir)/damage; \
 	cd $(fig_dir)/damage; \
 	for b in $$bams; do \
