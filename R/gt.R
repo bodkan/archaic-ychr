@@ -52,7 +52,7 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
 
   # remove third alleles from the archaic human sample
   archaic_name <- archaic_df %>% colnames %>% .[length(.)]
-  df <- mutate(df, !!archaic_name := ifelse((ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch), NA,  !!archaic_name))
+  df <- mutate(df, !!archaic_name := ifelse((ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch), NA, df[[archaic_name]]))
 
   # collapse ALT columns discovered in modern and archaic samples
   df <- mutate(df, ALT = ifelse(ALT_modern != "", ALT_modern, ALT_arch)) %>%
