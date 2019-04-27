@@ -5,7 +5,7 @@
 \title{Calculate T_MRCA of each of the specified archaic individuals
 with modern human Y chromosomes.}
 \usage{
-calculate_tarch(gt, samples, tafr)
+calculate_tarch(gt, tafr)
 }
 \description{
 Calculate T_MRCA of each of the specified archaic individuals
