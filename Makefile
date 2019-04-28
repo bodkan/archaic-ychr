@@ -250,7 +250,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
-	if [[ "$$name" =~ (den|spy|mez|neand) ]]; then mincov=1; else mincov=4; fi; \
+	if [[ "$$name" =~ (den|spy|mez|neand|elsidron) ]]; then mincov=1; else mincov=4; fi; \
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
 	    --strategy consensus --mincov $$mincov --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
