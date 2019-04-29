@@ -48,14 +48,18 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
   archaic_df <- read_vcf(archaic_vcf, mindp, maxdp)
   highcov_df <- read_vcf(highcov_vcf, mindp = 4, maxdp)
 
-  df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_modern", "_arch"))
+  df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_arch", "_modern"))
 
   # remove third alleles from the archaic human sample
   archaic_name <- archaic_df %>% colnames %>% .[length(.)]
   df <- mutate(df, !!archaic_name := ifelse((ALT_modern != "" & ALT_arch != "" & ALT_modern != ALT_arch), NA, df[[archaic_name]]))
 
   # collapse ALT columns discovered in modern and archaic samples
-  df <- mutate(df, ALT = ifelse(ALT_modern != "", ALT_modern, ALT_arch)) %>%
+  df <- mutate(df, ALT = case_when(
+      ALT_modern != ""                    ~ ALT_modern,
+      ALT_modern == "" & !is.na(ALT_arch) ~ ALT_arch,
+      TRUE                                ~ "")
+    ) %>%
     select(chrom, pos, REF, ALT, everything()) %>%
     select(-ALT_modern, -ALT_arch)
 
