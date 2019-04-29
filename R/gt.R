@@ -13,8 +13,7 @@ read_vcf <- function(path, mindp, maxdp) {
   biallelic_pos <- IRanges::elementNROWS(gr$ALT) == 1
 
   # keep genotypes only for sites that are present, or pass the filtering
-  gt <- VariantAnnotation::geno(vcf)$GT[biallelic_pos, , drop = FALSE] %>%
-    replace(. == ".", NA) %>% replace(!mask, NA)
+  gt <- VariantAnnotation::geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(!mask, NA)
   mode(gt) <- "numeric"
 
   gt_df <- tibble::as_tibble(gt) %>% filter(biallelic_pos)
