@@ -16,9 +16,9 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := ustishim.bam a00.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam neand.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam neand.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam den4.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam den4.bam neand.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam den4.bam neand.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
@@ -27,9 +27,9 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz))
-lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz neand.vcf.gz))
-exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz neand.vcf.gz))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz den4.vcf.gz))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz))
+exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz))
 full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
 lippold_highcov_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
 exome_highcov_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
@@ -96,7 +96,7 @@ vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_arch_vcfs) $(lippold_arch_vc
 fasta: $(fastas)
 
 diagnostics:
-	bams=`cd $(bam_dir); ls *French* *a00.bam *elsidron* *ustishim* *den* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
+	bams=`cd $(bam_dir); ls *elsidron* *ustishim* *den* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
 	mkdir -p $(fig_dir)/damage; \
 	cd $(fig_dir)/damage; \
 	for b in $$bams; do \
@@ -201,12 +201,50 @@ $(tmp_dir)/spy1.bam:
 	mv $(tmp_dir)/spy1.uniq.L35MQ25.bam $@
 	samtools index $@
 
-$(tmp_dir)/mez2.bam:
-	$(split_and_merge) mez2 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Mez2.txt
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2/mez2.bam
-	mv $(tmp_dir)/mez2.uniq.L35MQ25.bam $@
+# Mezmaiskaya first capture
+$(tmp_dir)/mez2_capture1.bam:
+	$(split_and_merge) mez2_capture1 /mnt/ngs_data/170825_D00829_0064_AHNVL5BCXY_R_PEdi_F5281_F5282/Bustard/BWA/proc1/s_2_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Mez2.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2_capture1/mez2_capture1.bam
+	mv $(tmp_dir)/mez2_capture1.uniq.L35MQ25.bam $@
 	samtools index $@
 
+# Mezmaiskaya second capture - lane 1
+$(tmp_dir)/mez2_capture2_lane1.bam:
+	$(split_and_merge) mez2_capture2_lane1 /mnt/scratch/janet/illumina/190403_D00829_0243_BHY353BCX2_R_PEdi_N3550_N3551_reprocess/Bustard/BWA/proc2/s_1_sequence_ancient_hg19_evan.bam input/20190416_Mez2_s1.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2_capture2_lane1/mez2_capture2_lane1.bam
+	mv $(tmp_dir)/mez2_capture2_lane1.uniq.L35MQ25.bam $@
+	samtools index $@
+
+# Mezmaiskaya second capture - lane 2
+$(tmp_dir)/mez2_capture2_lane2.bam:
+	$(split_and_merge) mez2_capture2_lane2 /mnt/scratch/janet/illumina/190403_D00829_0243_BHY353BCX2_R_PEdi_N3550_N3551_reprocess/Bustard/BWA/proc2/s_2_sequence_ancient_hg19_evan.bam input/20190416_Mez2_s2.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 mez2_capture2_lane2/mez2_capture2_lane2.bam
+	mv $(tmp_dir)/mez2_capture2_lane2.uniq.L35MQ25.bam $@
+	samtools index $@
+
+# merge of all Mez2 samples
+$(tmp_dir)/mez2.bam: $(tmp_dir)/mez2_capture1.bam $(tmp_dir)/mez2_capture2_lane1.bam $(tmp_dir)/mez2_capture2_lane2.bam
+	samtools merge $@ $^
+
+# Denisova 4 - lane 1
+$(tmp_dir)/den4_capture2_lane1.bam:
+	$(split_and_merge) den4_capture2_lane1 /mnt/scratch/janet/illumina/190403_D00829_0243_BHY353BCX2_R_PEdi_N3550_N3551_reprocess/Bustard/BWA/proc2/s_1_sequence_ancient_hg19_evan.bam input/20190416_Den4_s1.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 den4_capture2_lane1/den4_capture2_lane1.bam
+	mv $(tmp_dir)/den4_capture2_lane1.uniq.L35MQ25.bam $@
+	samtools index $@
+
+# Denisova 4 - lane 2
+$(tmp_dir)/den4_capture2_lane2.bam:
+	$(split_and_merge) den4_capture2_lane2 /mnt/scratch/janet/illumina/190403_D00829_0243_BHY353BCX2_R_PEdi_N3550_N3551_reprocess/Bustard/BWA/proc2/s_2_sequence_ancient_hg19_evan.bam input/20190416_Den4_s2.txt
+	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 den4_capture2_lane2/den4_capture2_lane2.bam
+	mv $(tmp_dir)/den4_capture2_lane2.uniq.L35MQ25.bam $@
+	samtools index $@
+
+# merge of both Den4 lanes
+$(tmp_dir)/den4.bam: $(tmp_dir)/den4_capture2_lane1.bam $(tmp_dir)/den4_capture2_lane2.bam
+	samtools merge $@ $^
+
+# merge of all late Neanderthals
 $(tmp_dir)/neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
 	samtools merge $@ $^
 
