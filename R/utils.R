@@ -100,6 +100,17 @@ count_bases <- function(pileup, ref) {
 }
 
 
+#' Read coverage info for a given BAM file in a defined set of regions.
+get_coverage <- function(bed, bam) {
+  paste("bedtools coverage -a", bed, "-b", bam, "-d") %>%
+    pipe %>%
+    read_tsv(col_names = c("chr", "start", "end", "pos", "coverage"),
+             col_types = "ciiii") %>%
+    makeGRangesFromDataFrame(starts.in.df.are.0based = TRUE,
+                             keep.extra.columns = TRUE)
+}
+
+
 #' Pipe operator
 #'
 #' Added via usethis::use_pipe().
