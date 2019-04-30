@@ -16,9 +16,9 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := ustishim.bam a00.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam neand.bam den8.bam den4.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, elsidron2.bam den8.bam den4.bam mez2.bam neand.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, elsidron1.bam den8.bam den4.bam mez2.bam neand.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
@@ -27,9 +27,9 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz neand.vcf.gz den8.vcf.gz den4.vcf.gz))
-lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz mez2.vcf.gz neand.vcf.gz))
-exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz mez2.vcf.gz neand.vcf.gz))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
+exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
 full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
 lippold_highcov_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
 exome_highcov_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
@@ -246,6 +246,10 @@ $(tmp_dir)/den4.bam: $(tmp_dir)/den4_capture2_lane1.bam $(tmp_dir)/den4_capture2
 
 # merge of all late Neanderthals
 $(tmp_dir)/neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
+	samtools merge $@ $^
+
+# merge of both Denisovans
+$(tmp_dir)/den.bam: $(tmp_dir)/den4.bam $(tmp_dir)/den8.bam
 	samtools merge $@ $^
 
 $(bam_dir)/control_vindija.bam:
