@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 for init in `seq 0.01 0.01 0.25`; do
-for type in A X Y; do
+for type in Y; do
 for rep in `seq 1 25`; do
     N="archaic2modern_sel_chr${type}_rate${init}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
@@ -22,7 +22,7 @@ done
 
 
 for init in `seq 0.01 0.01 0.25`; do
-for type in A X Y; do
+for type in Y; do
 for rep in `seq 1 25`; do
     N="modern2archaic_sel_chr${type}_rate${init}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
