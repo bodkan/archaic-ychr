@@ -244,14 +244,6 @@ $(tmp_dir)/den4_capture2_lane2.bam:
 $(tmp_dir)/den4.bam: $(tmp_dir)/den4_capture2_lane1.bam $(tmp_dir)/den4_capture2_lane2.bam
 	samtools merge $@ $^
 
-# merge of all late Neanderthals
-$(tmp_dir)/neand.bam: $(tmp_dir)/mez2.bam $(tmp_dir)/spy1.bam
-	samtools merge $@ $^
-
-# merge of both Denisovans
-$(tmp_dir)/den.bam: $(tmp_dir)/den4.bam $(tmp_dir)/den8.bam
-	samtools merge $@ $^
-
 $(bam_dir)/control_vindija.bam:
 	samtools view -h -b /mnt/sequencedb/AncientGenomes/Unpublished/Vi33.19/final_bam/IndelRealign/Vi33.19.chrY.indel_realn.bam Y -o $(tmp_dir)/control_vindija.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 control_vindija.Y.bam
