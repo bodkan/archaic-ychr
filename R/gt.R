@@ -29,7 +29,9 @@ read_vcf <- function(path, mindp, maxdp) {
   # sanitize the sample names
   colnames(df) <- str_replace_all(colnames(df), "-", "_")
 
-  df
+  not_missing <- select(df, -chrom:-ALT) %>% is.na %>% apply(MARGIN = 1, all)
+
+  df %>% filter(!not_missing)
 }
 
 
