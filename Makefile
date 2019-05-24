@@ -16,9 +16,9 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir
 # BAM files
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
 published_bams := ustishim.bam a00.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, spy1.bam mez2.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam neand.bam den.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(published_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(published_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(published_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
@@ -27,9 +27,9 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
-lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
-exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz neand.vcf.gz den.vcf.gz))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
+exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
 lippold_highcov_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
 exome_highcov_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
@@ -244,6 +244,14 @@ $(tmp_dir)/den4_capture2_lane2.bam:
 $(tmp_dir)/den4.bam: $(tmp_dir)/den4_capture2_lane1.bam $(tmp_dir)/den4_capture2_lane2.bam
 	samtools merge $@ $^
 
+$(tmp_dir)/shotgun_mez2.bam:
+	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Mezmaiskaya2_final.L35MQ25.bam Y -o $@
+	samtools index $@
+
+$(tmp_dir)/shotgun_spy1.bam:
+	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Spy_final.L35MQ25.bam Y -o $@
+	samtools index $@
+
 $(bam_dir)/control_vindija.bam:
 	samtools view -h -b /mnt/sequencedb/AncientGenomes/Unpublished/Vi33.19/final_bam/IndelRealign/Vi33.19.chrY.indel_realn.bam Y -o $(tmp_dir)/control_vindija.Y.bam
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 control_vindija.Y.bam
@@ -284,7 +292,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
-	if [[ "$$name" =~ (den|spy|mez|neand|elsidron) ]]; then mincov=1; else mincov=4; fi; \
+	if [[ "$$name" =~ (den|spy|mez|elsidron) ]]; then mincov=1; else mincov=4; fi; \
 	$(bam_sample) --bam $< --ref $(ref_genome) --format vcf \
 	    --strategy consensus --mincov $$mincov --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
