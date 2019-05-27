@@ -5,7 +5,7 @@
 \title{Calculate T_MRCA of all pairs of Africans and non-Africans, using a set
 of EMHs of known age for branch shortening-based mutation rate estimation.}
 \usage{
-calculate_tafr(gt)
+calculate_tafr(gt, afr = NA)
 }
 \description{
 Calculate T_MRCA of all pairs of Africans and non-Africans, using a set
