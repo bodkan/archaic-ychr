@@ -283,6 +283,11 @@ $(vcf_dir)/exome_highcov.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_highcov_v
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
+$(vcf_dir)/full_mez2_snpad.vcf.gz:
+	cp /mnt/expressions/Janet/YChr/Mez2/chrY.mq25.map50.vcf $(tmp_dir)
+	bgzip -c $(tmp_dir)/chrY.mq25.map50.vcf > $@
+	tabix $@
+
 # generate genotypes from the Chimp reference genome
 $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 	$(src_dir)/chimp_vcf.sh $< $(basename $@)
