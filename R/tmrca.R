@@ -22,12 +22,12 @@ sum_patterns <- function(gt, w, x, y, z) {
 #' Calculate T_MRCA of all pairs of Africans and non-Africans, using a set
 #' of EMHs of known age for branch shortening-based mutation rate estimation.
 #' @import dplyr purrr tidyr
-calculate_tafr <- function(gt, afr = NA) {
+calculate_tafr <- function(gt) {
   samples <- if ("simY" %in% gt$chrom) read_siminfo(gt) else read_info(gt)
 
     refs <- filter(samples, pop != "Africa", pop != "EMH")$name
-    afrs <- if(is.na(afr)) filter(samples, pop == "Africa")$name else afr
-    emhs <- "ustishim" #filter(samples, pop == "EMH")$name
+    afrs <- filter(samples, pop == "Africa")$name
+    emhs <- "ustishim"
 
     site_counts <- map_dfr(refs, function(ref) {
         map_dfr(afrs, function(afr) {
