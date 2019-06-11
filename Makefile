@@ -27,7 +27,7 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
@@ -285,7 +285,8 @@ $(vcf_dir)/exome_highcov.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_highcov_v
 
 $(vcf_dir)/full_mez2_snpad.vcf.gz:
 	cp /mnt/expressions/Janet/YChr/Mez2/chrY.mq25.map50.vcf $(tmp_dir)
-	bgzip -c $(tmp_dir)/chrY.mq25.map50.vcf > $@
+	bcftools reheader -s <(echo "full_Mez2map50 mez2_snpad") $(tmp_dir)/chrY.mq25.map50.vcf \
+	    | bgzip -c > $@
 	tabix $@
 
 # generate genotypes from the Chimp reference genome
