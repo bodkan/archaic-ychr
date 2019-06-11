@@ -1,19 +1,20 @@
 # Read and filter a single VCF file.
-read_vcf <- function(path, mindp, maxdp, var_only = FALSE, tv_only = FALSE) {
+read_vcf <- function(path, mindp, maxdp = 0.99, var_only = FALSE, tv_only = FALSE) {
   vcf <- VariantAnnotation::readVcf(path)
   gr <- GenomicRanges::granges(vcf)
 
-  # read DP information
   dp <- VariantAnnotation::geno(vcf)$DP
-
   # apply min and max coverage filters
   mask <- apply(dp, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
   if ("chimp" %in% colnames(mask)) mask[, "chimp"] <- TRUE
 
   biallelic_pos <- IRanges::elementNROWS(gr$ALT) == 1
 
+  gt <- VariantAnnotation::geno(vcf)$GT
+  # process snpAD diploid calls correctly
+  gt <- gt %>% replace(. == "0/0", "0") %>% replace(. == "1/1", "1") %>% replace(nchar(.) > 1, ".")
   # keep genotypes only for sites that are present, or pass the filtering
-  gt <- VariantAnnotation::geno(vcf)$GT %>% replace(. == ".", NA) %>% replace(!mask, NA)
+  gt <- gt %>% replace(. == ".", NA) %>% replace(!mask, NA)
   mode(gt) <- "numeric"
 
   gt_df <- tibble::as_tibble(gt) %>% filter(biallelic_pos)
@@ -50,7 +51,7 @@ read_vcf <- function(path, mindp, maxdp, var_only = FALSE, tv_only = FALSE) {
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+read_genotypes <- function(archaic, capture, mindp, maxdp = 0.99, var_only = FALSE, tv_only = FALSE) {
   archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
   highcov_vcf <- here::here(paste0("data/vcf/", capture, "_highcov.vcf.gz"))
 
