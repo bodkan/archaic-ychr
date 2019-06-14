@@ -1,5 +1,5 @@
 # Read and filter a single VCF file.
-read_vcf <- function(path, mindp, maxdp, var_only = FALSE, tv_only = FALSE) {
+read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
   vcf <- VariantAnnotation::readVcf(path)
   gr <- GenomicRanges::granges(vcf)
 
@@ -51,7 +51,7 @@ read_vcf <- function(path, mindp, maxdp, var_only = FALSE, tv_only = FALSE) {
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_genotypes <- function(archaic, capture, mindp, maxdp, var_only = FALSE, tv_only = FALSE) {
+read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
   archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
   highcov_vcf <- here::here(paste0("data/vcf/", capture, "_highcov.vcf.gz"))
 
