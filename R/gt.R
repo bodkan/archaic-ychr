@@ -31,7 +31,7 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
   colnames(df) <- str_replace_all(colnames(df), "-", "_")
 
   # not_missing <- select(df, -chrom:-ALT) %>% is.na %>% apply(MARGIN = 1, all)
-  #
+
   # df <- df %>% filter(!not_missing)
 
   if (var_only) df <- filter(df, ALT != "")
@@ -56,7 +56,7 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
   highcov_vcf <- here::here(paste0("data/vcf/", capture, "_highcov.vcf.gz"))
 
   archaic_df <- read_vcf(archaic_vcf, mindp, maxdp)
-  highcov_df <- read_vcf(highcov_vcf, mindp, maxdp, var_only, tv_only)
+  highcov_df <- read_vcf(highcov_vcf, mindp, maxdp)
 
   df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_arch", "_modern"))
 
@@ -72,6 +72,12 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
     ) %>%
     select(chrom, pos, REF, ALT, everything()) %>%
     select(-ALT_modern, -ALT_arch)
+
+  if (var_only) df <- filter(df, ALT != "")
+
+  if (tv_only) {
+    df <- filter(df, ALT == "" | !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
+  }
 
   df
 }
