@@ -25,7 +25,7 @@ parser.add_argument("--variable", help="Output only variable sites?", action="st
 parser.add_argument("--tvonly", help="Write only transversion SNPs?", action="store_true", default=False)
 
 args = parser.parse_args()
-# args = parser.parse_args("--vcf data/vcf/merged_full.vcf.gz --fasta asd.fa --variable".split())
+# args = parser.parse_args("--vcf data/vcf/full_highcov.vcf.gz --fasta asd.fa --variable --tvonly".split())
 
 vcf_reader = vcf.Reader(open(args.vcf, "rb"))
 
@@ -42,7 +42,8 @@ samples = args.include if args.include else set(vcf_reader.samples) - args.exclu
 # iterate through the VCF and accumulate called bases for all samples
 samples_dict = defaultdict(list)
 ref_bases = []
-for record in vcf_reader.fetch("Y"):
+for i, record in enumerate(vcf_reader.fetch("Y")):
+    if i % 100000 == 0: print(f"\r{i} positions processed", end="")
     if args.tvonly and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
         continue
     ref_bases.append(record.REF)
