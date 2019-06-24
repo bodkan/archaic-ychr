@@ -322,6 +322,25 @@ $(vcf_dir)/test_gt.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.g
 	    | bgzip -c > $@
 	tabix $@
 
+$(vcf_dir)/merged_full.vcf.gz:
+	bcftools view -i 'DP >= 3' data/vcf/full_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den4.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/full_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den8.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/full_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_full_spy1.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/full_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_full_mez2.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/full_highcov.vcf.gz -Oz -o $(tmp_dir)/mindp3_full_highcov.vcf.gz; tabix $(tmp_dir)/mindp3_full_highcov.vcf.gz
+	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	tabix $@
+
+$(vcf_dir)/merged_lippold.vcf.gz:
+	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_spy1.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_mez2.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_highcov.vcf.gz -Oz -o $(tmp_dir)/mindp3_lippold_highcov.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_highcov.vcf.gz
+	bcftools merge $(tmp_dir)/mindp3_lippold_{den4,den8,spy1,mez2,elsidron2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	tabix $@
+
 
 
 #
