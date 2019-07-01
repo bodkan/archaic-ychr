@@ -9,7 +9,7 @@ vcf_dir := $(data_dir)/vcf
 coord_dir := $(data_dir)/coord
 sim_dir := $(data_dir)/sim
 tmp_dir := tmp
-fig_dir := fig
+fig_dir := figures
 src_dir := src
 dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
@@ -96,9 +96,9 @@ vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_arch_vcfs) $(lippold_arch_vc
 fasta: $(fastas)
 
 diagnostics:
-	bams=`cd $(bam_dir); ls *elsidron* *ustishim* *den* *spy* *mez* | grep 'bam$$' | xargs realpath`; \
-	mkdir -p $(fig_dir)/damage; \
-	cd $(fig_dir)/damage; \
+	bams=`cd $(bam_dir); ls *elsidron* *full_den* *full_spy* *full_mez* | grep 'bam$$' | xargs realpath`; \
+	mkdir -p $(data_dir)/damage; \
+	cd $(data_dir)/damage; \
 	for b in $$bams; do \
 	    qsub -V -cwd -j y -l virtual_free=500M,h_vmem=500M,class=cow /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$b; \
 	done
