@@ -132,14 +132,17 @@ $(addprefix $(tmp_dir)/, $(sgdp_bams)):
 # A00 Y
 $(tmp_dir)/a00.bam: $(tmp_dir)/a00_1.bam $(tmp_dir)/a00_2.bam
 	samtools merge $@ $^
+	samtools index $@
 
 $(tmp_dir)/a00_1.bam:
 	cd $(tmp_dir); wget http://evolbio.ut.ee/chrY/GRC13292545.chrY.bam
 	samtools view -hb --min-tlen 35 -q 25 $(tmp_dir)/GRC13292545.chrY.bam -o $@
+	samtools index $@
 
 $(tmp_dir)/a00_2.bam:
 	cd $(tmp_dir); wget http://evolbio.ut.ee/chrY/GRC13292546.chrY.bam
 	samtools view -hb --min-tlen 35 -q 25 $(tmp_dir)/GRC13292546.chrY.bam -o $@
+	samtools index $@
 
 $(tmp_dir)/elsidron1.bam:
 	cd $(tmp_dir); curl -O http://cdna.eva.mpg.de/neandertal/exomes/BAM/Sidron_exome_hg19_1000g_LowQualDeamination.md.bam; \
