@@ -165,30 +165,6 @@ $(tmp_dir)/ustishim.bam:
 	mv $(tmp_dir)/chrY.uniq.L35MQ25.bam $@
 	samtools index $@
 
-$(tmp_dir)/kk1.bam:
-	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/KK1_sort_rmdup_merge_IR_q30_mapDamage.bam Y -o $(tmp_dir)/KK1.Y.bam
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 KK1.Y.bam
-	samtools calmd $(tmp_dir)/KK1.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
-	samtools index $@
-
-$(tmp_dir)/bichon.bam:
-	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/Bichon.sort.rmdup.IR.q30.mapDamage.bam Y -o $(tmp_dir)/Bichon.Y.bam
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 Bichon.Y.bam
-	samtools calmd $(tmp_dir)/Bichon.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
-	samtools index $@
-
-$(tmp_dir)/mota.bam:
-	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/GB20_sort_merge_dedup_l30_IR_q30_mapDamage.bam Y -o $(tmp_dir)/Mota.Y.bam
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 Mota.Y.bam
-	samtools calmd $(tmp_dir)/Mota.Y.uniq.L35MQ25.bam $(ref_genome) --output-fmt BAM > $@
-	samtools index $@
-
-$(tmp_dir)/loschbour.bam:
-	samtools view -h -b /mnt/expressions/mp/Archive/y-selection/tmp/Loschbour.hg19_1000g.bam Y -o $(tmp_dir)/Loschbour.Y.bam
-	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 Loschbour.Y.bam
-	mv $(tmp_dir)/Loschbour.Y.uniq.L35MQ25.bam $@
-	samtools index $@
-
 $(tmp_dir)/den8.bam:
 	$(split_and_merge) den8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 den8/den8.bam
