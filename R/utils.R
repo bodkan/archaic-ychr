@@ -111,6 +111,22 @@ get_coverage <- function(bed, bam) {
 }
 
 
+#' Change sample name to its full form.
+fix_name <- function(name) {
+  case_when(
+    name == "den4" ~ "Denisova 4",
+    name == "den8" ~ "Denisova 8",
+    name == "spy1" ~ "Spy 1",
+    name == "mez2" ~ "Mezmaiskaya 2",
+    name == "elsidron1" ~ "El Sidrón 1253 (118 kb)",
+    name == "elsidron2" ~ "El Sidrón 1253",
+    name == "a00" ~ "A00",
+    name == "ustishim" ~ "Ust'-Ishim",
+    TRUE ~ name
+  )
+}
+
+
 #' Pipe operator
 #'
 #' Added via usethis::use_pipe().
