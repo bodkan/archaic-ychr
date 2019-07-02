@@ -14,7 +14,7 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
-sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam # S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam S_Ju_hoan_North-1.bam
+sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Ju_hoan_North-1.bam # S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam
 published_bams := ustishim.bam a00.bam $(sgdp_bams)
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(published_bams)))
