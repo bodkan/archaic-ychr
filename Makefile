@@ -41,14 +41,7 @@ exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
 test_vcfs := $(vcf_dir)/test_gt.vcf.gz
 
 # FASTA files
-archaic_fastas := $(addprefix archaic_,full.fa lippold.fa exome.fa)
-neand_fastas := $(addprefix neand_,full.fa lippold.fa exome.fa)
-den_fastas := $(addprefix den_,full.fa lippold.fa exome.fa)
-modern_fastas := $(addprefix modern_,full.fa lippold.fa exome.fa)
-present_fastas := $(addprefix present_,full.fa lippold.fa exome.fa)
-all_fastas := $(addprefix $(fasta_dir)/all_,$(archaic_fastas) $(neand_fastas) $(den_fastas) $(modern_fastas) $(present_fastas))
-tv_fastas := $(addprefix $(fasta_dir)/tv_,$(archaic_fastas) $(neand_fastas) $(den_fastas) $(modern_fastas) $(present_fastas))
-fastas := $(all_fastas) $(tv_fastas)
+fastas := $(addprefix $(fasta_dir)/, full_highcov.fa)
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample.py
@@ -325,41 +318,10 @@ $(vcf_dir)/merged_lippold.vcf.gz:
 #
 # FASTA alignments for BEAST analyses
 #
-# archaics := spy1 mez2 neand den8 kk1 mota bichon loschbour ustishim elsidron1 elsidron2
-archaics := neand den8 elsidron1 elsidron2
-exclude := spy1 mez2 chimp kk1 mota bichon loschbour chimp S_BedouinB-1 S_Punjabi-1 S_Turkish-1 S_Burmese-1 S_Saami-2 S_Thai-1
 
+$(fasta_dir)/full_highcov.fa: $(vcf_dir)/full_highcov.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable
 
-$(fasta_dir)/all_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable
-
-$(fasta_dir)/all_neand_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude den8 $(exclude) --variable
-
-$(fasta_dir)/all_den_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude neand $(exclude) --variable
-
-$(fasta_dir)/all_modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics) --variable
-
-$(fasta_dir)/all_present_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable
-
-
-$(fasta_dir)/tv_archaic_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) --variable --tvonly
-
-$(fasta_dir)/tv_neand_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude den8 $(exclude) --variable --tvonly
-
-$(fasta_dir)/tv_den_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude neand $(exclude) --variable --tvonly
-
-$(fasta_dir)/tv_modern_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude $(exclude) $(archaics) --variable --tvonly
-
-$(fasta_dir)/tv_present_%.fa: $(vcf_dir)/merged_%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude ustishim $(exclude) $(archaics) --variable --tvonly
 
 
 #
