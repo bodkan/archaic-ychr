@@ -26,7 +26,7 @@ calculate_tafr <- function(gt) {
   samples <- if ("simY" %in% gt$chrom) read_siminfo(gt) else read_info(gt)
 
     refs <- filter(samples, pop != "Africa", pop != "EMH")$name
-    afrs <- filter(samples, pop == "Africa")$name
+    afrs <- "a00" #filter(samples, pop == "Africa")$name
     emhs <- "ustishim"
 
     site_counts <- map_dfr(refs, function(ref) {
