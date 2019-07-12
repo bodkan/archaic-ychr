@@ -14,9 +14,10 @@ src_dir := src
 dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
+mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Ju_hoan_North-1.bam # S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam
 published_bams := ustishim.bam a00.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam mez2_spy1.bam mez2_den4.bam mez2_den8.bam $(published_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(addsuffix .bam, $(mez2_subsamples)) $(published_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(published_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(published_bams)))
 
@@ -27,7 +28,7 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz mez2_spy1.vcf.gz mez2_den4.vcf.gz mez2_den8.vcf.gz))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
@@ -101,13 +102,11 @@ diagnostics:
 #
 # BAM processing
 #
-# $(bam_dir)/full_mez2sub.bam: $(coord_dir)/capture_full.bed $(bam_dir)/full_mez2.bam
-# 	cov_mez2=$(shell bedtools coverage -a $< -b $(bam_dir)/full_mez2.bam -d | awk '{sum+=$$5} END { print sum/NR}'); \
-# 	cov_den8=$(shell bedtools coverage -a $< -b $(bam_dir)/full_den8.bam -d | awk '{sum+=$$5} END { print sum/NR}'); \
-# 	samtools view -b -s `echo $$cov_den8 $$cov_mez2 | awk '{print $$1/$$2}'` $(bam_dir)/full_mez2.bam > $@
-# 	samtools index $@
-$(bam_dir)/full_mez2_%.bam: $(bam_dir)/full_%.bam $(bam_dir)/full_mez2.bam $(coord_dir)/capture_full.bed
-	$(src_dir)/subsample.sh $< $(bam_dir)/full_mez2.bam $@ $(coord_dir)/capture_full.bed
+$(bam_dir)/full_mez2_dp%.bam: $(bam_dir)/full_mez2.bam $(coord_dir)/capture_full.bed
+	target_coverage=`basename $@ .bam | sed 's/full_mez2_dp//'`; \
+	input_coverage=`bedtools coverage -a $(coord_dir)/capture_full.bed -b $< -d | awk '{sum+=$$5} END { print sum/NR}'`; \
+	samtools view -b -s `echo $$target_coverage $$input_coverage | awk '{print $$1/$$2}'` $< > $@
+	samtools index $@
 
 $(bam_dir)/full_%.bam: $(tmp_dir)/%.bam
 	bedtools intersect -a $< -b $(coord_dir)/capture_full.bed > $@
