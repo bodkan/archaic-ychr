@@ -83,13 +83,14 @@ calculate_tarch <- function(gt, tafr) {
     site_counts %>%
       select(-counts_afr) %>%
       mutate(
-        p = a / (a + d + e),
-        alpha = (1 + p) / (1 - p),
-        tmrca_arch = tmrca_f * alpha
+        alpha_mendez = (2 * a + d + e) / (d + e),
+        tmrca_mendez = tmrca_f * alpha_mendez,
+        alpha_new = (a + d) / a,
+        tmrca_new = tmrca_f * alpha_new
       ) %>%
       nest(a:f, total, .key = "counts_arch") %>%
       mutate(counts_afr = counts_afr) %>%
-      select(arch, afr, ref, tmrca_arch, alpha, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_arch, counts_afr)
+      select(arch, afr, ref, tmrca_new, alpha_new, tmrca_mendez, alpha_mendez, tmrca_afr, tmrca_ad, tmrca_f, mut_rate, counts_arch, counts_afr)
 }
 
 
