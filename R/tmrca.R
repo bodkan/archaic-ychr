@@ -85,7 +85,7 @@ calculate_tarch <- function(gt, tafr) {
       mutate(
         alpha_mendez = (2 * a + d + e) / (d + e),
         tmrca_mendez = tmrca_f * alpha_mendez,
-        alpha_new = (a + d) / a,
+        alpha_new = (a + d) / d,
         tmrca_new = tmrca_f * alpha_new
       ) %>%
       nest(a:f, total, .key = "counts_arch") %>%
