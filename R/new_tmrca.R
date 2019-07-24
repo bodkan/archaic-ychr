@@ -44,7 +44,7 @@ run_step2 <- function(gt, step1) {
 }
 
 
-simulate_counts <- function(counts, n = 100000) {
+simulate_counts <- function(counts, n = 1000) {
   tibble(
     a = rpois(n, counts$a),
     b = rpois(n, counts$b),
@@ -85,8 +85,8 @@ calculate_ci <- function(df) {
     gather(stat, value) %>%
     group_by(stat) %>%
     summarise(
-      low = quantile(value, 0.025),
-      high = quantile(value, 0.975)
+      low = quantile(value, 0.025, na.rm = TRUE),
+      high = quantile(value, 0.975, na.rm = TRUE)
     ) %>%
     gather(boundary, value, -stat) %>%
     unite(temp, stat, boundary) %>%
