@@ -112,18 +112,37 @@ get_coverage <- function(bed, bam) {
 
 
 #' Change sample name to its full form.
-fix_name <- function(name) {
-  case_when(
+fix_name <- function(name, coverage = FALSE) {
+  new_name <- case_when(
     name == "den4" ~ "Denisova 4",
     name == "den8" ~ "Denisova 8",
     name == "spy1" ~ "Spy 1",
     name == "mez2" ~ "Mezmaiskaya 2",
+    name == "shotgun_mez2" ~ "Mezmaiskaya 2 (shotgun)",
+    name == "shotgun_spy1" ~ "Spy 1 (shotgun)",
     name == "elsidron1" ~ "El Sidrón 1253 (118 kb)",
+    name == "elsidron_dp1" ~ "El Sidrón 1253 (118 kb, unfilt.)",
+    name == "elsidron_dp3" ~ "El Sidrón 1253 (118 kb, filt.)",
     name == "elsidron2" ~ "El Sidrón 1253",
     name == "a00" ~ "A00",
     name == "ustishim" ~ "Ust'-Ishim",
     TRUE ~ name
   )
+
+  cov_df <- tribble(
+    ~name, ~coverage,
+    "Spy 1", 0.8253635,
+    "Denisova 4", 1.5451500,
+    "El Sidrón 1253 (118 kb)",	3.1318824,
+    "Denisova 8", 3.4819494,
+    "El Sidrón 1253", 7.8449213,
+    "Mezmaiskaya 2", 14.2548400
+  ) %>% mutate(coverage = round(coverage, 1))
+
+  if (coverage)
+    new_name <- map_chr(new_name, ~ paste0(.x, " (", filter(cov_df, name == .x)$coverage, "X)"))
+
+  new_name
 }
 
 
