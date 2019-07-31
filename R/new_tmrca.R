@@ -21,8 +21,8 @@ run_step1 <- function(gt) {
   refs <- filter(samples, pop != "Africa", pop != "EMH")$name
 
   map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = "a00", y = .x, z = "ustishim") %>%
-            mutate(ref = .x)) %>%
-    select(ref, everything()) %>%
+            mutate(afr = "a00", ref = .x)) %>%
+    select(afr, ref, everything()) %>%
     add_mut_rate %>%
     add_tafr
 }
@@ -36,15 +36,15 @@ run_step2 <- function(gt, step1) {
   archaic <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
 
   map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = archaic, y = .x, z = "a00") %>%
-            mutate(arch = archaic, ref = .x)) %>%
+            mutate(arch = archaic, afr = "a00", ref = .x)) %>%
     inner_join(tafr, by = "ref") %>%
     add_tarch_mendez %>%
     add_tarch_new %>%
-    select(arch, ref, everything())
+    select(arch, afr, ref, everything())
 }
 
 
-simulate_counts <- function(counts, n = 1000) {
+simulate_counts <- function(counts, n = 10000) {
   tibble(
     a = rpois(n, counts$a),
     b = rpois(n, counts$b),
@@ -57,38 +57,72 @@ simulate_counts <- function(counts, n = 1000) {
 }
 
 
-add_tafr_ci <- function(df) {
-  simulate_counts(df) %>%
+#' Take A00 TMRCA and mutation rate estimates and simulate
+#' confidence intervals by bootstraping for both of them.
+#' @import tidyr
+add_step1_ci <- function(df, per_ind) {
+  if (!per_ind) {
+    columns <- "afr"
+    df <- group_by(df, afr) %>% summarise_if(is.numeric, mean)
+  } else {
+    columns <- c("afr", "ref")
+  }
+
+  ci <- df %>%
+    nest(a:total, .key = "counts") %>%
+    mutate(sims = map(counts, simulate_counts)) %>%
+    unnest(sims) %>%
     add_mut_rate %>%
     add_tafr %>%
-    select(tmrca_afr, mut_rate) %>%
-    calculate_ci %>%
-    bind_cols(df, .) %>%
-    select(starts_with("tmrca"), starts_with("mut_rate"), everything())
+    select(one_of(columns), tmrca_afr, mut_rate) %>%
+    calculate_ci(per_ind)
+
+  inner_join(df, ci, by = columns) %>%
+    select(one_of(columns), starts_with("tmrca"), starts_with("mut_rate"))
 }
 
+#' Take archaic Y chromosome TMRCA estimates and simulate
+#' confidence intervals by bootstraping of branch counts.
+add_step2_ci <- function(df, per_ind) {
+  columns <- if (per_ind) c("arch", "afr", "ref") else c("arch", "afr")
 
-add_tarch_ci <- function(df, tafr) {
-  simulate_counts(df) %>%
-    mutate(tmrca_afr = tafr) %>%
+  ci <- df %>%
+    nest(a:total, .key = "counts") %>%
+    mutate(sims = map(counts, simulate_counts)) %>%
+    unnest(sims) %>%
     add_tarch_mendez %>%
     add_tarch_new %>%
-    select(tmrca_mendez, tmrca_new) %>%
-    calculate_ci %>%
-    bind_cols(df, .) %>%
-    select(starts_with("tmrca"), starts_with("mut_rate"), everything())
+    select(one_of(columns), tmrca_mendez, tmrca_new) %>%
+    calculate_ci(per_ind)
+
+  if (!per_ind) {
+    df <- select(df, afr, arch, matches("mendez|new")) %>%
+      group_by_at(vars(one_of(columns))) %>%
+      summarise_if(is.numeric, mean)
+  }
+
+  inner_join(df, ci, by = columns) %>%
+    select(one_of(columns), starts_with("tmrca"))
 }
 
 
-calculate_ci <- function(df) {
+#' Calculate empirical confidence intervals from bootstrapped
+#' values of simulated branch counts.
+calculate_ci <- function(df, per_ind) {
+  columns <- c("afr")
+  if ("arch" %in% names(df)) columns <- c(columns, "arch")
+  if (per_ind) {
+    columns <- c(columns, "ref")
+  }
+
   df %>%
-    gather(stat, value) %>%
-    group_by(stat) %>%
+    gather(stat, value, -one_of(columns)) %>%
+    group_by_at(vars(one_of(c("stat", columns)))) %>%
     summarise(
       low = quantile(value, 0.025, na.rm = TRUE),
       high = quantile(value, 0.975, na.rm = TRUE)
     ) %>%
-    gather(boundary, value, -stat) %>%
+    gather(boundary, value, -one_of(c("stat", columns))) %>%
     unite(temp, stat, boundary) %>%
     spread(temp, value)
 }

@@ -146,6 +146,22 @@ fix_name <- function(name, coverage = FALSE) {
 }
 
 
+#' Add a column with a sample group.
+assign_set <- function(df) {
+  ungroup(df) %>%
+  mutate(set = case_when(name == "a00" ~ "A00",
+             name %in% c("den4", "den8") ~ "Denisovan",
+             name %in% c("spy1", "mez2", "shotgun_mez2", "shotgun_spy1") ~ "Neanderthal",
+             str_detect(name, "elsidron") ~ "Neanderthal",
+             str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
+             TRUE ~ "other")) %>%
+  mutate(name = fix_name(name)) %>%
+  mutate(name = fct_relevel(name, "Denisova 4", "Denisova 8", "Spy 1 (shotgun)", "Spy 1",
+                            "El Sidrón 1253", "Mezmaiskaya 2 (shotgun)", "Mezmaiskaya 2",
+                            "A00"))
+}
+
+
 #' Pipe operator
 #'
 #' Added via usethis::use_pipe().
