@@ -116,22 +116,22 @@ fix_name <- function(name, coverage = FALSE) {
   new_name <- case_when(
     name == "den4" ~ "Denisova 4",
     name == "den8" ~ "Denisova 8",
-    name == "spy1" ~ "Spy 1",
+    name == "spy1" ~ "Spy 94a",
     name == "mez2" ~ "Mezmaiskaya 2",
     name == "shotgun_mez2" ~ "Mezmaiskaya 2 (shotgun)",
-    name == "shotgun_spy1" ~ "Spy 1 (shotgun)",
+    name == "shotgun_spy1" ~ "Spy 94a (shotgun)",
     name == "elsidron1" ~ "El Sidrón 1253 (118 kb)",
     name == "elsidron_dp1" ~ "El Sidrón 1253 (118 kb, unfilt.)",
     name == "elsidron_dp3" ~ "El Sidrón 1253 (118 kb, filt.)",
     name == "elsidron2" ~ "El Sidrón 1253",
-    name == "a00" ~ "A00",
+    name == "a00" ~ "A00 lineage",
     name == "ustishim" ~ "Ust'-Ishim",
     TRUE ~ name
   )
 
   cov_df <- tribble(
     ~name, ~coverage,
-    "Spy 1", 0.8253635,
+    "Spy 94a", 0.8253635,
     "Denisova 4", 1.5451500,
     "El Sidrón 1253 (118 kb)",	3.1318824,
     "Denisova 8", 3.4819494,
@@ -149,14 +149,14 @@ fix_name <- function(name, coverage = FALSE) {
 #' Add a column with a sample group.
 assign_set <- function(df) {
   ungroup(df) %>%
-  mutate(set = case_when(name == "a00" ~ "A00",
+  mutate(set = case_when(name == "a00" ~ "A00 lineage",
              name %in% c("den4", "den8") ~ "Denisovan",
              name %in% c("spy1", "mez2", "shotgun_mez2", "shotgun_spy1") ~ "Neanderthal",
              str_detect(name, "elsidron") ~ "Neanderthal",
              str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
              TRUE ~ "other")) %>%
   mutate(name = fix_name(name)) %>%
-  mutate(name = fct_relevel(name, "Denisova 4", "Denisova 8", "Spy 1 (shotgun)", "Spy 1",
+  mutate(name = fct_relevel(name, "Denisova 4", "Denisova 8", "Spy 94a (shotgun)", "Spy 94a",
                             "El Sidrón 1253", "Mezmaiskaya 2 (shotgun)", "Mezmaiskaya 2",
                             "A00"))
 }
