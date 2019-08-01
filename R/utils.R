@@ -118,6 +118,7 @@ fix_name <- function(name, coverage = FALSE) {
     name == "den8" ~ "Denisova 8",
     name == "spy1" ~ "Spy 94a",
     name == "mez2" ~ "Mezmaiskaya 2",
+    name == "mez2_snpad" ~ "Mezmaiskaya 2 (snpAD)",
     name == "shotgun_mez2" ~ "Mezmaiskaya 2 (shotgun)",
     name == "shotgun_spy1" ~ "Spy 94a (shotgun)",
     name == "elsidron1" ~ "El Sidrón 1253 (118 kb)",
@@ -151,14 +152,14 @@ assign_set <- function(df) {
   ungroup(df) %>%
   mutate(set = case_when(name == "a00" ~ "A00 lineage",
              name %in% c("den4", "den8") ~ "Denisovan",
-             name %in% c("spy1", "mez2", "shotgun_mez2", "shotgun_spy1") ~ "Neanderthal",
+             name %in% c("spy1", "mez2", "shotgun_mez2", "shotgun_spy1", "mez2_snpad") ~ "Neanderthal",
              str_detect(name, "elsidron") ~ "Neanderthal",
              str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
              TRUE ~ "other")) %>%
   mutate(name = fix_name(name)) %>%
   mutate(name = fct_relevel(name, "Denisova 4", "Denisova 8", "Spy 94a (shotgun)", "Spy 94a",
                             "El Sidrón 1253", "Mezmaiskaya 2 (shotgun)", "Mezmaiskaya 2",
-                            "A00"))
+                            "Mezmaiskaya 2 (snpAD)", "A00"))
 }
 
 
