@@ -1,6 +1,6 @@
 # Read and filter a single VCF file.
 read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
-  vcf <- VariantAnnotation::readVcf(path)
+  vcf <- VariantAnnotation::readVcf(path, row.names = FALSE)
   gr <- GenomicRanges::granges(vcf)
 
   dp <- VariantAnnotation::geno(vcf)$DP
