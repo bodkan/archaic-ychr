@@ -1,5 +1,5 @@
 # Read and filter a single VCF file.
-read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE, bed_filter = NA) {
   vcf <- VariantAnnotation::readVcf(path, row.names = FALSE)
   gr <- GenomicRanges::granges(vcf)
 
@@ -38,6 +38,21 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
 
   if (tv_only) {
     df <- filter(df, ALT == "" | !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
+  }
+
+  if (!is.na(bed_filter)) {
+    bed_filter <- rtracklayer::import.bed(bed_filter)
+    df <- df %>%
+      GenomicRanges::makeGRangesFromDataFrame(
+        start.field = "pos",
+        end.field = "pos",
+        keep.extra.columns = TRUE
+      ) %>%
+      IRanges::subsetByOverlaps(bed_filter) %>%
+      as.data.frame %>%
+      dplyr::select(-end, -width, -strand) %>%
+      dplyr::rename(chrom = seqnames, pos = start) %>%
+      tibble::as_tibble()
   }
 
   df
