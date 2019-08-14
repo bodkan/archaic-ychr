@@ -66,12 +66,12 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE) {
+read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE, bed_filter = NA) {
   archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
   highcov_vcf <- here::here(paste0("data/vcf/", capture, "_highcov.vcf.gz"))
 
-  archaic_df <- read_vcf(archaic_vcf, mindp, maxdp)
-  highcov_df <- read_vcf(highcov_vcf, mindp, maxdp)
+  archaic_df <- read_vcf(archaic_vcf, mindp = mindp, maxdp = maxdp, bed_filter = bed_filter)
+  highcov_df <- read_vcf(highcov_vcf, mindp = mindp, maxdp = maxdp, bed_filter = bed_filter)
 
   df <- dplyr::right_join(archaic_df, highcov_df, by = c("chrom", "pos" ,"REF"), suffix = c("_arch", "_modern"))
 

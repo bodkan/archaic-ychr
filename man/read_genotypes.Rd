@@ -5,7 +5,7 @@
 \title{Read genotypes from a VCF file, returning a data frame object.}
 \usage{
 read_genotypes(archaic, capture, mindp, maxdp = 0.975,
-  var_only = FALSE, tv_only = FALSE)
+  var_only = FALSE, tv_only = FALSE, bed_filter = NA)
 }
 \arguments{
 \item{archaic}{Path to a low-coverage archaic Y chromosome VCF.}
