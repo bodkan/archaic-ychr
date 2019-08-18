@@ -146,6 +146,7 @@ fix_name <- function(name, coverage = FALSE) {
   new_name
 }
 
+summean <- function(df) summarise_if(df, is.numeric, mean)
 
 #' Add a column with a sample group.
 assign_set <- function(df) {
