@@ -19,9 +19,12 @@ run_step1 <- function(gt) {
   samples <- if ("simY" %in% gt$chrom) read_siminfo(gt) else read_info(gt)
 
   refs <- filter(samples, pop != "Africa", pop != "EMH")$name
+  afrs <- filter(samples, pop == "Africa")$name
 
-  map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = "a00", y = .x, z = "ustishim") %>%
-            mutate(afr = "a00", ref = .x)) %>%
+  map_dfr(afrs, function(afr) {
+  map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = afr, y = .x, z = "ustishim") %>%
+            mutate(afr = afr, ref = .x))
+  }) %>%
     select(afr, ref, everything()) %>%
     add_mut_rate %>%
     add_tafr

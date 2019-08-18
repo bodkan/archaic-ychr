@@ -4,8 +4,7 @@ read_siminfo <- function(gt) {
   emh <- tibble(name = str_subset(colnames(gt), "ustishim"), age = 45000, pop = "EMH")
   afr <- tibble(name = str_subset(colnames(gt), "afr"), age = 0, pop = "Africa")
   westeur <- tibble(name = str_subset(colnames(gt), "eur"), age = 0, pop = "WestEur")
-  easteur <- tibble(name = str_subset(colnames(gt), "asn"), age = 0, pop = "EastEur")
-  bind_rows(emh, afr, westeur, easteur)
+  bind_rows(emh, afr, westeur)
 }
 
 

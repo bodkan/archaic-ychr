@@ -103,7 +103,7 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
 read_simgt <- function(path) {
   suppressMessages(read_tsv(path)) %>%
     mutate(chrom = "simY", pos = round(pos), REF = "A", ALT = "T") %>%
-    select(chrom, pos, REF, ALT, chimp = chimp0, everything())
+    select(chrom, pos, REF, ALT, everything())
 }
 
 
