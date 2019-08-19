@@ -80,7 +80,7 @@ initialize() {
     sim.addSubpop("p1", ancestral_Ne);
 
     defineConstant("burnin", 7 * ancestral_Ne);
-    defineConstant("human_split", asInteger(650000 / 25));
+    defineConstant("human_split", asInteger(600000 / 25));
     defineConstant("nonafr_split", asInteger(70000 / 25));
     defineConstant("introgression", asInteger(admix_time / 25));
     defineConstant("bottleneck", asInteger(1000 / 25)); // duration of the bottleneck
