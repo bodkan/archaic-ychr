@@ -21,18 +21,20 @@ function (void)check_arg(s arg) {
 }
 
 initialize() {
-    set("ancestral_Ne", 10000);
+    set("ancestral_Ne", 10);
     set("human_Ne", 10000);
-    set("archaic_Ne", 1000);
+    set("neand_Ne", 1000);
     set("mut_rate", 0);
+
+    set("sampling_length", 100);
 
     check_arg("chrom_type");
     check_arg("chrom_length");
     check_arg("gene_total");
     check_arg("gene_count");
     check_arg("admix_time");
-    check_arg("archaic_rate");
-    check_arg("modern_rate");
+    check_arg("neand_modern");
+    check_arg("modern_neand");
     check_arg("output");
 
     marker_count = asInteger(chrom_length / 10000);
@@ -75,7 +77,7 @@ initialize() {
         initializeGenomicElement(g1, asInteger(starts[i - 1]), asInteger(ends[i - 1]));
 }
 
-// create a population of human-archaic ancestors
+// create a population of human-Neanderthal ancestors
 1 {
     sim.addSubpop("p1", ancestral_Ne);
 
@@ -86,25 +88,26 @@ initialize() {
     defineConstant("bottleneck", asInteger(1000 / 25)); // duration of the bottleneck
 
     start = burnin + human_split - introgression;
-    defineConstant("sampling", start + c(seq(0, 50), seq(200, introgression, by = 200)));
+    defineConstant("sampling_gens", start + seq(0, sampling_length));
 
     sim.rescheduleScriptBlock(s1, generations = burnin);
     sim.rescheduleScriptBlock(s2, generations = burnin + human_split - nonafr_split);
     sim.rescheduleScriptBlock(s3, generations = burnin + human_split - nonafr_split + bottleneck);
     sim.rescheduleScriptBlock(s4, generations = burnin + human_split - introgression - 1);
     sim.rescheduleScriptBlock(s5, generations = burnin + human_split - introgression);
-    sim.rescheduleScriptBlock(s6, generations = sampling);
+    sim.rescheduleScriptBlock(s6, generations = sampling_gens);
 }
 
-// end of the burn-in period - split of archaics from other humans
+// end of the burn-in period - split of Neanderthals from other humans
 s1 2 late() {
     cat("Generation: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
-    cat("- split of archaics from modern humans\n");
+    cat("- end of burnin phase\n");
+    cat("- split of Neanderthals from modern humans\n");
 
-    sim.addSubpop("p2", archaic_Ne);
+    sim.addSubpop("p2", neand_Ne);
 
-    cat("- placing neutral markers on the archaic lineage\n");
+    cat("- placing neutral markers on the Neanderthal lineage\n");
     p2.genomes[!p2.genomes.isNullGenome].addNewDrawnMutation(m0, marker_pos);
 }
 
@@ -128,11 +131,11 @@ s4 2 {
     cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
     cat("- simulating introgression\n");
-    cat("\tarchaic admixture into modern humans: " + archaic_rate + "\n");
-    cat("\tmodern human admixture into archaics: " + modern_rate + "\n");
+    cat("\tNeanderthal admixture into modern humans: " + neand_modern + "\n");
+    cat("\tmodern human admixture into Neanderthals: " + modern_neand + "\n");
 
-    p2.setMigrationRates(p1, modern_rate);
-    p1.setMigrationRates(p2, archaic_rate);
+    p2.setMigrationRates(p1, modern_neand);
+    p1.setMigrationRates(p2, neand_modern);
 }
 
 s5 2 {
@@ -147,20 +150,22 @@ s5 2 {
 s6 2 {
     post_admixture = sim.generation - (burnin + human_split - introgression);
 
-    if (post_admixture == 0) writeFile(output, "gen\tmodern\tarchaic");
+    if (post_admixture == 0) writeFile(output, "gen\tmodern\tneand");
 
-    archaic_ancestry = ancestry_prop(p1, m0);
+    neand_ancestry = ancestry_prop(p1, m0);
     modern_ancestry = 1 - ancestry_prop(p2, m0);
 
     writeFile(
         output,
-        paste(c(post_admixture, archaic_ancestry, modern_ancestry), sep = "\t"),
+        paste(c(post_admixture, neand_ancestry, modern_ancestry), sep = "\t"),
         append = T
     );
 
-    if (sim.generation - (burnin + human_split) == 0) {
+    //if (sim.generation - (burnin + human_split) == 0) {
+    if (post_admixture == sampling_length) {
         cat("\nGeneration: " + sim.generation);
         cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
         cat("- simulation finished\n");
+        sim.simulationFinished();
     }
 }
