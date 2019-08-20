@@ -36,7 +36,7 @@ run_step2 <- function(gt, step1) {
   samples <- if ("simY" %in% gt$chrom) read_siminfo(gt) else read_info(gt)
 
   refs <- filter(samples, pop != "Africa", pop != "EMH")$name
-  archaic <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
+  archaic <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name), -starts_with("S_")))
   afrs <- filter(samples, pop == "Africa")$name
 
   map_dfr(afrs, function(afr) {
