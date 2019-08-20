@@ -37,9 +37,12 @@ run_step2 <- function(gt, step1) {
 
   refs <- filter(samples, pop != "Africa", pop != "EMH")$name
   archaic <- colnames(select(gt, -c(chrom, pos, REF, ALT, chimp), -one_of(samples$name)))
+  afrs <- filter(samples, pop == "Africa")$name
 
-  map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = archaic, y = .x, z = "a00") %>%
-            mutate(arch = archaic, afr = "a00", ref = .x)) %>%
+  map_dfr(afrs, function(afr) {
+  map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = archaic, y = .x, z = afr) %>%
+            mutate(arch = archaic, afr = afr, ref = .x))
+  }) %>%
     inner_join(tafr, by = "ref") %>%
     add_tarch_mendez %>%
     add_tarch_new %>%

@@ -27,7 +27,7 @@ read_info <- function(gt) {
     age = 0
   )
 
-  bind_rows(emh, modern)
+  bind_rows(emh, modern) %>% filter(pop != "Africa" | name == "a00")
 }
 
 
