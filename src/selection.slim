@@ -1,8 +1,8 @@
 // Calculate ancestry proportion using fixed neutral markers.
 function (float)ancestry_prop(lifso<Subpopulation> pop, lifso<MutationType> type) {
-    if (chrom_type == "A")
+    if (chrom == "A")
         n = 2;
-    else if (chrom_type == "X")
+    else if (chrom == "X")
         n = 1.5;
     else
         n = 0.5;
@@ -21,14 +21,14 @@ function (void)check_arg(s arg) {
 }
 
 initialize() {
-    set("ancestral_Ne", 10);
+    set("ancestral_Ne", 10000);
     set("human_Ne", 10000);
     set("neand_Ne", 1000);
     set("mut_rate", 0);
 
-    set("sampling_length", 100);
+    set("sampling_length", 400);
 
-    check_arg("chrom_type");
+    check_arg("chrom");
     check_arg("chrom_length");
     check_arg("gene_total");
     check_arg("gene_count");
@@ -38,9 +38,9 @@ initialize() {
     check_arg("output");
 
     marker_count = asInteger(chrom_length / 10000);
-    if (chrom_type == "A") {
+    if (chrom == "A") {
         defineConstant("recomb_rate", 1e-8);
-    } else if (chrom_type == "X") {
+    } else if (chrom == "X") {
         defineConstant("recomb_rate", 2/3 * 1e-8);
     } else {
         marker_count = 1;
@@ -61,7 +61,7 @@ initialize() {
     // genomic element type of genic regions
     initializeGenomicElementType("g1", m1, 1.0);
 
-    initializeSex(chrom_type);
+    initializeSex(chrom);
 
     // uniform chromosome with uniformly distributed genic regions
     if (gene_count == 1) {
