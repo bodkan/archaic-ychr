@@ -26,6 +26,7 @@ initialize() {
     set("neand_Ne", 1000);
     set("mut_rate", 0);
 
+    set("dump_at", 0);
     set("sampling_length", 400);
 
     check_arg("chrom");
@@ -36,6 +37,9 @@ initialize() {
     check_arg("neand_modern");
     check_arg("modern_neand");
     check_arg("output");
+
+    defineConstant("output_traj", output + "_traj.tsv");
+    defineConstant("output_pop", output + "_pop.txt");
 
     marker_count = asInteger(chrom_length / 10000);
     if (chrom == "A") {
@@ -90,12 +94,18 @@ initialize() {
     start = burnin + human_split - introgression;
     defineConstant("sampling_gens", start + seq(0, sampling_length));
 
+    defineConstant("dump_gen", asInteger(dump_at / 25));
+
     sim.rescheduleScriptBlock(s1, generations = burnin);
     sim.rescheduleScriptBlock(s2, generations = burnin + human_split - nonafr_split);
     sim.rescheduleScriptBlock(s3, generations = burnin + human_split - nonafr_split + bottleneck);
-    sim.rescheduleScriptBlock(s4, generations = burnin + human_split - introgression - 1);
     sim.rescheduleScriptBlock(s5, generations = burnin + human_split - introgression);
-    sim.rescheduleScriptBlock(s6, generations = sampling_gens);
+    sim.rescheduleScriptBlock(s6, generations = burnin + human_split - introgression + 1);
+    sim.rescheduleScriptBlock(s7, generations = sampling_gens);
+    if (dump_gen > 0)
+        sim.rescheduleScriptBlock(s4, generations = burnin + human_split - dump_gen);
+    else
+        sim.deregisterScriptBlock(s4);
 }
 
 // end of the burn-in period - split of Neanderthals from other humans
@@ -130,6 +140,13 @@ s3 2 { cat("\nGeneration: " + sim.generation);
 s4 2 {
     cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
+    cat("\t-saving population dump\n");
+    sim.outputFull(output_pop);
+}
+
+s5 2 {
+    cat("\nGeneration: " + sim.generation);
+    cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
     cat("- simulating introgression\n");
     cat("\tNeanderthal admixture into modern humans: " + neand_modern + "\n");
     cat("\tmodern human admixture into Neanderthals: " + modern_neand + "\n");
@@ -138,7 +155,7 @@ s4 2 {
     p1.setMigrationRates(p2, neand_modern);
 }
 
-s5 2 {
+s6 2 {
     cat("\nGeneration: " + sim.generation);
     cat(" (" + 25 * (burnin + human_split - sim.generation) + " kya)\n");
     cat("- end of introgression\n");
@@ -147,16 +164,16 @@ s5 2 {
     p2.setMigrationRates(p1, 0);
 }
 
-s6 2 {
+s7 2 {
     post_admixture = sim.generation - (burnin + human_split - introgression);
 
-    if (post_admixture == 0) writeFile(output, "gen\tmodern\tneand");
+    if (post_admixture == 0) writeFile(output_traj, "gen\tmodern\tneand");
 
     neand_ancestry = ancestry_prop(p1, m0);
     modern_ancestry = 1 - ancestry_prop(p2, m0);
 
     writeFile(
-        output,
+        output_traj,
         paste(c(post_admixture, neand_ancestry, modern_ancestry), sep = "\t"),
         append = T
     );
