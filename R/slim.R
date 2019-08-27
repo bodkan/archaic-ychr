@@ -134,8 +134,8 @@ get_genome_ids <- function(indiv_id) {
   stringr::str_c(pop_id, c(2 * indiv_no, 2 * indiv_no + 1))
 }
 
-#' Calculate genetic load for each simulated Y chromosome.
-calculate_load <- function(f, pop = "") {
+#' Calculate genetic fitness for each simulated Y chromosome.
+calculate_fitness <- function(f, pop = "") {
     muts <- read_mutations(f)
     genomes <- read_genomes(f, pop = pop) %>%
         dplyr::mutate(pop = str_extract(genome_id, "p[0-9]+")) %>%
@@ -145,9 +145,9 @@ calculate_load <- function(f, pop = "") {
         dplyr::select(genome_id, pop, mut_id, mut_type, s, pop_origin, gen_origin) %>%
         dplyr::mutate(s = -s)
 
-    loads <- dplyr::group_by(combined, genome_id, pop) %>%
-        dplyr::summarise_at(vars(s), sum) %>%
-        dplyr::mutate(load = exp(-s))
+    fitness <- dplyr::group_by(combined, genome_id, pop) %>%
+        dplyr::summarise(S = sum(s)) %>%
+        dplyr::mutate(fitness = exp(-S))
 
-    loads
+    fitness
 }
