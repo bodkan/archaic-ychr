@@ -6,7 +6,7 @@ mkdir -p data/sim/${direction}
 for gene_total in `seq 100000 100000 2000000`; do
 for admix_rate in 0.05; do
 for admix_time in `seq 200000 25000 450000`; do
-for rep in `seq 1 50`; do
+for rep in `seq 1 75`; do
     N="seq${gene_total}_time${admix_time}_rate${admix_rate}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
         slim \
@@ -22,6 +22,7 @@ for rep in `seq 1 50`; do
 done
 done
 done
+done
 
 
 direction="neand2modern"
@@ -32,7 +33,7 @@ for admix_rate in `seq 0.01 0.01 0.1`; do
 for admix_time in 300000; do
 for rep in `seq 11 30`; do
     N="seq${gene_total}_time${admix_time}_rate${admix_rate}_rep${rep}"
-    echo qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
+    qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
         slim \
             -d mut_rate=1.85e-08 \
             -d gene_total=${gene_total} \
