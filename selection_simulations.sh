@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
+# simulations exploring the admixture time vs amount of sequence
 direction="modern2neand"
 mkdir -p data/sim/${direction}
 
 for gene_total in `seq 100000 100000 2000000`; do
 for admix_rate in 0.05; do
 for admix_time in `seq 200000 25000 450000`; do
-for rep in `seq 1 75`; do
+for rep in `seq 1 50`; do
     N="seq${gene_total}_time${admix_time}_rate${admix_rate}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
         slim \
