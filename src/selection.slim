@@ -28,6 +28,7 @@ initialize() {
     set("chrom", "Y");
     set("chrom_length", 60000000);
     set("gene_count", 100);
+    set("dfe_scale", 1.0);
 
     set("dump_at", 0);
 
@@ -64,7 +65,7 @@ initialize() {
     m0.convertToSubstitution = F;
 
     // deleterious mutation type
-    initializeMutationType("m1", 0.5, "g", -0.043, 0.23);
+    initializeMutationType("m1", 0.5, "g", dfe_scale * -0.043, 0.23);
 
     // genomic element type of genic regions
     initializeGenomicElementType("g1", m1, 1.0);
