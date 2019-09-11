@@ -67,8 +67,8 @@ with open(args.fasta, "w") as output:
         print(">" + re.sub("-", "_", name), file=output)
         print("".join(gt_df[name]), file=output)
 
-# save the counts of constant sites
-if args.variable:
-    const_sites = dict(ref_bases[allele_counts == 1].value_counts())
-    with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
-        print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
+# # save the counts of constant sites
+# if args.variable:
+#     const_sites = dict(ref_bases[allele_counts == 1].value_counts())
+#     with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
+#         print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
