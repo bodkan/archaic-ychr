@@ -42,7 +42,7 @@ exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
 test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz $(addsuffix .vcf.gz,$(addprefix $(vcf_dir)/test_tolerance_,$(shell seq 0 0.01 0.5)))
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/, full_highcov.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
 
 # scripts
 bam_sample := /mnt/expressions/mp/bam-sample/bam-sample.py
@@ -303,7 +303,11 @@ $(vcf_dir)/test_bcftools.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8
 	    | bgzip -c > $@
 	tabix $@
 
-$(vcf_dir)/merged_full.vcf.gz:
+#
+# FASTA alignments for BEAST analyses
+#
+
+$(vcf_dir)/full_merged.vcf.gz:
 	bcftools view -i 'DP >= 3' data/vcf/full_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_full_spy1.vcf.gz
@@ -312,25 +316,33 @@ $(vcf_dir)/merged_full.vcf.gz:
 	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
-$(vcf_dir)/merged_lippold.vcf.gz:
+$(vcf_dir)/lippold_merged.vcf.gz:
 	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_spy1.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_mez2.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_highcov.vcf.gz -Oz -o $(tmp_dir)/mindp3_lippold_highcov.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_highcov.vcf.gz
-	bcftools merge $(tmp_dir)/mindp3_lippold_{den4,den8,spy1,mez2,elsidron2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	bcftools merge $(tmp_dir)/mindp3_lippold_{elsidron2,den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	tabix $@
+
+$(vcf_dir)/full_merged_var.vcf.gz:
+	bcftools view $(vcf_dir)/full_merged.vcf.gz -m 2 -M 2 -Oz -o $@
+	tabix $@
+
+$(vcf_dir)/lippold_merged_var.vcf.gz:
+	bcftools view $(vcf_dir)/lippold_merged.vcf.gz -m 2 -M 2 -Oz -o $@
 	tabix $@
 
 
-
-#
-# FASTA alignments for BEAST analyses
-#
-
-$(fasta_dir)/full_highcov.fa: $(vcf_dir)/full_highcov.vcf.gz
+$(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable
 
+$(fasta_dir)/%_tvonly.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tvonly
+
+$(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim mez2 spy1 den4 den8 lippold2
 
 
 #
