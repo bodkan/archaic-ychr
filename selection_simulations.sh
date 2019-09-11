@@ -30,24 +30,25 @@ done
 
 # simulations exploring the DFE vs amount of sequence
 
-mkdir -p data/sim/DFE
+mkdir -p data/sim/dfe_scaling
 
-for scale in `seq 1.0 1.0 10.0`; do
+for scale in 1 2 3 4 5 10 50 100; do
 for gene_total in `seq 100000 100000 2000000`; do
 for admix_rate in 0.03; do
 for admix_time in `seq 200000 25000 450000`; do
-for rep in `seq 6 10`; do
-    N="dfe_${scale}_seq${gene_total}_time${admix_time}_rate${admix_rate}_rep${rep}"
+for rep in `seq 1 20`; do
+    N="dfe${scale}_seq${gene_total}_time${admix_time}_rate${admix_rate}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=1G,h_vmem=1G -o tmp/sge/${N}.out -N $N \
         slim \
             -d mut_rate=1.85e-08 \
+            -d dfe_scale=${scale} \
             -d gene_total=${gene_total} \
             -d "direction='modern2neand'" \
             -d admix_time=${admix_time} \
             -d admix_rate=${admix_rate} \
             -d dump_at=$((${admix_time} + 25)) \
             -d sample_for=100000 \
-            -d "output='data/sim/DFE/${N}'" \
+            -d "output='data/sim/dfe_scaling/${N}'" \
             src/selection.slim
 done
 done
