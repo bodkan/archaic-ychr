@@ -21,13 +21,12 @@ read_info <- function(gt) {
     pop = case_when(
       name %in% c("S_Burmese_1", "S_Thai_1", "S_Han_2", "S_Dai_2", "S_Punjabi_1", "S_Papuan_2", "S_Karitiana_1") ~ "EastEur",
       name %in% c("S_BedouinB_1", "S_Turkish_1", "S_French_1", "S_Finnish_2", "S_Sardinian_1", "S_Saami_2") ~ "WestEur",
-      name %in% c("ustishim", "bichon", "kk1", "loschbour", "mota") ~ "EMH",
       TRUE ~ "Africa"
     ),
     age = 0
   )
 
-  bind_rows(emh, modern) %>% filter(pop != "Africa" | name == "a00")
+  bind_rows(emh, modern)
 }
 
 
