@@ -17,7 +17,7 @@ read_info <- function(gt) {
   )
 
   modern <- tibble(
-    name = c(str_subset(colnames(gt), "^S_"), "a00"), #, "a00_1", "a00_2"),
+    name = c(str_subset(colnames(gt), "^S_"), "a00", "a00_1", "a00_2"),
     pop = case_when(
       name %in% c("S_Burmese_1", "S_Thai_1", "S_Han_2", "S_Dai_2", "S_Punjabi_1", "S_Papuan_2", "S_Karitiana_1") ~ "EastEur",
       name %in% c("S_BedouinB_1", "S_Turkish_1", "S_French_1", "S_Finnish_2", "S_Sardinian_1", "S_Saami_2") ~ "WestEur",

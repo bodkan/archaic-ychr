@@ -31,7 +31,7 @@ run_step1 <- function(gt) {
 }
 
 run_step2 <- function(gt, step1) {
-  tafr <- select(step1, ref, mut_rate, tmrca_afr)
+  tafr <- select(step1, afr, ref, mut_rate, tmrca_afr)
 
   samples <- if ("simY" %in% gt$chrom) read_siminfo(gt) else read_info(gt)
 
@@ -43,7 +43,7 @@ run_step2 <- function(gt, step1) {
   map_dfr(refs, ~ sum_patterns(gt, w = "chimp", x = archaic, y = .x, z = afr) %>%
             mutate(arch = archaic, afr = afr, ref = .x))
   }) %>%
-    inner_join(tafr, by = "ref") %>%
+    inner_join(tafr, by = c("afr", "ref")) %>%
     add_tarch_mendez %>%
     add_tarch_new %>%
     select(arch, afr, ref, everything())
