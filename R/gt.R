@@ -3,10 +3,15 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
   vcf <- VariantAnnotation::readVcf(path, row.names = FALSE)
   gr <- GenomicRanges::granges(vcf)
 
-  dp <- VariantAnnotation::geno(vcf)$DP
-  # apply min and max coverage filters
-  mask <- apply(dp, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
-  if ("chimp" %in% colnames(mask)) mask[, "chimp"] <- TRUE
+  if (!"DP" %in% names(VariantAnnotation::geno(vcf))) {
+    dims <- dim(VariantAnnotation::geno(vcf)$GT)
+    mask <- matrix(TRUE, dims[1], dims[2])
+  } else {
+    dp <- VariantAnnotation::geno(vcf)$DP
+    # apply min and max coverage filters
+    mask <- apply(dp, 2, function(i) ifelse(i >= mindp & i <= quantile(i, maxdp, na.rm = TRUE), TRUE, FALSE))
+    if ("chimp" %in% colnames(mask)) mask[, "chimp"] <- TRUE
+  }
 
   biallelic_pos <- IRanges::elementNROWS(gr$ALT) == 1
 
