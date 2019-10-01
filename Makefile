@@ -326,20 +326,11 @@ $(vcf_dir)/lippold_merged.vcf.gz:
 	bcftools merge $(tmp_dir)/mindp3_lippold_{elsidron2,den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
-$(vcf_dir)/full_merged_var.vcf.gz:
-	bcftools view $(vcf_dir)/full_merged.vcf.gz -m 2 -M 2 -Oz -o $@
-	tabix $@
-
-$(vcf_dir)/lippold_merged_var.vcf.gz:
-	bcftools view $(vcf_dir)/lippold_merged.vcf.gz -m 2 -M 2 -Oz -o $@
-	tabix $@
-
-
 $(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim
 
-$(fasta_dir)/%_tvonly.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tvonly
+$(fasta_dir)/%_tv.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tv --exclude ustishim
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim mez2 spy1 den4 den8 lippold2
