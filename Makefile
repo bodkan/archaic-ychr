@@ -45,7 +45,7 @@ test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz
 fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
 
 # scripts
-bam_sample := /mnt/expressions/mp/bam-sample/bam-sample.py
+bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
 run_nb := $(src_dir)/run_nb.sh
 split_and_merge := $(src_dir)/split_and_merge.sh
 split_bam := /r1/people/mmeyer/perlscripts/solexa/filework/splitBAM.pl
@@ -271,7 +271,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 # genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
-	$(bam_sample) --bam $< \
+	$(bam_caller) --bam $< \
 	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
@@ -332,7 +332,7 @@ $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
 # generate pileup files for read-based contamination estimates
 #
 $(pileup_dir)/%.txt.gz: $(bam_dir)/%.bam
-	$(bam_sample) --bam $< --strategy pileup \
+	$(bam_caller) --bam $< --strategy pileup \
 	    --minbq 20 --minmq 25 \
 	    --output $(basename $(basename $@))
 	bgzip $(basename $@)
