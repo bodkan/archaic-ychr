@@ -39,7 +39,7 @@ full_vcf := $(vcf_dir)/full_highcov.vcf.gz
 lippold_vcf := $(vcf_dir)/lippold_highcov.vcf.gz
 exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
 
-test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz $(addsuffix .vcf.gz,$(addprefix $(vcf_dir)/test_tolerance_,$(shell seq 0 0.01 0.5)))
+test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz
 
 # FASTA files
 fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
@@ -277,15 +277,7 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	bgzip $(basename $@)
 	tabix $@
 
-$(vcf_dir)/test_tolerance_%.vcf.gz: $(bam_dir)/full_mez2.bam
-	tolerance=`echo $@ | sed 's/.*_\([01].[0-9]*\).vcf.gz/\1/g'`; \
-	$(bam_sample) --bam $< \
-	    --strategy consensus --tolerance $$tolerance --mincov 1 --minbq 20 --minmq 25 \
-	    --sample-name $(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//') --output $(basename $(basename $@))
-	bgzip $(basename $@)
-	tabix $@
-
-# testing A00 VCF file for comparing bam-sample and bcftools calls
+# testing A00 VCF file for comparing bam-caller and bcftools calls
 $(vcf_dir)/test_bcftools.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
 	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
