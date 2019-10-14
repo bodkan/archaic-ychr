@@ -341,7 +341,7 @@ $(vcf_dir)/lippold_merged_var.vcf.gz:
 $(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim
 
-$(fasta_dir)/%_tvonly.fa: $(vcf_dir)/%.vcf.gz
+$(fasta_dir)/%_tv.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tv --exclude ustishim
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
