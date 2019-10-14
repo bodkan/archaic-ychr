@@ -17,20 +17,20 @@ def valid_sample_names(samples_given, samples_in_header):
 
 
 parser = argparse.ArgumentParser(description="Convert genotypes from VCF to FASTA")
-parser.add_argument("--vcf", help="VCF file to parse", required=True)
+parser.add_argument("--vcf", help="Input VCF file with biallelic variants", required=True)
 parser.add_argument("--fasta", help="FASTA output file", required=True)
 parser.add_argument("--include", help="List of samples to include from the VCF", nargs="*", default=[])
 parser.add_argument("--exclude", help="List of samples to exclude from the VCF", nargs="*", default=[])
 parser.add_argument("--variable", help="Output only variable sites?", action="store_true", default=False)
-parser.add_argument("--tvonly", help="Write only transversion SNPs?", action="store_true", default=False)
+parser.add_argument("--save-counts", help="Save base counts at monomorphic sites", action="store_true", default=False)
+parser.add_argument("--tv", help="Write only transversion SNPs?", action="store_true", default=False)
 
 args = parser.parse_args()
-# args = parser.parse_args("--vcf data/vcf/full_highcov.vcf.gz --fasta asd.fa --variable --tvonly".split())
 
 vcf_reader = vcf.Reader(open(args.vcf, "rb"))
 
 args.include, args.exclude = set(args.include), set(args.exclude)
-# check if the provided samples are indeed present in the VCF
+# check if the specified samples are present in the VCF
 if not valid_sample_names(args.include, vcf_reader.samples):
     sys.exit("Not all samples to include are present in the VCF file!")
 if len(args.include & args.exclude):
@@ -43,8 +43,8 @@ samples = args.include if args.include else set(vcf_reader.samples) - args.exclu
 samples_dict = defaultdict(list)
 ref_bases = []
 for i, record in enumerate(vcf_reader.fetch("Y")):
-    if i % 100000 == 0: print(f"\r{i} positions processed", end="")
-    if args.tvonly and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
+    if i % 1000000 == 0: print(f"\r{i} positions processed", end="")
+    if args.tv and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
         continue
     ref_bases.append(record.REF)
     for name in samples:
@@ -61,14 +61,13 @@ if args.variable:
     allele_counts = gt_df.apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
     gt_df = gt_df.loc[allele_counts > 1]
 
+    if args.save_counts:
+        const_sites = dict(ref_bases[allele_counts == 1].value_counts())
+        with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
+            print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
+
 # write out the called bases for each sample in a FASTA format
 with open(args.fasta, "w") as output:
     for name in samples:
         print(">" + re.sub("-", "_", name), file=output)
         print("".join(gt_df[name]), file=output)
-
-# # save the counts of constant sites
-# if args.variable:
-#     const_sites = dict(ref_bases[allele_counts == 1].value_counts())
-#     with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
-#         print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)

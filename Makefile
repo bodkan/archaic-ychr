@@ -16,10 +16,10 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir
 # BAM files
 mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Ju_hoan_North-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam
-published_bams := ustishim.bam a00.bam a00_1.bam a00_2.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(addsuffix .bam, $(mez2_subsamples)) $(published_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(published_bams)))
-exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(published_bams)))
+modern_bams := a00.bam a00_1.bam a00_2.bam $(sgdp_bams)
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, ustishim.bam shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(addsuffix .bam, $(mez2_subsamples)) $(modern_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, ustishim.bam spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(modern_bams)))
+exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, ustishim.bam spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(modern_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
@@ -27,17 +27,17 @@ test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz den8.txt.gz den4.txt.gz S_French-1.txt.gz))
 
 # VCF files
-published_vcfs := $(subst .bam,.vcf.gz, $(published_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
-lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
-exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
-full_highcov_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(published_vcfs)))
-lippold_highcov_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(published_vcfs)))
-exome_highcov_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(published_vcfs)))
+modern_vcfs := $(subst .bam,_modern.vcf.gz, $(modern_bams))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
+exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
+full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(modern_vcfs)))
+lippold_modern_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(modern_vcfs)))
+exome_modern_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix exome_, $(modern_vcfs)))
 
-full_vcf := $(vcf_dir)/full_highcov.vcf.gz
-lippold_vcf := $(vcf_dir)/lippold_highcov.vcf.gz
-exome_vcf := $(vcf_dir)/exome_highcov.vcf.gz
+full_vcf := $(vcf_dir)/full_modern.vcf.gz
+lippold_vcf := $(vcf_dir)/lippold_modern.vcf.gz
+exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 
 test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz
 
@@ -99,9 +99,10 @@ diagnostics:
 
 
 
-#
+######################################################################
 # BAM processing
-#
+######################################################################
+
 $(bam_dir)/full_mez2_dp%.bam: $(bam_dir)/full_mez2.bam $(coord_dir)/capture_full.bed
 	target_coverage=`basename $@ .bam | sed 's/full_mez2_dp//'`; \
 	input_coverage=`bedtools coverage -a $(coord_dir)/capture_full.bed -b $< -d | awk '{sum+=$$5} END { print sum/NR}'`; \
@@ -237,21 +238,23 @@ $(bam_dir)/control_stuttgart.bam:
 	mv $(tmp_dir)/control_stuttgart.Y.uniq.L35MQ25.bam $@
 	samtools index $@
 
-#
-# VCF processing
-#
 
-$(vcf_dir)/full_highcov.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(full_highcov_vcfs)
+
+######################################################################
+# VCF processing
+######################################################################
+
+$(vcf_dir)/full_modern.vcf.gz: $(vcf_dir)/full_chimp.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(full_modern_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/lippold_highcov.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(lippold_highcov_vcfs)
+$(vcf_dir)/lippold_modern.vcf.gz: $(vcf_dir)/lippold_chimp.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(lippold_modern_vcfs)
 	bcftools merge $^ | bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/exome_highcov.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(exome_highcov_vcfs)
+$(vcf_dir)/exome_modern.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(exome_modern_vcfs)
 	bcftools merge $^ |  bcftools annotate -x INFO | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
@@ -268,30 +271,47 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 	bgzip $(basename $@)
 	tabix $@
 
-# genotype samples by consensus calling
+# genotype ancient DNA samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
 	$(bam_caller) --bam $< \
-	    --strategy consensus --mincov 1 --minbq 20 --minmq 25 \
+	    --strategy majority --proportion 1.0 --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
 
+
+# genotype ancient DNA samples by consensus calling
+$(vcf_dir)/%_modern.vcf.gz: $(bam_dir)/%.bam
+	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
+		| bcftools call --ploidy 1 -m -V indels \
+		| bcftools reheader -s <(echo "$$name") \
+		| bcftools view - -Oz -o $@
+	tabix $@
+
 # testing A00 VCF file for comparing bam-caller and bcftools calls
 $(vcf_dir)/test_bcftools.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
-	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_a00.bam \
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_a00.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
 	tabix $(tmp_dir)/bcftools_a00.vcf.gz
-	samtools mpileup -B -t DP -Q 20 -q 25 -u -f $(ref_genome) $(bam_dir)/full_den8.bam \
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_den8.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_den8.vcf.gz
 	tabix $(tmp_dir)/bcftools_den8.vcf.gz
-	samtools mpileup -B -t DP -Q 20 -q 30 -u -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_mez2.bam \
+		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_mez2.vcf.gz
+	tabix $(tmp_dir)/bcftools_mez2.vcf.gz
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
 		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_ustishim.vcf.gz
 	tabix $(tmp_dir)/bcftools_ustishim.vcf.gz
-	bcftools merge $(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(tmp_dir)/bcftools_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
+	bcftools merge \
+		$(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz \
+		$(vcf_dir)/full_den8.vcf.gz $(tmp_dir)/bcftools_den8.vcf.gz \
+		$(vcf_dir)/full_mez2.vcf.gz $(tmp_dir)/bcftools_mez2.vcf.gz \
+		$(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
 	    | bcftools view -v snps \
 	    | bcftools annotate -x INFO,FORMAT/PL \
-	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_den8\nbcftools_den8\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
+	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_den8\nbcftools_den8\nconsensus_mez2\nbcftools_mez2\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
 	    | bgzip -c > $@
 	tabix $@
 
@@ -299,29 +319,29 @@ $(vcf_dir)/test_bcftools.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8
 # FASTA alignments for BEAST analyses
 #
 
-$(vcf_dir)/full_merged.vcf.gz:
+$(vcf_dir)/full_merged_var.vcf.gz:
 	bcftools view -i 'DP >= 3' data/vcf/full_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_full_spy1.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_full_mez2.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/full_highcov.vcf.gz -Oz -o $(tmp_dir)/mindp3_full_highcov.vcf.gz; tabix $(tmp_dir)/mindp3_full_highcov.vcf.gz
-	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	bcftools view -i 'DP >= 3' data/vcf/full_modern.vcf.gz -Oz -o $(tmp_dir)/mindp3_full_modern.vcf.gz; tabix $(tmp_dir)/mindp3_full_modern.vcf.gz
+	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,modern}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
-$(vcf_dir)/lippold_merged.vcf.gz:
+$(vcf_dir)/lippold_merged_var.vcf.gz:
 	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_spy1.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_mez2.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_highcov.vcf.gz -Oz -o $(tmp_dir)/mindp3_lippold_highcov.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_highcov.vcf.gz
-	bcftools merge $(tmp_dir)/mindp3_lippold_{elsidron2,den4,den8,spy1,mez2,highcov}*.vcf.gz | bcftools view -M 2 -Oz -o $@
+	bcftools view -i 'DP >= 3' data/vcf/lippold_modern.vcf.gz -Oz -o $(tmp_dir)/mindp3_lippold_modern.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_modern.vcf.gz
+	bcftools merge $(tmp_dir)/mindp3_lippold_{elsidron2,den4,den8,spy1,mez2,modern}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
 $(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim
 
-$(fasta_dir)/%_tv.fa: $(vcf_dir)/%.vcf.gz
+$(fasta_dir)/%_tvonly.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tv --exclude ustishim
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
@@ -339,9 +359,9 @@ $(pileup_dir)/%.txt.gz: $(bam_dir)/%.bam
 
 
 
-#
+######################################################################
 # coordinate files
-#
+######################################################################
 
 # Y chromosome capture regions from Lippold et al. (~570 kb)
 # /mnt/genotyping/sendru/basti_design.bed
@@ -373,6 +393,10 @@ $(coord_dir)/capture_%.pos: $(coord_dir)/capture_%.bed
 	$(src_dir)/sites_in_bed.py --bed $< --format pos --output $@
 
 
+
+######################################################################
+# other dependencies
+######################################################################
 
 $(dirs):
 	mkdir -p $@

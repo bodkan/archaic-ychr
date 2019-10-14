@@ -73,7 +73,7 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
 #' @import stringr dplyr purrr tibble
 read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE, bed_filter = NA) {
   archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
-  highcov_vcf <- here::here(paste0("data/vcf/", ifelse(capture == "test", "full", capture), "_highcov.vcf.gz"))
+  highcov_vcf <- here::here(paste0("data/vcf/", ifelse(capture == "test", "full", capture), "_modern.vcf.gz"))
 
   archaic_df <- read_vcf(archaic_vcf, mindp = mindp, maxdp = maxdp, bed_filter = bed_filter)
   highcov_df <- read_vcf(highcov_vcf, mindp = mindp, maxdp = maxdp, bed_filter = bed_filter)
