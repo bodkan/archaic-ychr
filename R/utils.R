@@ -123,19 +123,19 @@ fix_name <- function(name, coverage = FALSE) {
     name == "elsidron_dp1" ~ "El Sidrón 1253 (118 kb, unfiltered)",
     name == "elsidron_dp3" ~ "El Sidrón 1253 (118 kb, filtered)",
     name == "elsidron2" ~ "El Sidrón 1253",
-    name == "a00" ~ "A00 lineage",
+    name == "a00" ~ "A00",
     name == "ustishim" ~ "Ust'-Ishim",
     TRUE ~ name
   )
 
   cov_df <- tribble(
-    ~name, ~coverage,
-    "Spy 94a", 0.8253635,
-    "Denisova 4", 1.5451500,
-    "El Sidrón 1253 (118 kb)",	3.1318824,
-    "Denisova 8", 3.4819494,
-    "El Sidrón 1253", 7.8449213,
-    "Mezmaiskaya 2", 14.2548400
+      ~name, ~coverage,
+      "Spy 94a", 0.8253635,
+      "Denisova 4", 1.3717758,
+      "Denisova 8", 3.4819494,
+      "El Sidrón 1253", 7.9165032,
+      "Mezmaiskaya 2", 14.3491322,
+      "El Sidón 1253 (118 kb)", 3.2121215
   ) %>% mutate(coverage = round(coverage, 1))
 
   if (coverage)
@@ -144,21 +144,19 @@ fix_name <- function(name, coverage = FALSE) {
   new_name
 }
 
+
+
+
 summean <- function(df) summarise_if(df, is.numeric, mean)
 
 #' Add a column with a sample group.
 assign_set <- function(df) {
   ungroup(df) %>%
-  mutate(set = case_when(name == "a00" ~ "A00 lineage",
-             name %in% c("den4", "den8") ~ "Denisovan",
-             name %in% c("spy1", "mez2", "shotgun_mez2", "shotgun_spy1", "mez2_snpad") ~ "Neanderthal",
-             str_detect(name, "elsidron") ~ "Neanderthal",
-             str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
-             TRUE ~ "other")) %>%
-  mutate(name = fix_name(name)) %>%
-  mutate(name = fct_relevel(name, "Denisova 4", "Denisova 8", "Spy 94a (shotgun)", "Spy 94a",
-                            "El Sidrón 1253", "Mezmaiskaya 2 (shotgun)", "Mezmaiskaya 2",
-                            "Mezmaiskaya 2 (snpAD)", "A00"))
+  mutate(set = case_when(name %in% c("a00", "A00")    ~ "A00",
+                         str_detect(name, "[Dd]enisova") ~ "Denisovan",
+                         str_detect(name, "([Ss]py|[Mm]ez|[Ss]idr)") ~ "Neanderthal",
+                         str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
+                         TRUE ~ "other"))
 }
 
 
