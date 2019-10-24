@@ -8,10 +8,11 @@ fasta_dir := $(data_dir)/fasta
 vcf_dir := $(data_dir)/vcf
 coord_dir := $(data_dir)/coord
 sim_dir := $(data_dir)/sim
+test_dir := test
 tmp_dir := tmp
 fig_dir := figures
 src_dir := src
-dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
+dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(test_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
 
 # BAM files
 mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
@@ -39,7 +40,7 @@ full_vcf := $(vcf_dir)/full_modern.vcf.gz
 lippold_vcf := $(vcf_dir)/lippold_modern.vcf.gz
 exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 
-test_vcfs := $(vcf_dir)/test_bcftools.vcf.gz
+test_vcfs := $(foreach sample, mez2 S_French-1 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
 fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
@@ -66,8 +67,6 @@ map_filter := /mnt/454/HCNDCAM/Hengs_Alignability_Filter/hs37m_filt35_50.bed.gz
 
 
 .PHONY: default init bam vcf fasta diagnostics clean
-
-
 
 default:
 	@echo -e "Usage:"
@@ -284,42 +283,54 @@ $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 # genotype ancient DNA samples by consensus calling
 $(vcf_dir)/%_modern.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
-	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
+	bcftools mpileup --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
 		| bcftools call --ploidy 1 -m -V indels \
 		| bcftools reheader -s <(echo "$$name") \
 		| bcftools view - -Oz -o $@
 	tabix $@
 
-# testing A00 VCF file for comparing bam-caller and bcftools calls
-$(vcf_dir)/test_bcftools.vcf.gz: $(vcf_dir)/full_a00.vcf.gz $(vcf_dir)/full_den8.vcf.gz $(vcf_dir)/full_ustishim.vcf.gz
-	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_a00.bam \
-		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_a00.vcf.gz
-	tabix $(tmp_dir)/bcftools_a00.vcf.gz
-	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_den8.bam \
-		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_den8.vcf.gz
-	tabix $(tmp_dir)/bcftools_den8.vcf.gz
-	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_mez2.bam \
-		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_mez2.vcf.gz
-	tabix $(tmp_dir)/bcftools_mez2.vcf.gz
-	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $(bam_dir)/full_ustishim.bam \
-		| bcftools call --ploidy 1 -m -V indels -Oz -o $(tmp_dir)/bcftools_ustishim.vcf.gz
-	tabix $(tmp_dir)/bcftools_ustishim.vcf.gz
-	bcftools merge \
-		$(vcf_dir)/full_a00.vcf.gz $(tmp_dir)/bcftools_a00.vcf.gz \
-		$(vcf_dir)/full_den8.vcf.gz $(tmp_dir)/bcftools_den8.vcf.gz \
-		$(vcf_dir)/full_mez2.vcf.gz $(tmp_dir)/bcftools_mez2.vcf.gz \
-		$(vcf_dir)/full_ustishim.vcf.gz $(tmp_dir)/bcftools_ustishim.vcf.gz \
-	    | bcftools view -v snps \
-	    | bcftools annotate -x INFO,FORMAT/PL \
-	    | bcftools reheader -s <(echo -e "consensus_a00\nbcftools_a00\nconsensus_den8\nbcftools_den8\nconsensus_mez2\nbcftools_mez2\nconsensus_ustishim\nbcftools_ustishim\n"| cat) \
-	    | bgzip -c > $@
+#
+# testing different genotyping procedures
+#
+.SECONDARY:
+
+$(test_dir)/genotyping_%.vcf.gz: $(test_dir)/%_baq.vcf.gz $(test_dir)/%_nobaq.vcf.gz $(test_dir)/%_consensus.vcf.gz $(test_dir)/%_tolerance.vcf.gz
+	bcftools merge $^ \
+		| bcftools annotate -x INFO,FORMAT/PL \
+		| bgzip -c \
+	> $@
 	tabix $@
+$(test_dir)/%_baq.vcf.gz: $(bam_dir)/full_%.bam
+	bcftools mpileup --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
+		| bcftools call --ploidy 1 -m -V indels \
+		| bcftools reheader -s <(echo "baq") \
+		| bcftools view - -Oz -o $@
+	tabix $@
+$(test_dir)/%_nobaq.vcf.gz: $(bam_dir)/full_%.bam
+	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
+		| bcftools call --ploidy 1 -m -V indels \
+		| bcftools reheader -s <(echo "nobaq") \
+		| bcftools view - -Oz -o $@
+	tabix $@
+$(test_dir)/%_consensus.vcf.gz: $(bam_dir)/full_%.bam
+	$(bam_caller) --bam $< \
+	    --strategy majority --proportion 1.0 --mincov 1 --minbq 20 --minmq 25 \
+	    --sample-name cons --output $(basename $(basename $@))
+	bgzip $(basename $@)
+	tabix $@
+$(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
+	$(bam_caller) --bam $< \
+	    --strategy majority --proportion 0.9 --mincov 1 --minbq 20 --minmq 25 \
+	    --sample-name tol --output $(basename $(basename $@))
+	bgzip $(basename $@)
+	tabix $@
+
 
 #
 # FASTA alignments for BEAST analyses
 #
 
-$(vcf_dir)/full_merged_var.vcf.gz:
+$(vcf_dir)/full_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
 	bcftools view -i 'DP >= 3' data/vcf/full_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_full_spy1.vcf.gz
@@ -328,7 +339,7 @@ $(vcf_dir)/full_merged_var.vcf.gz:
 	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,modern}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
-$(vcf_dir)/lippold_merged_var.vcf.gz:
+$(vcf_dir)/lippold_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
 	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
