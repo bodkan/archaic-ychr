@@ -28,7 +28,7 @@ test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz den8.txt.gz den4.txt.gz S_French-1.txt.gz))
 
 # VCF files
-modern_vcfs := $(subst .bam,_modern.vcf.gz, $(modern_bams))
+modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
 full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
@@ -40,7 +40,7 @@ full_vcf := $(vcf_dir)/full_modern.vcf.gz
 lippold_vcf := $(vcf_dir)/lippold_modern.vcf.gz
 exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 
-test_vcfs := $(foreach sample, mez2 S_French-1 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
+test_vcfs := $(foreach sample, spy1 den4 den8 mez2 S_French-1 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
 fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
@@ -270,23 +270,13 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 	bgzip $(basename $@)
 	tabix $@
 
-# genotype ancient DNA samples by consensus calling
+# genotype samples by consensus calling
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
 	$(bam_caller) --bam $< \
 	    --strategy majority --proportion 1.0 --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
-	tabix $@
-
-
-# genotype ancient DNA samples by consensus calling
-$(vcf_dir)/%_modern.vcf.gz: $(bam_dir)/%.bam
-	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
-	bcftools mpileup --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
-		| bcftools call --ploidy 1 -m -V indels \
-		| bcftools reheader -s <(echo "$$name") \
-		| bcftools view - -Oz -o $@
 	tabix $@
 
 #
