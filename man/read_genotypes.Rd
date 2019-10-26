@@ -4,11 +4,11 @@
 \alias{read_genotypes}
 \title{Read genotypes from a VCF file, returning a data frame object.}
 \usage{
-read_genotypes(archaic, capture, mindp, maxdp = 0.975,
-  var_only = FALSE, tv_only = FALSE, bed_filter = NA)
+read_genotypes(archaic, capture, mindp, maxdp = 0.98, var_only = FALSE,
+  tv_only = FALSE, bed_filter = NA)
 }
 \arguments{
-\item{archaic}{Path to a low-coverage archaic Y chromosome VCF.}
+\item{archaic}{Name of an archaic human sample, or a path to its VCF.}
 
 \item{capture}{Capture set (full, lippold, exome).}
 
