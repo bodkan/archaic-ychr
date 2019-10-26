@@ -18,7 +18,7 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(test_dir)
 mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Ju_hoan_North-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam
 modern_bams := a00.bam a00_1.bam a00_2.bam $(sgdp_bams)
-full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, ustishim.bam shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam $(addsuffix .bam, $(mez2_subsamples)) $(modern_bams)))
+full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, ustishim.bam shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam den.bam $(addsuffix .bam, $(mez2_subsamples)) $(modern_bams)))
 lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, ustishim.bam spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(modern_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, ustishim.bam spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(modern_bams)))
 
@@ -29,7 +29,7 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz mez2_snpad.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den.vcf.gz mez2_snpad.vcf.gz den_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(modern_vcfs)))
@@ -40,7 +40,7 @@ full_vcf := $(vcf_dir)/full_modern.vcf.gz
 lippold_vcf := $(vcf_dir)/lippold_modern.vcf.gz
 exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 
-test_vcfs := $(foreach sample, spy1 den4 den8 mez2 S_French-1 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
+test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
 fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
@@ -84,7 +84,7 @@ bam: $(full_bams) $(lippold_bams) $(exome_bams) $(test_bams)
 
 pileup: $(full_pileups)
 
-vcf: $(full_vcf) $(lippold_vcf) $(exome_vcf) $(full_arch_vcfs) $(lippold_arch_vcfs) $(exome_arch_vcfs) $(test_vcfs)
+vcf: $(full_arch_vcfs) $(lippold_arch_vcfs) $(exome_arch_vcfs) $(full_vcf) $(lippold_vcf) $(exome_vcf) $(test_vcfs)
 
 fasta: $(fastas)
 
@@ -166,6 +166,10 @@ $(tmp_dir)/den8.bam:
 	$(split_and_merge) den8 /mnt/ngs_data/180503_D00829_0138_BCC49NANXX_PEdi_SN_EE_BN_MG/Bustard/BWA/proc1/s_7_sequence_ancient_hg19_evan.bam input/20190207_Ychromosome_Denisova8.txt
 	cd $(tmp_dir); $(analyze_bam) -qual 25 -minlength 35 den8/den8.bam
 	mv $(tmp_dir)/den8.uniq.L35MQ25.bam $@
+	samtools index $@
+
+$(tmp_dir)/den.bam: $(tmp_dir)/den4.bam $(tmp_dir)/den8.bam
+	samtools merge $@ $^
 	samtools index $@
 
 $(tmp_dir)/spy1.bam:
@@ -258,10 +262,15 @@ $(vcf_dir)/exome_modern.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(vcf_dir)/full_us
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/full_mez2_snpad.vcf.gz:
+full_mez2_snpad.vcf.gz:
 	cp /mnt/expressions/Janet/YChr/Mez2/chrY.mq25.map50.vcf $(tmp_dir)
 	bcftools reheader -s <(echo "full_Mez2map50 mez2_snpad") $(tmp_dir)/chrY.mq25.map50.vcf \
 	    | bgzip -c > $@
+	tabix $@
+
+$(vcf_dir)/%_snpad.vcf.gz: $(bam_dir)/%.bam
+	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')_snpad"; \
+	$(src_dir)/call_snpad.sh $$name $< $@
 	tabix $@
 
 # generate genotypes from the Chimp reference genome
@@ -295,24 +304,28 @@ $(test_dir)/%_baq.vcf.gz: $(bam_dir)/full_%.bam
 		| bcftools call --ploidy 1 -m -V indels \
 		| bcftools reheader -s <(echo "baq") \
 		| bcftools view - -Oz -o $@
+	bedtools intersect -header -a $@ -b $(coord_dir)/capture_full.bed | bgzip -c > $@.filt; mv $@.filt $@
 	tabix $@
 $(test_dir)/%_nobaq.vcf.gz: $(bam_dir)/full_%.bam
 	bcftools mpileup --no-BAQ --min-BQ 20 --min-MQ 25 --annotate FORMAT/DP -Ou -f $(ref_genome) $^ \
 		| bcftools call --ploidy 1 -m -V indels \
 		| bcftools reheader -s <(echo "nobaq") \
 		| bcftools view - -Oz -o $@
+	bedtools intersect -header -a $@ -b $(coord_dir)/capture_full.bed | bgzip -c > $@.filt; mv $@.filt $@
 	tabix $@
 $(test_dir)/%_consensus.vcf.gz: $(bam_dir)/full_%.bam
 	$(bam_caller) --bam $< \
 	    --strategy majority --proportion 1.0 --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name cons --output $(basename $(basename $@))
 	bgzip $(basename $@)
+	bedtools intersect -header -a $@ -b $(coord_dir)/capture_full.bed | bgzip -c > $@.filt; mv $@.filt $@
 	tabix $@
 $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 	$(bam_caller) --bam $< \
 	    --strategy majority --proportion 0.9 --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name tol --output $(basename $(basename $@))
 	bgzip $(basename $@)
+	bedtools intersect -header -a $@ -b $(coord_dir)/capture_full.bed | bgzip -c > $@.filt; mv $@.filt $@
 	tabix $@
 
 
