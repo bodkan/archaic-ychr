@@ -22,10 +22,10 @@ parser.add_argument("--fasta", help="FASTA output file", required=True)
 parser.add_argument("--include", help="List of samples to include from the VCF", nargs="*", default=[])
 parser.add_argument("--exclude", help="List of samples to exclude from the VCF", nargs="*", default=[])
 parser.add_argument("--variable", help="Output only variable sites?", action="store_true", default=False)
-parser.add_argument("--save-counts", help="Save base counts at monomorphic sites", action="store_true", default=False)
-parser.add_argument("--tv", help="Write only transversion SNPs?", action="store_true", default=False)
+parser.add_argument("--no-damage", help="Remove potentional aDNA damage SNPs?", action="store_true", default=False)
 
 args = parser.parse_args()
+#args = parser.parse_args("--vcf data/vcf/exome_modern.vcf.gz --fasta out.fa --variable".split())
 
 vcf_reader = vcf.Reader(open(args.vcf, "rb"))
 
@@ -44,7 +44,7 @@ samples_dict = defaultdict(list)
 ref_bases = []
 for i, record in enumerate(vcf_reader.fetch("Y")):
     if i % 1000000 == 0: print(f"\r{i} positions processed", end="")
-    if args.tv and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
+    if args.no_damage and (record.REF == "C" and record.ALT[0] == "T" or record.REF == "G" and record.ALT[0] == "A"):
         continue
     ref_bases.append(record.REF)
     for name in samples:
@@ -61,10 +61,9 @@ if args.variable:
     allele_counts = gt_df.apply(lambda row: len(set(i for i in row if i != "N")), axis=1)
     gt_df = gt_df.loc[allele_counts > 1]
 
-    if args.save_counts:
-        const_sites = dict(ref_bases[allele_counts == 1].value_counts())
-        with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
-            print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
+    const_sites = dict(ref_bases[allele_counts == 1].value_counts())
+    with open(re.sub(".fa$", ".counts", args.fasta), "w") as output:
+        print(" ".join(str(const_sites[i]) for i in "ACGT"), file=output)
 
 # write out the called bases for each sample in a FASTA format
 with open(args.fasta, "w") as output:
