@@ -43,7 +43,7 @@ exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/,full_merged_var_tvonly.fa full_merged_var_all.fa lippold_merged_var_tvonly.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_var_nodmg.fa full_merged_var_all.fa lippold_merged_var_nodmg.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa)
 
 # scripts
 bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
@@ -338,25 +338,25 @@ $(vcf_dir)/full_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$
 	bcftools view -i 'DP >= 3' data/vcf/full_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_full_den8.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_full_spy1.vcf.gz
 	bcftools view -i 'DP >= 3' data/vcf/full_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_full_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_full_mez2.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/full_modern.vcf.gz -Oz -o $(tmp_dir)/mindp3_full_modern.vcf.gz; tabix $(tmp_dir)/mindp3_full_modern.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/full_modern.vcf.gz -Oz  -o $(tmp_dir)/mindp3_full_modern.vcf.gz;  tabix $(tmp_dir)/mindp3_full_modern.vcf.gz
 	bcftools merge $(tmp_dir)/mindp3_full_{den4,den8,spy1,mez2,modern}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
 $(vcf_dir)/lippold_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
-	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_spy1.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_spy1.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_spy1.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_mez2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_mez2.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_mez2.vcf.gz
-	bcftools view -i 'DP >= 3' data/vcf/lippold_modern.vcf.gz -Oz -o $(tmp_dir)/mindp3_lippold_modern.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_modern.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_elsidron2.vcf.gz -Oz    -o $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz; tabix $(tmp_dir)/mindp3_lippold_elsidron2.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_den4.vcf.gz -Oz         -o $(tmp_dir)/mindp3_lippold_den4.vcf.gz;      tabix $(tmp_dir)/mindp3_lippold_den4.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_den8.vcf.gz -Oz         -o $(tmp_dir)/mindp3_lippold_den8.vcf.gz;      tabix $(tmp_dir)/mindp3_lippold_den8.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_spy1.vcf.gz -Oz         -o $(tmp_dir)/mindp3_lippold_spy1.vcf.gz;      tabix $(tmp_dir)/mindp3_lippold_spy1.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_mez2.vcf.gz -Oz         -o $(tmp_dir)/mindp3_lippold_mez2.vcf.gz;      tabix $(tmp_dir)/mindp3_lippold_mez2.vcf.gz
+	bcftools view -i 'DP >= 3' data/vcf/lippold_modern.vcf.gz -Oz       -o $(tmp_dir)/mindp3_lippold_modern.vcf.gz;    tabix $(tmp_dir)/mindp3_lippold_modern.vcf.gz
 	bcftools merge $(tmp_dir)/mindp3_lippold_{elsidron2,den4,den8,spy1,mez2,modern}*.vcf.gz | bcftools view -M 2 -Oz -o $@
 	tabix $@
 
 $(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim
 
-$(fasta_dir)/%_tv.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --tv --exclude ustishim
+$(fasta_dir)/%_nodmg.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude ustishim
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude ustishim mez2 spy1 den4 den8 lippold2
