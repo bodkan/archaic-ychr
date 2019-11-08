@@ -122,24 +122,24 @@ fix_name <- function(name, coverage = FALSE) {
     name == "elsidron1" ~ "El Sidrón 1253 (118 kb)",
     name == "elsidron_dp1" ~ "El Sidrón 1253 (118 kb, unfiltered)",
     name == "elsidron_dp3" ~ "El Sidrón 1253 (118 kb, filtered)",
-    name == "elsidron2" ~ "El Sidrón 1253",
+    name == "elsidron2" ~ "El Sidrón 1253 (560 kb)",
     name == "a00" ~ "A00",
     name == "ustishim" ~ "Ust'-Ishim",
     TRUE ~ name
   )
-
+  
   cov_df <- tribble(
       ~name, ~coverage,
       "Spy 94a", 0.8253635,
       "Denisova 4", 1.3717758,
       "Denisova 8", 3.4819494,
-      "El Sidrón 1253", 7.9165032,
+      "El Sidrón 1253 (560 kb)", 7.9165032,
       "Mezmaiskaya 2", 14.3491322,
       "El Sidón 1253 (118 kb)", 3.2121215
   ) %>% mutate(coverage = round(coverage, 1))
 
   if (coverage)
-    new_name <- map_chr(new_name, ~ paste0(.x, " (", filter(cov_df, name == .x)$coverage, "X)"))
+    new_name <- map_chr(new_name, ~ paste0(.x, "\n(", filter(cov_df, name == .x)$coverage, "X)"))
 
   new_name
 }
