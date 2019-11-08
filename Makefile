@@ -283,7 +283,7 @@ $(vcf_dir)/%_chimp.vcf.gz: $(coord_dir)/capture_%.pos
 $(vcf_dir)/%.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')"; \
 	$(bam_caller) --bam $< \
-	    --strategy majority --proportion 1.0 --mincov 1 --minbq 20 --minmq 25 \
+	    --strategy majority --proportion 0.9 --mincov 1 --minbq 20 --minmq 25 \
 	    --sample-name $$name --output $(basename $(basename $@))
 	bgzip $(basename $@)
 	tabix $@
@@ -370,6 +370,7 @@ $(pileup_dir)/%.txt.gz: $(bam_dir)/%.bam
 	    --minbq 20 --minmq 25 \
 	    --output $(basename $(basename $@))
 	bgzip $(basename $@)
+
 
 
 
