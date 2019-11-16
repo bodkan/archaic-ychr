@@ -141,8 +141,7 @@ while True:
         demographic_events=demography
     )
     if get_tmrca(ts, "chimp0", "arch0", pop_params) > get_tmrca(ts, "arch0", "afr0", pop_params) and \
-       all(get_tmrca(ts, "arch0", "afr0", pop_params) > get_tmrca(ts, f"eur{i}", f"eur{j}", pop_params) for i in range(args.neur + 1) for j in range(args.neur + 1)):
-       all(get_tmrca(ts, "arch0", "afr0", pop_params) > get_tmrca(ts, f"afr0", f"eur{i}", pop_params) for i in range(args.neur + 1)):
+       all(get_tmrca(ts, "arch0", f"eur{i}", pop_params) > get_tmrca(ts, "afr0", f"eur{j}", pop_params) for i in range(args.neur + 1) for j in range(args.neur + 1)):
          break
     else:
          print(f"replicate {args.output} failed - restarting...")
