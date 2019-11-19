@@ -89,11 +89,11 @@ vcf: $(full_arch_vcfs) $(lippold_arch_vcfs) $(exome_arch_vcfs) $(full_vcf) $(lip
 fasta: $(fastas)
 
 diagnostics:
-	bams=`cd $(bam_dir); ls *elsidron* *full_den* *full_spy* *full_mez* *full_ustishim* | grep 'bam$$' | xargs realpath`; \
+	bams=`cd $(bam_dir); ls *elsidron* full_den4.bam full_den8.bam full_spy1.bam full_mez2.bam full_ustishim.bam | grep 'bam$$' | xargs realpath`; \
 	mkdir -p $(data_dir)/damage; \
 	cd $(data_dir)/damage; \
 	for b in $$bams; do \
-	    qsub -V -cwd -j y -l virtual_free=500M,h_vmem=500M,class=cow /home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$b; \
+		/home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$b & \
 	done
 
 
