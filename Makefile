@@ -8,11 +8,12 @@ fasta_dir := $(data_dir)/fasta
 vcf_dir := $(data_dir)/vcf
 coord_dir := $(data_dir)/coord
 sim_dir := $(data_dir)/sim
+rds_dir := $(data_dir)/rds
 test_dir := test
 tmp_dir := tmp
 fig_dir := figures
 src_dir := src
-dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(test_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(tmp_dir)/sge
+dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(test_dir) $(coord_dir) $(fig_dir) $(tmp_dir) $(sim_dir) $(rds_dir) $(tmp_dir)/sge
 
 # BAM files
 mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
