@@ -44,7 +44,7 @@ exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/,full_merged_var_nodmg.fa full_merged_var_all.fa lippold_merged_var_nodmg.fa lippold_merged_var_all.fa modern_full_merged_var.fa modern_lippold_merged_var.fa nochimp_full_merged_var_nodmg.fa nochimp_full_merged_var_all.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_all.fa lippold_merged_nodmg.fa lippold_merged_all.fa modern_full_merged.fa modern_lippold_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_all.fa)
 
 # scripts
 bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
@@ -334,33 +334,35 @@ $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 # FASTA alignments for BEAST analyses
 #
 
-$(vcf_dir)/full_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
+$(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
 	for ind in den4 den8 spy1 mez2 a00 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Karitiana-1 S_Thai-1 S_Saami-2; do \
 		$(src_dir)/filter_vcf.sh data/vcf/full_$${ind}.vcf.gz; \
 	done
-	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(vcf_dir)/full_chimp.vcf.gz| bcftools view -M 2 -Oz -o $@
+	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(vcf_dir)/full_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
+	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(vcf_dir)/lippold_merged_var.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
+$(vcf_dir)/lippold_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for ind in elsidron2 den4 den8 spy1 mez2 a00 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Karitiana-1 S_Thai-1 S_Saami-2; do \
+	for ind in den4 den8 spy1 mez2 a00 elsidron2 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Karitiana-1 S_Thai-1 S_Saami-2; do \
 		$(src_dir)/filter_vcf.sh data/vcf/lippold_$${ind}.vcf.gz; \
 	done
-	bcftools merge $(tmp_dir)/vcf_fasta/lippold_*.vcf.gz $(vcf_dir)/lippold_chimp.vcf.gz| bcftools view -M 2 -Oz -o $@
+	bcftools merge $(tmp_dir)/vcf_fasta/lippold_*.vcf.gz $(vcf_dir)/lippold_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
+	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
-
-$(fasta_dir)/nochimp_%_all.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp
-
-$(fasta_dir)/nochimp_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude chimp
 
 $(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable
 
 $(fasta_dir)/%_nodmg.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage
+
+$(fasta_dir)/nochimp_%_all.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp
+
+$(fasta_dir)/nochimp_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude chimp
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp mez2 spy1 den4 den8 lippold2
