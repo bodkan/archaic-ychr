@@ -336,7 +336,7 @@ $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 
 $(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for ind in den4 den8 spy1 mez2 a00 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Karitiana-1 S_Thai-1 S_Saami-2; do \
+	for ind in den4 den8 spy1 mez2 a00 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Thai-1 S_Saami-2; do \
 		$(src_dir)/filter_vcf.sh data/vcf/full_$${ind}.vcf.gz; \
 	done
 	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(vcf_dir)/full_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
@@ -345,7 +345,7 @@ $(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf
 
 $(vcf_dir)/lippold_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for ind in den4 den8 spy1 mez2 a00 elsidron2 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Karitiana-1 S_Thai-1 S_Saami-2; do \
+	for ind in den4 den8 spy1 mez2 a00 elsidron2 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Thai-1 S_Saami-2; do \
 		$(src_dir)/filter_vcf.sh data/vcf/lippold_$${ind}.vcf.gz; \
 	done
 	bcftools merge $(tmp_dir)/vcf_fasta/lippold_*.vcf.gz $(vcf_dir)/lippold_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
