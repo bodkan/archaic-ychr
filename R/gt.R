@@ -1,5 +1,5 @@
 # Read and filter a single VCF file.
-read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE, bed_filter = NA) {
+read_vcf <- function(path, mindp, maxdp = 0.98, var_only = FALSE, nodmg = FALSE, bed_filter = NA) {
   vcf <- VariantAnnotation::readVcf(path, row.names = FALSE)
   gr <- GenomicRanges::granges(vcf)
 
@@ -41,7 +41,7 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
 
   if (var_only) df <- filter(df, ALT != "")
 
-  if (tv_only) {
+  if (nodmg) {
     df <- filter(df, ALT == "" | !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
   }
 
@@ -71,7 +71,7 @@ read_vcf <- function(path, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FAL
 #' @param maxdp Maximum coverage at each site (specified as a proportion of an
 #'   upper tail of the entire coverage distribution).
 #' @import stringr dplyr purrr tibble
-read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FALSE, tv_only = FALSE, bed_filter = NA) {
+read_genotypes <- function(archaic, capture, mindp, maxdp = 0.98, var_only = FALSE, nodmg = FALSE, bed_filter = NA) {
   archaic_vcf <- here::here(paste0("data/vcf/", capture, "_", archaic, ".vcf.gz"))
   highcov_vcf <- here::here(paste0("data/vcf/", ifelse(capture == "test", "full", capture), "_modern.vcf.gz"))
 
@@ -95,7 +95,7 @@ read_genotypes <- function(archaic, capture, mindp, maxdp = 0.975, var_only = FA
 
   if (var_only) df <- filter(df, ALT != "")
 
-  if (tv_only) {
+  if (nodmg) {
     df <- filter(df, ALT == "" | !((REF == "C" & ALT == "T") | (REF == "G" & ALT == "A")))
   }
 
