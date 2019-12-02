@@ -114,6 +114,8 @@ fix_name <- function(name, coverage = FALSE) {
   new_name <- case_when(
     name == "den4" ~ "Denisova 4",
     name == "den8" ~ "Denisova 8",
+    name == "den_snpad" ~ "Denisova 4 & 8 (snpAD)",
+    name == "den" ~ "Denisova (merged)",
     name == "spy1" ~ "Spy 94a",
     name == "mez2" ~ "Mezmaiskaya 2",
     name == "mez2_snpad" ~ "Mezmaiskaya 2 (snpAD)",
@@ -152,11 +154,10 @@ summean <- function(df) summarise_if(df, is.numeric, mean)
 #' Add a column with a sample group.
 assign_set <- function(df) {
   ungroup(df) %>%
-  mutate(set = case_when(name %in% c("a00", "A00")    ~ "A00",
-                         str_detect(name, "[Dd]enisova") ~ "Denisovan",
-                         str_detect(name, "([Ss]py|[Mm]ez|[Ss]idr)") ~ "Neanderthal",
+  mutate(set = case_when(str_detect(name, "^[Dd]en") ~ "Denisovan",
+                         str_detect(name, "^([Ss]py|[Mm]ez|[Ee]l|shotgun)") ~ "Neanderthal",
                          str_detect(name, "shotgun") ~ "Neanderthal (shotgun)",
-                         TRUE ~ "other"))
+                         TRUE ~ "African"))
 }
 
 
