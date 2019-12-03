@@ -44,7 +44,7 @@ exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_all.fa lippold_merged_nodmg.fa lippold_merged_all.fa modern_full_merged.fa modern_lippold_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_all.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_all.fa lippold_merged_nodmg.fa lippold_merged_all.fa modern_full_merged.fa modern_lippold_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_all.fa highcov_full_merged_all.fa highcov_lippold_merged_all.fa)
 
 # scripts
 bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
@@ -363,6 +363,9 @@ $(fasta_dir)/nochimp_%_all.fa: $(vcf_dir)/%.vcf.gz
 
 $(fasta_dir)/nochimp_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude chimp
+
+$(fasta_dir)/highcov_%_all.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp den4 den8 spy1
 
 $(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp mez2 spy1 den4 den8 lippold2
