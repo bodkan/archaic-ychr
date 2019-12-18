@@ -46,8 +46,6 @@ read_vcf <- function(path, mindp, maxdp = 0.98, var_only = FALSE, nodmg = FALSE,
   }
 
   if (!is.na(bed_filter)) {
-    ##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@2@"]]));##:ess-bp-end:##
       bed_filter <- rtracklayer::import.bed(bed_filter)
     df <- df %>%
       GenomicRanges::makeGRangesFromDataFrame(
