@@ -44,7 +44,7 @@ exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_all.fa lippold_merged_nodmg.fa lippold_merged_all.fa modern_full_merged.fa modern_lippold_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_all.fa highcov_full_merged_all.fa highcov_lippold_merged_all.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_allsnps.fa lippold_merged_nodmg.fa lippold_merged_allsnps.fa modern_all_full_merged.fa modern_var_full_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_allsnps.fa highcov_full_merged_allsnps.fa highcov_full_merged_nodmg.fa  highcov_lippold_merged_allsnps.fa highcov_lippold_merged_nodmg.fa)
 
 # scripts
 bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
@@ -336,8 +336,8 @@ $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 
 $(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for ind in den4 den8 spy1 mez2 a00 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Thai-1 S_Saami-2; do \
-		$(src_dir)/filter_vcf.sh data/vcf/full_$${ind}.vcf.gz; \
+	for f in data/vcf/full_{den4,den8,spy1,mez2,a00,ustishim}.vcf.gz data/vcf/full_S_*.vcf.gz; do \
+		$(src_dir)/filter_vcf.sh $${f}; \
 	done
 	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(vcf_dir)/full_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
@@ -345,31 +345,36 @@ $(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf
 
 $(vcf_dir)/lippold_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for ind in den4 den8 spy1 mez2 a00 elsidron2 ustishim S_Ju_hoan_North-1 S_Finnish-2 S_BedouinB-1 S_Thai-1 S_Saami-2; do \
-		$(src_dir)/filter_vcf.sh data/vcf/lippold_$${ind}.vcf.gz; \
+	for f in data/vcf/lippold_{den4,den8,spy1,mez2,a00,ustishim,elsidron2}.vcf.gz data/vcf/lippold_S_*.vcf.gz; do \
+		$(src_dir)/filter_vcf.sh $${f}; \
 	done
 	bcftools merge $(tmp_dir)/vcf_fasta/lippold_*.vcf.gz $(vcf_dir)/lippold_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-$(fasta_dir)/%_all.fa: $(vcf_dir)/%.vcf.gz
+# FASTAS for nj tree building
+$(fasta_dir)/%_allsnps.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable
-
 $(fasta_dir)/%_nodmg.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage
 
-$(fasta_dir)/nochimp_%_all.fa: $(vcf_dir)/%.vcf.gz
+# FASTAS without chimp for BEAST analyses
+$(fasta_dir)/nochimp_%_allsnps.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp
-
 $(fasta_dir)/nochimp_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude chimp
 
-$(fasta_dir)/highcov_%_all.fa: $(vcf_dir)/%.vcf.gz
+# FASTAS without chimp with only Mez2 and El Sidron 1253 for BEAST analyses
+$(fasta_dir)/highcov_%_allsnps.fa: $(vcf_dir)/%.vcf.gz
 	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp den4 den8 spy1
+$(fasta_dir)/highcov_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --no-damage --exclude chimp den4 den8 spy1
 
-$(fasta_dir)/modern_%.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude chimp mez2 spy1 den4 den8 lippold2
-
+# FASTA with AMH + chimp for a contamination tree figure
+$(fasta_dir)/modern_all_%.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude mez2 spy1 den4 den8 lippold2
+$(fasta_dir)/modern_var_%.fa: $(vcf_dir)/%.vcf.gz
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude mez2 spy1 den4 den8 lippold2
 
 
 #
