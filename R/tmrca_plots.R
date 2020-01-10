@@ -112,7 +112,7 @@ plot_tmrca <- function(stat, afr, mindp, sites, filt, ylabel = TRUE, exclude = N
         background_grid(major = "xy", minor = "xy", size.major = 0.2, size.minor = 0.2,
                         color.major = rgb(0.8, 0.8, 0.8, alpha = 0.5),
                         color.minor = rgb(0.8, 0.8, 0.8, alpha = 0.5)) +
-        coord_capped_cart(ylim = c(200000, 1e6), left = "both") +
+        coord_capped_cart(ylim = c(0, 1e6), left = "both") +
     
         scale_color_manual(values = colors)
 
