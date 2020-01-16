@@ -30,7 +30,7 @@ read_vcf <- function(path, mindp, maxdp = 0.98, var_only = FALSE, nodmg = FALSE,
     ALT = as.character(unlist(gr$ALT[biallelic_pos, ]))
   )
 
-  df <- dplyr::bind_cols(info_df, gt_df)
+  df <- dplyr::bind_cols(info_df, gt_df) %>% dplyr::filter(REF != "N")
 
   # sanitize the sample names
   colnames(df) <- str_replace_all(colnames(df), "-", "_")
