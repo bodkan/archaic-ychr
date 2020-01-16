@@ -30,7 +30,7 @@ full_pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.
 
 # VCF files
 modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den.vcf.gz mez2_snpad.vcf.gz den_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den.vcf.gz mez2_snpad.vcf.gz den_snpad.vcf.gz spy1_snpad.vcf.gz den4_snpad.vcf.gz den8_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(modern_vcfs)))
@@ -263,11 +263,11 @@ $(vcf_dir)/exome_modern.vcf.gz: $(vcf_dir)/exome_chimp.vcf.gz $(vcf_dir)/full_us
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_exome.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
-full_mez2_snpad.vcf.gz:
-	cp /mnt/expressions/Janet/YChr/Mez2/chrY.mq25.map50.vcf $(tmp_dir)
-	bcftools reheader -s <(echo "full_Mez2map50 mez2_snpad") $(tmp_dir)/chrY.mq25.map50.vcf \
-	    | bgzip -c > $@
-	tabix $@
+# full_mez2_snpad.vcf.gz:
+# 	cp /mnt/expressions/Janet/YChr/Mez2/chrY.mq25.map50.vcf $(tmp_dir)
+# 	bcftools reheader -s <(echo "full_Mez2map50 mez2_snpad") $(tmp_dir)/chrY.mq25.map50.vcf \
+# 	    | bgzip -c > $@
+# 	tabix $@
 
 $(vcf_dir)/%_snpad.vcf.gz: $(bam_dir)/%.bam
 	name="$(shell echo $(basename $(notdir $<)) | sed 's/^[a-z]*_//')_snpad"; \
