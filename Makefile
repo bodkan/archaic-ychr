@@ -44,7 +44,7 @@ exome_vcf := $(vcf_dir)/exome_modern.vcf.gz
 test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$(sample).vcf.gz)
 
 # FASTA files
-fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_allsnps.fa lippold_merged_nodmg.fa lippold_merged_allsnps.fa modern_all_full_merged.fa modern_var_full_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_allsnps.fa highcov_full_merged_allsnps.fa highcov_full_merged_nodmg.fa  highcov_lippold_merged_allsnps.fa highcov_lippold_merged_nodmg.fa)
+fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_allsnps.fa modern_all_full_merged.fa modern_var_full_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_allsnps.fa highcov_full_merged_allsnps.fa highcov_full_merged_nodmg.fa)
 
 # scripts
 bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
@@ -334,22 +334,13 @@ $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 # FASTA alignments for BEAST analyses
 #
 
-$(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz)
+$(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz $(vcf_dir)/lippold_elsidron2.vcf.gz)
 	mkdir -p $(tmp_dir)/vcf_fasta
-	for f in data/vcf/full_{den4,den8,spy1,mez2,a00,ustishim}.vcf.gz data/vcf/full_S_*.vcf.gz; do \
+	for f in $(vcf_dir)/full_{den4,den8,spy1,mez2,a00,ustishim}.vcf.gz $(vcf_dir)/full_S_*.vcf.gz $(vcf_dir)/lippold_elsidron2.vcf.gz; do \
 		$(src_dir)/filter_vcf.sh $${f}; \
 	done
-	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(vcf_dir)/full_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
+	bcftools merge $(tmp_dir)/vcf_fasta/full_*.vcf.gz $(tmp_dir)/vcf_fasta/lippold_elsidron2.vcf.gz $(vcf_dir)/full_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
 	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_full.bed | bgzip -c > $@; rm $@.all
-	tabix $@
-
-$(vcf_dir)/lippold_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/lippold_$(sample).vcf.gz)
-	mkdir -p $(tmp_dir)/vcf_fasta
-	for f in data/vcf/lippold_{den4,den8,spy1,mez2,a00,ustishim,elsidron2}.vcf.gz data/vcf/lippold_S_*.vcf.gz; do \
-		$(src_dir)/filter_vcf.sh $${f}; \
-	done
-	bcftools merge $(tmp_dir)/vcf_fasta/lippold_*.vcf.gz $(vcf_dir)/lippold_chimp.vcf.gz | bcftools view -M 2 -Oz -o $@.all
-	bedtools intersect -header -a $@.all -b $(coord_dir)/capture_lippold.bed | bgzip -c > $@; rm $@.all
 	tabix $@
 
 # FASTAS for nj tree building
@@ -372,9 +363,9 @@ $(fasta_dir)/highcov_%_nodmg.fa: $(vcf_dir)/%.vcf.gz
 
 # FASTA with AMH + chimp for a contamination tree figure
 $(fasta_dir)/modern_all_%.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude mez2 spy1 den4 den8 lippold2
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --exclude mez2 spy1 den4 den8 elsidron2
 $(fasta_dir)/modern_var_%.fa: $(vcf_dir)/%.vcf.gz
-	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude mez2 spy1 den4 den8 lippold2
+	python $(src_dir)/vcf_to_fasta.py --vcf $< --fasta $@ --variable --exclude mez2 spy1 den4 den8 elsidron2
 
 
 #
@@ -401,6 +392,7 @@ $(lippold_bed):
 	bedtools sort -i $@.tmp > $@; rm $@.tmp
 
 # Y chromosome capture regions designed by Qiaomei (~6Mb)
+# /mnt/454/Carbon_beast_QM/array_2015_0729/array_order/Y.filt35_50_SRepeat_100.bed
 $(full_bed):
 	# perl -lane 'print $$F[0] . "\t" . $$F[1] . "\t" . $$F[2]' input/Y.filt35_50_SRepeat_100.bed > $@
 	bedtools intersect \
@@ -413,10 +405,6 @@ $(exome_bed):
 	cd $(tmp_dir); wget http://www.cell.com/cms/attachment/2052899616/2060015784/mmc2.zip; unzip mmc2.zip
 	cp $(tmp_dir)/ajhg2064mmc2_V1.txt $@
 	# bedtools intersect -a $(tmp_dir)/ajhg2064mmc2_V1.txt -b $(map_filter) > $@
-
-# functional annotation coordinates
-$(annot_bed):
-	$(run_nb) notebooks/annotated_regions.ipynb
 
 # sites within BED files
 $(coord_dir)/capture_%.pos: $(coord_dir)/capture_%.bed
