@@ -115,6 +115,9 @@ fix_name <- function(name, coverage = FALSE) {
     name == "den4" ~ "Denisova 4",
     name == "den8" ~ "Denisova 8",
     name == "den_snpad" ~ "Denisova 4 & 8 (snpAD)",
+    name == "den4_snpad" ~ "Denisova 4 (snpAD)",
+    name == "den8_snpad" ~ "Denisova 8 (snpAD)",
+    name == "spy1_snpad" ~ "Spy 94a (snpAD)",
     name == "den" ~ "Denisova (merged)",
     name == "spy1" ~ "Spy 94a",
     name == "mez2" ~ "Mezmaiskaya 2",
@@ -126,6 +129,8 @@ fix_name <- function(name, coverage = FALSE) {
     name == "elsidron_dp3" ~ "El Sidrón 1253 (118 kb, filtered)",
     name == "elsidron2" ~ "El Sidrón 1253 (560 kb)",
     name == "a00" ~ "A00",
+    name == "a00_1" ~ "A00-1",
+    name == "a00_2" ~ "A00-2",
     name == "ustishim" ~ "Ust'-Ishim",
     TRUE ~ name
   )
