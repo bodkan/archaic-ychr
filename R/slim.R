@@ -70,7 +70,7 @@ read_genomes <- function(slim_file, pop = "") {
       dplyr::select(genome_id=V1, chrom_type=V2, mutations=V3) %>%
       dplyr::mutate(mutations = ifelse(mutations == "<null>", NA, mutations)) %>%
       dplyr::mutate(mutations=stringr::str_split(mutations, " ")) %>%
-      tidyr::unnest() %>%
+      tidyr::unnest(cols = c(mutations)) %>%
       dplyr::mutate(mut_id=as.integer(mutations)) %>%
       dplyr::select(-mutations)
 }
