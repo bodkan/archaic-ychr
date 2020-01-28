@@ -334,7 +334,7 @@ $(test_dir)/%_tolerance.vcf.gz: $(bam_dir)/full_%.bam
 # FASTA alignments for BEAST analyses
 #
 
-$(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz $(vcf_dir)/lippold_elsidron2.vcf.gz)
+$(vcf_dir)/full_merged.vcf.gz: $(foreach sample,den4 den8 spy1 mez2 modern,$(vcf_dir)/full_$(sample).vcf.gz) $(vcf_dir)/lippold_elsidron2.vcf.gz
 	mkdir -p $(tmp_dir)/vcf_fasta
 	for f in $(vcf_dir)/full_{den4,den8,spy1,mez2,a00,ustishim}.vcf.gz $(vcf_dir)/full_S_*.vcf.gz $(vcf_dir)/lippold_elsidron2.vcf.gz; do \
 		$(src_dir)/filter_vcf.sh $${f}; \
