@@ -26,7 +26,7 @@ exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, ustishim.bam spy1.bam
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
 
 # pileup files
-pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz den8.txt.gz den4.txt.gz S_French-1.txt.gz)) $(pileup_dir)/lippold_elsidron2.txt.gz
+pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.gz den8.txt.gz den4.txt.gz S_French-1.txt.gz a00.txt.gz S_Saami-2.txt.gz S_Han-2.txt.gz)) $(pileup_dir)/lippold_elsidron2.txt.gz
 
 # VCF files
 modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
