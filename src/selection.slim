@@ -163,14 +163,6 @@ s5 2 {
 
     p1.setMigrationRates(p2, 0);
     p2.setMigrationRates(p1, 0);
-
-    if (direction == "modern2neand") {
-        cat("- removing modern humans\n");
-        p1.setSubpopulationSize(0);
-    } else {
-        cat("- removing Neanderthals\n");
-        p2.setSubpopulationSize(0);
-    }
 }
 
 s6 2 late() {
