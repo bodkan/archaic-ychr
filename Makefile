@@ -17,10 +17,11 @@ dirs := $(data_dir) $(bam_dir) $(pileup_dir) $(vcf_dir) $(fasta_dir) $(test_dir)
 
 # BAM files
 mez2_subsamples := $(addprefix mez2_dp, $(shell seq 1 10))
+elsidron2_subsamples := $(addprefix elsidron2_dp, $(shell seq 1 7))
 sgdp_bams := S_BedouinB-1.bam S_Turkish-1.bam S_French-1.bam S_Burmese-1.bam S_Thai-1.bam S_Finnish-2.bam S_Sardinian-1.bam S_Han-2.bam S_Dai-2.bam S_Punjabi-1.bam S_Saami-2.bam S_Papuan-2.bam S_Karitiana-1.bam S_Ju_hoan_North-1.bam S_Dinka-1.bam S_Mbuti-1.bam S_Yoruba-2.bam S_Gambian-1.bam S_Mandenka-1.bam
 modern_bams := a00.bam a00_1.bam a00_2.bam $(sgdp_bams)
 full_bams := $(addprefix $(bam_dir)/, $(addprefix full_, ustishim.bam shotgun_spy1.bam shotgun_mez2.bam spy1.bam mez2.bam den8.bam den4.bam den.bam $(addsuffix .bam, $(mez2_subsamples)) $(modern_bams)))
-lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, ustishim.bam spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(modern_bams)))
+lippold_bams := $(addprefix $(bam_dir)/, $(addprefix lippold_, ustishim.bam spy1.bam mez2.bam elsidron2.bam den8.bam den4.bam $(addsuffix .bam, $(elsidron2_subsamples)) $(modern_bams)))
 exome_bams := $(addprefix $(bam_dir)/, $(addprefix exome_, ustishim.bam spy1.bam mez2.bam elsidron1.bam den8.bam den4.bam $(modern_bams)))
 
 test_bams := $(bam_dir)/control_vindija.bam $(bam_dir)/control_stuttgart.bam
@@ -31,7 +32,7 @@ pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.g
 # VCF files
 modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
 full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den.vcf.gz mez2_snpad.vcf.gz den_snpad.vcf.gz spy1_snpad.vcf.gz den4_snpad.vcf.gz den8_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
-lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz))
+lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz $(addsuffix .vcf.gz, $(elsidron2_subsamples))))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz))
 full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(modern_vcfs)))
 lippold_modern_vcfs  := $(addprefix $(vcf_dir)/, $(addprefix lippold_, $(modern_vcfs)))
@@ -106,6 +107,12 @@ diagnostics:
 $(bam_dir)/full_mez2_dp%.bam: $(bam_dir)/full_mez2.bam $(coord_dir)/capture_full.bed
 	target_coverage=`basename $@ .bam | sed 's/full_mez2_dp//'`; \
 	input_coverage=`bedtools coverage -a $(coord_dir)/capture_full.bed -b $< -d | awk '{sum+=$$5} END { print sum/NR}'`; \
+	samtools view -b -s `echo $$target_coverage $$input_coverage | awk '{print $$1/$$2}'` $< > $@
+	samtools index $@
+
+$(bam_dir)/lippold_elsidron2_dp%.bam: $(bam_dir)/lippold_elsidron2.bam $(coord_dir)/capture_lippold.bed
+	target_coverage=`basename $@ .bam | sed 's/lippold_elsidron2_dp//'`; \
+	input_coverage=`bedtools coverage -a $(coord_dir)/capture_lippold.bed -b $< -d | awk '{sum+=$$5} END { print sum/NR}'`; \
 	samtools view -b -s `echo $$target_coverage $$input_coverage | awk '{print $$1/$$2}'` $< > $@
 	samtools index $@
 
