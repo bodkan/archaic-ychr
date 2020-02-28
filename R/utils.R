@@ -120,6 +120,7 @@ fix_name <- function(name, coverage = FALSE) {
     name == "spy1_snpad" ~ "Spy 94a (snpAD)",
     name == "den" ~ "Denisova (merged)",
     name == "spy1" ~ "Spy 94a",
+    name == "spy1_merged" ~ "Spy 94a (merged)",
     name == "mez2" ~ "Mezmaiskaya 2",
     name == "mez2_snpad" ~ "Mezmaiskaya 2 (snpAD)",
     name == "shotgun_mez2" ~ "Mezmaiskaya 2 (shotgun)",
