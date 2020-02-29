@@ -234,11 +234,13 @@ $(tmp_dir)/den4.bam: $(tmp_dir)/den4_capture2_lane1.bam $(tmp_dir)/den4_capture2
 	samtools merge $@ $^
 
 $(tmp_dir)/shotgun_mez2.bam:
-	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Mezmaiskaya2_final.L35MQ25.bam Y -o $@
+#	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Mezmaiskaya2_final.L35MQ25.bam Y -o $@
+	cp /mnt/expressions/mp/Archive/late_nea_y_bams/shotgun_mez2.bam $@
 	samtools index $@
 
 $(tmp_dir)/shotgun_spy1.bam:
-	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Spy_final.L35MQ25.bam Y -o $@
+#	samtools view -h -b /mnt/expressions/mateja/Late_Neandertals/Final_complete_dataset/L35MQ25_per_individual/Spy_final.L35MQ25.bam Y -o $@
+	cp /mnt/expressions/mp/Archive/late_nea_y_bams/shotgun_spy1.bam $@
 	samtools index $@
 
 $(bam_dir)/control_vindija.bam:
