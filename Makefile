@@ -31,7 +31,7 @@ pileups := $(addprefix $(pileup_dir)/, $(addprefix full_, spy1.txt.gz mez2.txt.g
 
 # VCF files
 modern_vcfs := $(subst .bam,.vcf.gz, $(modern_bams))
-full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den_merged.vcf.gz spy1_merged.vcf.gz mez2_snpad.vcf.gz den_snpad.vcf.gz spy1_snpad.vcf.gz den4_snpad.vcf.gz den8_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
+full_arch_vcfs    := $(addprefix $(vcf_dir)/, $(addprefix full_, ustishim.vcf.gz shotgun_spy1.vcf.gz shotgun_mez2.vcf.gz spy1.vcf.gz mez2.vcf.gz den8.vcf.gz den4.vcf.gz den_merged.vcf.gz spy1_merged.vcf.gz mez2_snpad.vcf.gz spy1_snpad.vcf.gz den4_snpad.vcf.gz den8_snpad.vcf.gz $(addsuffix .vcf.gz, $(mez2_subsamples))))
 lippold_arch_vcfs := $(addprefix $(vcf_dir)/, $(addprefix lippold_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron2.vcf.gz den8.vcf.gz den4.vcf.gz spy1_merged.vcf.gz $(addsuffix .vcf.gz, $(elsidron2_subsamples))))
 exome_arch_vcfs   := $(addprefix $(vcf_dir)/, $(addprefix exome_, ustishim.vcf.gz spy1.vcf.gz mez2.vcf.gz elsidron1.vcf.gz den8.vcf.gz den4.vcf.gz spy1_merged.vcf.gz))
 full_modern_vcfs     := $(addprefix $(vcf_dir)/, $(addprefix full_, $(modern_vcfs)))
