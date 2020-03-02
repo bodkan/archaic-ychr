@@ -17,13 +17,12 @@ You can find here:
   sequencing data or run SLiM simulations (=data/rds/=).
 
 Note that the repository is structured as any other [[http://r-pkgs.had.co.nz/][R package]], with
-the exception that it contains not only all the required R package
+the exception that it contains not only the required R package
 components (R code in =R/=, the =DESCRIPTION= file etc.), but also the
 data and analyses themselves. Therefore, if you clone this repository
 and [[https://bioinf.eva.mpg.de][download the sequence data]], you can simply call
-=devtools::load_all(".")= from the root of the repository in an R
-console or in any R Jupyter notebook and immediately start working
-with the data.
+=devtools::load_all(".")= from the root of the repository and
+immediately start working with the data.
 
 All software dependencies used in the project are described in detail
 in [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][this notebook]].
