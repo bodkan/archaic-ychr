@@ -1,12 +1,12 @@
 * The evolutionary history of Neandertal and Denisovan Y chromosomes
 
-This repository contains code used in the 2020 paper "The evolutionary
-history of Neandertal and Denisovan Y chromosomes" by Petr _et al._,
-which you can read [[https://www.biorxiv.org/...][here]].
+This repository contains the code used in the 2020 paper "The
+evolutionary history of Neandertal and Denisovan Y chromosomes" by
+Petr /et al./, which you can read [[https://www.biorxiv.org/...][here]].
 
 You can find here:
 
-- our complete data processing pipeline - processing of BAM files,
+- a complete data processing pipeline - processing of BAM files,
   genotype calling, etc. (=Makefile=);
 - scripts used for processing and simulations (=src/=) and R
   code used for all analyses (=R/=);
