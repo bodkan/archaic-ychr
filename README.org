@@ -8,7 +8,8 @@ You can find here:
 
 - our complete data processing pipeline - processing of BAM files,
   genotype calling, etc. (=Makefile=);
-- scripts used for processing and simulations (=R/= and =src/=)
+- scripts used for processing and simulations (=src/=) and R
+  code used for all analyses (=R/=);
 - R Jupyter notebooks used to generate every result in the paper
   (notebooks in =notebooks/=);
 - cached results in the [[https://stat.ethz.ch/R-manual/R-patched/library/base/html/readRDS.html][rds format]] - useful for re-producing all
