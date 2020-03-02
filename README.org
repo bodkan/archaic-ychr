@@ -6,25 +6,24 @@ which you can read [[https://www.biorxiv.org/...][here]].
 
 You can find here:
 
-- our complete data processing pipeline - BAM file processing,
-  genotype calling, FASTA file generation, etc. (=Makefile=);
-- R Jupyter notebooks with _code used to generate every result in the
-  paper_ (notebooks in =notebooks/=);
-- cached results in an [[https://stat.ethz.ch/R-manual/R-patched/library/base/html/readRDS.html][rds format]] - you can use those to re-produce
-  all tables and figures in the paper without having to first
-  re-process all raw sequencing data or running all SLiM simulations
-  (=data/rds/=).
+- our complete data processing pipeline - processing of BAM files,
+  genotype calling, etc. (=Makefile=);
+- R Jupyter notebooks with code used to generate every result in the
+  paper (notebooks in =notebooks/=);
+- cached results in the [[https://stat.ethz.ch/R-manual/R-patched/library/base/html/readRDS.html][rds format]] - useful for re-producing all
+  tables and figures in the paper without having to first re-process
+  sequencing data or run SLiM simulations (=data/rds/=).
 
 Note that the repository is structured as any other [[http://r-pkgs.had.co.nz/][R package]], with
 the exception that it contains not only all the required R package
 components (R code in =R/=, the =DESCRIPTION= file etc.), but also the
-analysis and plotting pipelines which use the code of this
-package. Therefore, if you clone this repository and [[https://bioinf.eva.mpg.de][download the
-data]], you can simply call =devtools::load_all(".")= from the root of
-the repository in an R console or in any R Jupyter notebook and
-immediately start working with the data.
+data and analyses themselves. Therefore, if you clone this repository
+and [[https://bioinf.eva.mpg.de][download the sequence data]], you can simply call
+=devtools::load_all(".")= from the root of the repository in an R
+console or in any R Jupyter notebook and immediately start working
+with the data.
 
-All dependencies and versions of the software are described in detail
+All software dependencies used in the project are described in detail
 in [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][this notebook]].
 
-In case of trouble, please don't hesitate to [[https://bodkan.net/
+In case of trouble, please don't hesitate to [[https://bodkan.net/][contact me]].
