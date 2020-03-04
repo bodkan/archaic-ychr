@@ -14,3 +14,5 @@ tree data/ > data_contents.txt
 
 tar -zcf data.tar.gz data
 sha256sum data.tar.gz > data.tar.gz.sha256sum
+
+rm -rf /mnt/scratch/mp/archaic-ychr/data/
