@@ -1,5 +1,3 @@
-* The evolutionary history of Neandertal and Denisovan Y chromosomes
-
 This repository contains all computational analyses used in my 2020
 paper [[https://www.biorxiv.org/...]["The evolutionary history of Neandertal and Denisovan Y
 chromosomes"]].
