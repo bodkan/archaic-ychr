@@ -78,6 +78,7 @@ default:
 	@echo -e "\tmake vcf          -- run consensus-based genotyping"
 	@echo -e "\tmake fasta        -- generate FASTA alignments from VCF files"
 	@echo -e "\tmake diagnostics  -- generate diagnostic plots on BAMs"
+	@echo -e "\tmake simulations  -- run selection simulations using SLiM"
 	@echo -e "\tmake clean        -- delete all generated output file"
 
 init: $(dirs) $(full_bed) $(lippold_bed) $(exome_bed) $(full_sites) $(lippold_sites) $(exome_sites)
@@ -97,6 +98,9 @@ diagnostics:
 	for b in $$bams; do \
 		/home/mmeyer/perlscripts/solexa/analysis/substitution_patterns.pl $$b & \
 	done
+
+simulations:
+	./src/selection_simulations.sh
 
 
 

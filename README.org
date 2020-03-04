@@ -1,30 +1,30 @@
 * The evolutionary history of Neandertal and Denisovan Y chromosomes
 
-This repository contains the code used in the 2020 paper "The
-evolutionary history of Neandertal and Denisovan Y chromosomes" by
-Petr /et al./, which you can read [[https://www.biorxiv.org/...][here]].
+This repository contains all computational analyses used in the 2020
+paper "The evolutionary history of Neandertal and Denisovan Y
+chromosomes" by Petr /et al./, which you can read [[https://www.biorxiv.org/...][here]].
 
 ** Contents
 
-This repository contains:
+You can find here:
 
-- a complete data processing pipeline - processing of BAM files,
-  genotype calling, etc. (=Makefile=);
-- scripts used for processing and simulations (=src/=) and R
-  code used for all analyses (=R/=);
-- R Jupyter notebooks used to generate every result in the paper
-  (notebooks in =notebooks/=);
+- my complete data processing and data-generation pipeline -
+  processing of BAM files, genotype calling, simulations
+  etc. (=Makefile=);
+- scripts used by the =Makefile= pipeline (=src/=) and R functions
+  used for analyses (=R/=);
+- R [[https://jupyter.org/][Jupyter notebooks]] used to generate every result in the paper
+  (=notebooks/=);
 - cached results in the [[https://stat.ethz.ch/R-manual/R-patched/library/base/html/readRDS.html][rds format]] - useful for re-producing all
   tables and figures in the paper without having to first re-process
   sequencing data or run SLiM simulations (=data/rds/=).
 
-Note that the repository is structured as any other [[http://r-pkgs.had.co.nz/][R package]], with
-the exception that it contains not only the required R package
-components (R code in =R/=, the =DESCRIPTION= file etc.), but also the
-data and analyses themselves. Therefore, if you clone this repository
-and [[https://bioinf.eva.mpg.de][download the sequence data]], you can simply call
-=devtools::load_all(".")= from the root of the repository and
-immediately start working with the data.
+Note that the repository is structured as an [[http://r-pkgs.had.co.nz/][R package]], with the
+exception that it contains not only the required R package components
+(R code in =R/=, the =DESCRIPTION= file etc.), but also the data and
+analyses themselves. Therefore, after cloning this repository, you can
+simply call =devtools::load_all(".")= from the root of the repository
+in an R console and immediately start exploring the data yourself.
 
 All software dependencies used in the project are described in detail
 in [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][this notebook]].
@@ -32,8 +32,8 @@ in [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versi
 ** Data availability
 
 In addition to cached results in =data/rds= in this repository, all
-sequencing data (BAM/VCF/FASTA files) as well as the sequences of
-capture probes can be found at:
+sequencing data (BAM/VCF/FASTA files), raw simulation outputs, as well
+as the sequences of capture probes can be found at:
 https://bioinf.eva.mpg.de/archaic-ychr.
 
 ** Contact
