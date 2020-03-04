@@ -17,7 +17,8 @@ You can find here:
   (=notebooks/=);
 - cached results in the [[https://stat.ethz.ch/R-manual/R-patched/library/base/html/readRDS.html][rds format]] - useful for re-producing all
   tables and figures in the paper without having to first re-process
-  sequencing data or run SLiM simulations (=data/rds/=).
+  sequencing data or run SLiM simulations (=data/rds/=); for full data
+  access see [[https://github.com/bodkan/archaic-ychr#data-availability][here]].
 
 Note that the repository is structured as an [[http://r-pkgs.had.co.nz/][R package]], with the
 exception that it contains not only the required R package components
