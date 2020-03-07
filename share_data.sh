@@ -16,3 +16,5 @@ tar -zcf data.tar.gz data
 sha256sum data.tar.gz > data.tar.gz.sha256sum
 
 rm -rf /mnt/scratch/mp/archaic-ychr/data/
+
+wget https://www.sanger.ac.uk/legal/assets/fortlauderdalereport.pdf
