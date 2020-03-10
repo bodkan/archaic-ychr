@@ -1,5 +1,5 @@
 This repository contains all computational analyses used in my 2020
-paper [[https://www.biorxiv.org/...]["The evolutionary history of Neandertal and Denisovan Y
+paper [[https://www.biorxiv.org/content/10.1101/2020.03.09.983445v1]["The evolutionary history of Neandertal and Denisovan Y
 chromosomes"]].
 
 ** Contents
@@ -37,4 +37,4 @@ https://bioinf.eva.mpg.de/archaic-ychr.
 
 ** Contact
 
-In case of trouble, please don't hesitate to [[https://bodkan.net/][contact me]].
+In case of trouble, please don't hesitate to [[https://bodkan.net/][me]] or [[https://www.eva.mpg.de/genetics/staff/janet-kelso/index.html][Janet Kelso]].
