@@ -40,7 +40,7 @@ in this [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_
 =~/local/miniconda3/envs/archaic-ychr/lib/R/etc/Renviron=:
 
 #+BEGIN_QUOTE
-R_LIBS_USER=/usr/local64/opt/R-3.6.0/lib/R/library:~/local/R_LIBS:${R_LIBS_USER-'~/R/x86_64-conda_cos6-linux-gnu-library/3.6'}
+R_LIBS_USER=~/local/R_LIBS:/usr/local64/opt/R-3.6.0/lib/R/library:${R_LIBS_USER-'~/R/x86_64-conda_cos6-linux-gnu-library/3.6'}
 #+END_QUOTE
 
 Save the YAML config of the Frankenstein conda environment:
