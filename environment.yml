@@ -1,0 +1,11 @@
+name: archaic-ychr
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=3.6.0
+  - python=3.7.4
+  - r-irkernel
+prefix: /home/martin_petr/local/miniconda3/envs/archaic-ychr
+

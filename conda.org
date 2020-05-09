@@ -1,0 +1,50 @@
+After submitting the preprint, I immediately started working on other
+projects and decided to manage a Python/R/shell environments in a
+unified way with conda. However, the Y chromosome project was
+(dis-)organized as a mix of a proper pyenv-based Python environment
+(packages used are saved in =requirements.txt=) and the rest (R and
+shell utilities) were organized independently. This is because when
+this project started, conda could not really handle both Python and R
+versioning under the same roof and R-specific environment managers
+(packrat and, later, renv) were buggy.
+
+To try to bridge the gap to the current conda setup during the process
+of revisions, I created a new conda environment with Python and R
+versions the same as those I [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][used originally]]:
+
+#+BEGIN_SRC 
+conda create -c defaults -n archaic-ychr python=3.7.4 r-base=3.6.0=
+#+END_SRC
+
+I re-created the (originally pyenv-managed) Python environment within
+conda by installing packages with pip using the =requirements.txt=
+file (I don't expect to be installing new Python packages for the
+revisions, so this should be OK even though pip & conda are not
+exactly a recommended combination):
+
+#+BEGIN_SRC 
+conda activate archaic-ychr
+pip install -r requirements.txt
+#+END_SRC
+
+Install IRkernel to be able to run Jupyter notebooks:
+
+#+BEGIN_SRC 
+conda install -c defaults r-irkernel
+#+END_SRC
+
+Add the paths to my original local R package directory (as well as our
+central package directory) to the conda environment =.Renviron=
+file. This will make it possible to use the same packages I specified
+in this [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][Jupyter notebook]]. I did this by simply adding this line to
+=~/local/miniconda3/envs/archaic-ychr/lib/R/etc/Renviron=:
+
+#+BEGIN_QUOTE
+R_LIBS_USER=/usr/local64/opt/R-3.6.0/lib/R/library:~/local/R_LIBS:${R_LIBS_USER-'~/R/x86_64-conda_cos6-linux-gnu-library/3.6'}
+#+END_QUOTE
+
+Save the YAML config of the Frankenstein conda environment:
+
+#+BEGIN_SRC 
+conda env export --from-history > environment.yml
+#+END_SRC
