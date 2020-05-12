@@ -13,7 +13,7 @@ of revisions, I created a new conda environment with Python and R
 versions the same as those I [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][used originally]]:
 
 #+BEGIN_SRC 
-conda create -c defaults -n archaic-ychr python=3.7.4 r-base=3.6.0=
+conda create -c defaults -n archaic-ychr python=3.7.4 r-base=3.6.0
 #+END_SRC
 
 I re-created the (originally pyenv-managed) Python environment within
