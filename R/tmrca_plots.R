@@ -69,7 +69,7 @@ plot_tmrca <- function(stat, afr, mindp, sites, filt, ylabel = TRUE, exclude = N
         mutate(name = fct_relevel(name,
                                   "El Sidrón 1253 (118 kb, filtered)",
                                   "El Sidrón 1253 (118 kb, unfiltered)", after = Inf)) %>%
-        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", after = 2))
+        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", "Denisova (merged, deam.)", after = 2))
 
     overall_tmrca <- get_overall_tmrca(stat, afr, mindp, sites, filt, exclude) %>%
         mutate(name = fix_name(name)) %>%
@@ -78,7 +78,7 @@ plot_tmrca <- function(stat, afr, mindp, sites, filt, ylabel = TRUE, exclude = N
         mutate(name = fct_relevel(name,
                                   "El Sidrón 1253 (118 kb, filtered)",
                                   "El Sidrón 1253 (118 kb, unfiltered)", after = Inf)) %>%
-        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", after = 2))
+        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", "Denisova (merged, deam.)", after = 2))
 
     p <- ggplot() +
         # individual CIs
