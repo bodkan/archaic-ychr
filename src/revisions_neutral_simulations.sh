@@ -44,7 +44,7 @@ for admix_time in 200000; do # two parameters (this are neutral sims anyway...)
 for human_Ne in 10000; do
 for neand_Ne in 1000; do
 for admix_rate in 0.05; do
-for rep in `seq 1 100`; do
+for rep in `seq 1 2000`; do
     N="humanNe${human_Ne}_neandNe${neand_Ne}_rate${admix_rate}_rep${rep}"
     qsub -V -b yes -cwd -j y -l virtual_free=5G,h_vmem=5G -o tmp/sge/${N}.out -N $N \
         slim \
