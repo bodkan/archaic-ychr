@@ -1,0 +1,42 @@
+After submitting the preprint, I immediately started working on other
+projects and decided to manage a Python/R/shell environments in a
+unified way with conda. However, the Y chromosome project was
+organized as a mix of a proper pyenv-based Python environment
+(packages used are saved in =requirements.txt=) and the rest (R and
+shell utilities) were organized independently. This is because when
+this project started, conda could not really handle both Python and R
+versioning under the same roof and R-specific environment managers
+(packrat and, later, renv) were buggy.
+
+To try to bridge the gap to the current conda setup during the process
+of revisions, I re-created a new Python environment using conda with
+the same version I [[https://github.com/bodkan/archaic-ychr/blob/master/notebooks/software_versions.ipynb][used originally]], including all packages. I'm not
+confident conda can handle R environments and packages well enough, so
+I'm sticking to using the default R installation on our system, with a
+mix of my own locally compiled packages and system-wide packages. This
+is not ideal, of course, but management of reproducible R environment
+is light-years behind what Python has and after wasting many hours
+trying to get for R something close to what I had with pyenv
+virtualenv for Python I gave up.
+
+#+BEGIN_SRC 
+conda create -c defaults -n archaic-ychr python=3.7.4
+#+END_SRC
+
+I re-created the (originally pyenv-managed) Python environment within
+conda by installing packages with pip using the =requirements.txt=
+file (I don't expect to be installing new Python packages for the
+revisions, so this should be OK even though pip & conda are not
+exactly a recommended combination):
+
+#+BEGIN_SRC 
+conda activate archaic-ychr
+pip install -r requirements.txt
+python -m bash_kernel.install
+#+END_SRC
+
+Save the YAML config of the conda environment:
+
+#+BEGIN_SRC 
+conda env export --from-history > environment.yml
+#+END_SRC

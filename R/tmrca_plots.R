@@ -4,7 +4,7 @@ filter_tmrca <- function(stat, afr, mindp, sites, filt, exclude = NA) {
         tmrca_df,
         afr == !!afr,
         filt == !!filt,
-        sites == !!sites & dp == mindp & capture == "full" & (str_detect(arch, "mez2_dp") | arch %in% c("den4", "den8", "mez2", "spy1", "shotgun_spy1", "shotgun_mez2", "mez2_snpad", "den_snpad", "den", "spy1_snpad", "den4_snpad", "den8_snpad")) |
+        sites == !!sites & dp == mindp & capture == "full" & (str_detect(arch, "mez2_dp") | arch %in% c("den4", "den8", "mez2", "spy1", "shotgun_spy1", "shotgun_mez2", "mez2_snpad", "den_snpad", "den", "spy1_snpad", "den4_snpad", "den8_snpad") | str_detect(arch, "deam")) |
         sites == !!sites & dp == mindp & capture == "lippold" & arch == "elsidron2" |
         dp %in% c(1, 3) & sites == "all" & capture == "exome" & arch == "elsidron1",
         !arch %in% exclude
@@ -69,7 +69,7 @@ plot_tmrca <- function(stat, afr, mindp, sites, filt, ylabel = TRUE, exclude = N
         mutate(name = fct_relevel(name,
                                   "El Sidrón 1253 (118 kb, filtered)",
                                   "El Sidrón 1253 (118 kb, unfiltered)", after = Inf)) %>%
-        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", after = 2))
+        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", "Denisova (merged, deam.)", after = 2))
 
     overall_tmrca <- get_overall_tmrca(stat, afr, mindp, sites, filt, exclude) %>%
         mutate(name = fix_name(name)) %>%
@@ -78,7 +78,7 @@ plot_tmrca <- function(stat, afr, mindp, sites, filt, ylabel = TRUE, exclude = N
         mutate(name = fct_relevel(name,
                                   "El Sidrón 1253 (118 kb, filtered)",
                                   "El Sidrón 1253 (118 kb, unfiltered)", after = Inf)) %>%
-        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", after = 2))
+        mutate(name = fct_relevel(name, "Denisova 4 & 8 (snpAD)", "Denisova (merged, deam.)", after = 2))
 
     p <- ggplot() +
         # individual CIs
