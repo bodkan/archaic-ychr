@@ -48,7 +48,7 @@ test_vcfs := $(foreach sample, spy1 den4 den8 mez2 a00, $(test_dir)/genotyping_$
 fastas := $(addprefix $(fasta_dir)/,full_merged_nodmg.fa full_merged_allsnps.fa modern_all_full_merged.fa modern_var_full_merged.fa nochimp_full_merged_nodmg.fa nochimp_full_merged_allsnps.fa highcov_full_merged_allsnps.fa highcov_full_merged_nodmg.fa)
 
 # scripts
-bam_caller := /mnt/expressions/mp/bam-caller/bam-caller.py
+bam_caller := $(src_dir)/bam-caller.py
 run_nb := $(src_dir)/run_nb.sh
 split_and_merge := $(src_dir)/split_and_merge.sh
 split_bam := /r1/people/mmeyer/perlscripts/solexa/filework/splitBAM.pl
