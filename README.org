@@ -42,5 +42,6 @@ In case of trouble, please don't hesitate to contact [[https://bodkan.net/][me]]
 ** License
 
 All software (bash/R/Python scripts) are available under [[LICENSE_MIT][MIT license]].
-The contents of Jupyter notebooks (text, figures, tables etc.) and other
-non-software data in this repository are available under [[https://creativecommons.org/licenses/by/4.0/][CC BY 4.0 license]].
+The contents of Jupyter notebooks (which include text, figures, tables etc.) and other
+non-software files in this repository are available under
+[[https://creativecommons.org/licenses/by/4.0/][CC BY 4.0 license]].
